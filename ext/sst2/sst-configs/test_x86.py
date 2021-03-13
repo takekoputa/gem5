@@ -99,10 +99,11 @@ GEM5.addParams({
     "comp_debug" : debug("GEM5_DEBUG"),
     "gem5DebugFlags" : debug("M5_DEBUG"),
     "frequency" : clockRate,
-    "cmd" : "-re --outdir=m5out configs/example/se.py  --caches --cpu-type=AtomicSimpleCPU -c ./tests/test-progs/hello/bin/x86/linux/hello"
+    "cmd" : "-re --outdir=m5out ext/sst2/gem5-configs/x86_se.py --cpu-type=AtomicSimpleCPU --binary ./tests/test-progs/hello/bin/x86/linux/hello"
     })
 
 """
+
 bus = sst.Component("membus", "memHierarchy.Bus")
 bus.addParams({
     "bus_frequency": "2GHz",

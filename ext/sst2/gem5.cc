@@ -79,9 +79,9 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     info.init("gem5:" + getName() + ": ", 0, 0, SST::Output::STDOUT);
 
     SST::TimeConverter *clock = registerClock(
-            params.find<std::string>("frequency", "1GHz"),
-            new SST::Clock::Handler<SST::gem5::gem5Component>(
-                this, &SST::gem5::gem5Component::clockTick));
+        params.find<std::string>("frequency", "1GHz"),
+        new SST::Clock::Handler<SST::gem5::gem5Component>(
+            this, &SST::gem5::gem5Component::clockTick));
 
     // how many gem5 cycles will be simulated within an SST clock tick
     gem5_sim_cycles = clock->getFactor();
@@ -96,7 +96,7 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     std::vector<char*> args;
     args.push_back(const_cast<char*>("sst.x")); // TODO: Compute this somehow?
     splitCommandArgs(cmd, args);
-    args.push_back(const_cast<char*>("--initialize-only"));
+    args.push_back(const_cast<char*>("--not-simulate"));
     dbg.output(CALL_INFO, "Command string:  [sst.x %s --initialize-only]\n",
                cmd.c_str());
     for (size_t i = 0; i < args.size(); ++i) {
@@ -127,7 +127,7 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     clocks_processed = 0;
 }
 
-SST::gem5::gem5Component::~gem5Component(void)
+SST::gem5::gem5Component::~gem5Component()
 {
     Py_Finalize();
 }
@@ -146,7 +146,7 @@ SST::gem5::gem5Component::init(unsigned phase)
 }
 
 void
-SST::gem5::gem5Component::setup(void)
+SST::gem5::gem5Component::setup()
 {
     // Switch connectors from initData to regular Sends
     /*
