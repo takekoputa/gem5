@@ -76,7 +76,7 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
 {
     dbg.init("@t:gem5:@p():@l " + getName() + ": ", 0, 0,
             (Output::output_location_t)params.find<int>("comp_debug", 0));
-    info.init("gem5:" + getName() + ": ", 0, 0, Output::STDOUT);
+    info.init("gem5:" + getName() + ": ", 0, 0, SST::Output::STDOUT);
 
     SST::TimeConverter *clock = registerClock(
             params.find<std::string>("frequency", "1GHz"),
