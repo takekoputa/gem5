@@ -34,6 +34,7 @@ import time
 import argparse
 
 import m5
+import _m5
 import m5.ticks
 from m5.objects import *
 
@@ -61,12 +62,17 @@ def parse_options():
     parser.add_argument("boot_type", choices=["init", "systemd"],
                         help="How to boot the kernel. Either to a simple init "
                         "script or all of the way through systemd")
+    parser.add_argument('--not-simulate', default=False, action='store_true',
+                        help='Only instantiate the system, tell gem5 not to'
+                             'run the simulation.')
 
     return parser.parse_args()
 
 if __name__ == "__m5_main__":
 
     args = parse_options()
+
+    _m5.core.setLogLevel(_m5.core.LogLevel.WARN)
 
     # create the system we are going to simulate
     if args.mem_sys == "classic":
@@ -95,14 +101,16 @@ if __name__ == "__m5_main__":
     # instantiate all of the objects we've created above
     m5.instantiate()
 
-    globalStart = time.time()
+    if not args.not_simulate:
 
-    print("Running the simulation")
-    exit_event = m5.simulate()
+        globalStart = time.time()
+        
+        print("Running the simulation")
+        exit_event = m5.simulate()
 
-    if exit_event.getCause() != "m5_exit instruction encountered":
-        print("Failed to exit correctly")
-        exit(1)
-    else:
-        print("Success!")
-        exit(0)
+        if exit_event.getCause() != "m5_exit instruction encountered":
+            print("Failed to exit correctly")
+            exit(1)
+        else:
+            print("Success!")
+            exit(0)
