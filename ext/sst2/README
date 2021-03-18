@@ -2,7 +2,10 @@
 
 ## Status
 SST can load gem5 library and run gem5 simulation.
-The current setup works for running gem5 simulation with learning gem5's two-level cache system configuration.
+The current setup works for running gem5 simulation with learning gem5's two-level cache system configuration, which consists of,
+-  TimingSimpleCPU
+-  Two-level cache (both are within gem5)
+-  DDR3_1600_8x8 DRAM
 However, currently, there is no support for allowing interactions between gem5 and SST.
 
 ## Running the simulation
