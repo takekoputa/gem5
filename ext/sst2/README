@@ -1,34 +1,40 @@
 # gem5/SST integration (2021)
 
-## Compile gem5
+## Status
+SST can load gem5 library and run gem5 simulation.
+The current setup works for running gem5 simulation with learning gem5's two-level cache system configuration.
+However, currently, there is no support for allowing interactions between gem5 and SST.
+
+## Running the simulation
+```sh
+env LD_LIBRARY_PATH=$GEM5_FOLDER/build/X86 sst --add-lib-path $GEM5_FOLDER/ext/sst2/ $GEM5_FOLDER/ext/sst2/sst-configs/test_x86.py
+```
+
+## Setting up the simulation
+
+### Compiling gem5
 ```sh
 scons3 build/X86/gem5.opt CPU_MODELS=AtomicSimpleCPU,MinorCPU,O3CPU,TimingSimpleCPU -j256 --without-tcmalloc
 ```
 
-## Compile libgem5_opt.so (gem5 library)
+### Compiling libgem5_opt.so (gem5 library)
 ```sh
 scons3 build/X86/libgem5_opt.so -j 256 --without-tcmalloc
 ```
 
-## Add libgem5_opt.so to LD_LIBRARY_PATH
+### Adding libgem5_opt.so to LD_LIBRARY_PATH
 ```sh
-echo "export LD_LIBRARY_PATH=absolute/path/to/gem5/X86/build:$LD_LIBRARY_PATH" > ~/.bashrc
+echo "export LD_LIBRARY_PATH=$GEM5_FOLDER/X86/build:$LD_LIBRARY_PATH" > ~/.bashrc
 ```
 
-## Compile gem5/SST interface
-This step must be done after gem5 is compiled.
-```sh
-make -C ext/sst2
-```
-
-## Download SST
+### Downloading SST
 Download SST source code from here <http://sst-simulator.org/SSTPages/SSTMainDownloads/>.
 ```sh
 wget https://github.com/sstsimulator/sst-core/releases/download/v10.1.0_Final/sstcore-10.1.0.tar.gz
 tar xf sstcore-10.1.0.tar.gz
 ```
 
-## Compile SST Core
+### Compiling SST Core
 Original documentation is here <http://sst-simulator.org/SSTPages/SSTBuildAndInstall10dot1dot0SeriesDetailedBuildInstructions/>.
 
 Setting up the environment variables,
@@ -60,13 +66,13 @@ which sst
 ```
 
 
-## Download  SST Elements
+### Downloading SST Elements
 Download SST source code from here <http://sst-simulator.org/SSTPages/SSTMainDownloads/>.
 ```sh
 wget https://github.com/sstsimulator/sst-elements/releases/download/v10.1.0_Final/sstelements-10.1.0.tar.gz
 tar xf sstelements-10.1.0.tar.gz
 ```
-# Compile SST Elements
+### Compile SST Elements
 Original documentation is here <http://sst-simulator.org/SSTPages/SSTBuildAndInstall10dot1dot0SeriesDetailedBuildInstructions/>.
 
 Setting up the environment variables,
@@ -94,4 +100,10 @@ export PATH=$SST_ELEMENTS_HOME/bin:$PATH
 Testing the installation,
 ```sh
 sst $SST_ELEMENTS_ROOT/src/sst/elements/simpleElementExample/tests/test_simpleRNGComponent_mersenne.py
+```
+
+### Compiling gem5/SST interface
+This step must be done after gem5 is compiled.
+```sh
+make -C ext/sst2
 ```
