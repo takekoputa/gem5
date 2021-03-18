@@ -97,12 +97,11 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     args.push_back(const_cast<char*>("sst.x")); // TODO: Compute this somehow?
     splitCommandArgs(cmd, args);
     args.push_back(const_cast<char*>("--not-simulate"));
-    dbg.output(CALL_INFO, "Command string:  [sst.x %s --initialize-only]\n",
+    dbg.output(CALL_INFO, "Command string:  [sst.x %s --not-simulate]\n",
                cmd.c_str());
     for (size_t i = 0; i < args.size(); ++i) {
         dbg.output(CALL_INFO, "  Arg [%02zu] = %s\n", i, args[i]);
     }
-
 
     // Setting gem5 debug flags
     /*
