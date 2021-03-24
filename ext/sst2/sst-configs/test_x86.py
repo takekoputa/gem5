@@ -104,7 +104,7 @@ GEM5.addParams({
     "cmd": "-re --outdir=m5out --debug-flags=Event,MemCtrl,SimpleCPU ext/sst2/fs-resources/boot-exit/configs/run_exit.py ext/sst2/fs-resources/linux-kernels/vmlinux-5.10.23 /scr/hn/boot-exit simple classic 1 init --allow-listeners --not-simulate"
     #"cmd": "configs/example/se.py --cpu-type=TimingSimpleCPU -c /scr/hn/takekoputa-gem5/tests/test-progs/hello/bin/x86/linux/hello --external-memory-system=sst"
     })
-
+"""
 bus = sst.Component("membus", "memHierarchy.Bus")
 bus.addParams({
     "bus_frequency": "2GHz",
@@ -208,3 +208,4 @@ sst.Link("link_cache_net_0").connect((l2cache, "directory", "10ns"), (comp_chipr
 sst.Link("link_dir_net_0").connect((comp_chiprtr, "port1", "2ns"), (comp_dirctrl, "network", "2ns"))
 sst.Link("l2cache_io_link").connect((comp_chiprtr, "port0", "2ns"), (GEM5, "network", buslat))
 sst.Link("link_dir_mem_link").connect((comp_dirctrl, "memory", "10ns"), (memory, "direct_link", "10ns"))
+"""
