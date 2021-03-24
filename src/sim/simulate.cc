@@ -101,7 +101,7 @@ simulate(Tick num_cycles)
                                        "simulate() limit reached", 0);
     }
 
-    inform("Entering event queue @ %d.  Starting simulation...\n", curTick());
+//inform("Entering event queue @ %d.  Starting simulation...\n", curTick());
 
     if (num_cycles < MaxTick - curTick())
         num_cycles = curTick() + num_cycles;

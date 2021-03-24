@@ -187,7 +187,7 @@ class MySystem(System):
         IO_address_space_base = 0x8000000000000000
         pci_config_address_space_base = 0xc000000000000000
         interrupts_address_space_base = 0xa000000000000000
-        APIC_range_size = 1 << 12;
+        APIC_range_size = 1 << 12
 
         # North Bridge
         self.iobus = IOXBar()

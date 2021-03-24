@@ -85,6 +85,7 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
 
     // how many gem5 cycles will be simulated within an SST clock tick
     gem5_sim_cycles = clock->getFactor();
+    info.output("gem5: cycles per SST Tick: %i\n", gem5_sim_cycles);
 
     std::string cmd = params.find<std::string>("cmd", "");
     if (cmd.empty()) {
@@ -96,7 +97,8 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     std::vector<char*> args;
     args.push_back(const_cast<char*>("sst.x")); // TODO: Compute this somehow?
     splitCommandArgs(cmd, args);
-    args.push_back(const_cast<char*>("--not-simulate"));
+    //args.push_back(const_cast<char*>("--not-simulate"));
+    args.push_back(const_cast<char*>("--initialize-only"));
     dbg.output(CALL_INFO, "Command string:  [sst.x %s --not-simulate]\n",
                cmd.c_str());
     for (size_t i = 0; i < args.size(); ++i) {
@@ -104,15 +106,14 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     }
 
     // Setting gem5 debug flags
-    /*
     std::vector<char*> flags;
     std::string gem5DbgFlags = params.find<std::string>("gem5DebugFlags", "");
     splitCommandArgs(gem5DbgFlags, flags);
     for (auto flag : flags) {
         dbg.output(CALL_INFO, "  Setting Debug Flag [%s]\n", flag);
+        info.output(CALL_INFO, "  Setting Debug Flag [%s]\n", flag);
         setDebugFlag(flag);
     }
-    */
 
     //ExternalMaster::registerHandler("sst", this); // these are idempotent
     //ExternalSlave ::registerHandler("sst", this);

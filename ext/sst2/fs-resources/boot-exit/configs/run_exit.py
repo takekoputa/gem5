@@ -49,7 +49,7 @@ def parse_options():
                 'simple system through Linux boot. Expects the disk image to '
                 'call the simulator exit event after boot. Only works with '
                 'x86 ISA.')
-    parser.add_argument("--allow_listeners", default=False,
+    parser.add_argument("--allow-listeners", default=False,
                         action="store_true",
                         help="Listeners disabled by default")
     parser.add_argument("kernel", help="Path to the kernel binary to boot")
