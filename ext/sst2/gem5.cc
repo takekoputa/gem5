@@ -63,6 +63,8 @@
 #include <base/logging.hh>
 #include <base/debug.hh>
 
+
+
 #ifdef fatal  // gem5 sets this
 #undef fatal
 #endif
@@ -189,6 +191,10 @@ SST::gem5::gem5Component::clockTick(Cycle_t cycle)
         info.output("exiting: curTick()=%lu cause=`%s` code=%d\n",
                 curTick(), event->getCause().c_str(), event->getCode());
         primaryComponentOKToEndSim();
+
+        info.output("Outputting stats\n");
+        Stats::dump();
+
         return true;
     }
 

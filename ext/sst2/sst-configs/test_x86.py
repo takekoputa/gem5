@@ -100,9 +100,10 @@ GEM5.addParams({
     "gem5DebugFlags" : debug("M5_DEBUG"),
     "frequency" : clockRate,
     #"cmd" : "-re --outdir=m5out ext/sst2/gem5-configs/x86_se.py --cpu-type=TimingSimpleCPU --binary ./tests/test-progs/hello/bin/x86/linux/hello"
-    #"cmd" : "-re --outdir=m5out ext/sst2/gem5-configs/two_level.py"
-    "cmd": "-re --outdir=m5out --debug-flags=Event,MemCtrl,SimpleCPU ext/sst2/fs-resources/boot-exit/configs/run_exit.py ext/sst2/fs-resources/linux-kernels/vmlinux-5.10.23 /scr/hn/boot-exit simple classic 1 init --allow-listeners --not-simulate"
+    "cmd" : "-re --outdir=m5out ext/sst2/gem5-configs/two_level.py"
+    #"cmd": "-re --outdir=m5out --debug-flags=Event,MemCtrl,SimpleCPU,DRAM ext/sst2/fs-resources/boot-exit/configs/run_exit.py ext/sst2/fs-resources/linux-kernels/vmlinux-5.10.23 /scr/hn/boot-exit simple classic 1 init --allow-listeners --not-simulate"
     #"cmd": "configs/example/se.py --cpu-type=TimingSimpleCPU -c /scr/hn/takekoputa-gem5/tests/test-progs/hello/bin/x86/linux/hello --external-memory-system=sst"
+    #"cmd": "-re --outdir=m5out ext/sst2/fs-resources/boot-exit/configs/run_exit.py ext/sst2/fs-resources/linux-kernels/vmlinux-5.10.23 /scr/hn/boot-exit simple classic 1 init --allow-listeners --not-simulate"
     })
 """
 bus = sst.Component("membus", "memHierarchy.Bus")

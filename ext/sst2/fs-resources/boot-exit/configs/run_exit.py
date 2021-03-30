@@ -114,3 +114,6 @@ if __name__ == "__m5_main__":
         else:
             print("Success!")
             exit(0)
+    else:
+        for obj in root.descendants():
+            obj.startup()
