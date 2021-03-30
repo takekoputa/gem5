@@ -1,6 +1,6 @@
 # These three variables are designed to be modifiable.
 SST_VERSION=SST-10.1.0
-GEM5_LIB=gem5_debug
+GEM5_LIB=gem5_opt
 ARCH=X86
 
 LDFLAGS=-shared -fno-common ${shell pkg-config ${SST_VERSION} --libs} -L../../build/${ARCH}/
