@@ -37,6 +37,11 @@ import m5.objects
 from common import ObjectList
 from common import HMC
 
+class DS3MemCtrl(m5.objects.DRAMsim3):
+    def __init__(self, ini_path):
+        super(DS3MemCtrl, self).__init__()
+        self.configFile = ini_path
+
 def create_mem_intf(intf, r, i, nbr_mem_ctrls, intlv_bits, intlv_size,
                     xor_low_bit):
     """
@@ -101,6 +106,11 @@ def create_mem_intf(intf, r, i, nbr_mem_ctrls, intlv_bits, intlv_size,
                                       intlvBits = intlv_bits,
                                       intlvMatch = i)
     return interface
+
+def create_dramsim3(config_file, mem_range):
+    dram = DS3MemCtrl(config_file)
+    dram.range = mem_range
+    return dram
 
 def config_mem(options, system):
     """
@@ -197,7 +207,10 @@ def config_mem(options, system):
         range_iter += 1
 
         for i in range(nbr_mem_ctrls):
-            if opt_mem_type and (not opt_nvm_type or range_iter % 2 != 0):
+            if opt_mem_type == "DRAMsim3":
+                mem_ctrls.append(create_dramsim3(
+        "/scr/hn/gem5/ext/dramsim3/DRAMsim3/configs/DDR3_1Gb_x8_1333.ini", r))
+            elif opt_mem_type and (not opt_nvm_type or range_iter % 2 != 0):
                 # Create the DRAM interface
                 dram_intf = create_mem_intf(intf, r, i, nbr_mem_ctrls,
                     intlv_bits, intlv_size, opt_xor_low_bit)
