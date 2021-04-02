@@ -37,6 +37,11 @@ import m5.objects
 from common import ObjectList
 from common import HMC
 
+class DS3MemCtrl(m5.objects.DRAMsim3):
+    def __init__(self):
+        super(DS3MemCtrl, self).__init__()
+        self.configFile = "/scr/hn/gem5/ext/dramsim3/DRAMsim3/configs/DDR3_1Gb_x8_1333.ini"
+
 def create_mem_intf(intf, r, i, nbr_mem_ctrls, intlv_bits, intlv_size,
                     xor_low_bit):
     """
@@ -240,6 +245,10 @@ def config_mem(options, system):
                     mem_ctrls.append(mem_ctrl)
                 else:
                     nvm_intfs.append(nvm_intf)
+
+    # Special case: DRAMsim3 doesn't need to connect to its own interface
+    if opt_mem_type == "DRAMsim3":
+        mem_ctrls = [DS3MemCtrl()] # this example has 1 memory address range for DRAMsim3
 
     # hook up NVM interface when channel is shared with DRAM + NVM
     for i in range(len(nvm_intfs)):
