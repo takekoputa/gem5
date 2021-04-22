@@ -63,6 +63,8 @@
 #include <base/logging.hh>
 #include <base/debug.hh>
 
+#include <cassert>
+
 
 
 #ifdef fatal  // gem5 sets this
@@ -72,6 +74,7 @@
 // More SST Headers
 #include <core/timeConverter.h>
 
+
 SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
                                         SST::Params &params) :
     SST::Component(id)
@@ -79,15 +82,6 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
     dbg.init("@t:gem5:@p():@l " + getName() + ": ", 0, 0,
             (Output::output_location_t)params.find<int>("comp_debug", 0));
     info.init("gem5:" + getName() + ": ", 0, 0, SST::Output::STDOUT);
-
-    SST::TimeConverter *clock = registerClock(
-        params.find<std::string>("frequency", "1GHz"),
-        new SST::Clock::Handler<SST::gem5::gem5Component>(
-            this, &SST::gem5::gem5Component::clockTick));
-
-    // how many gem5 cycles will be simulated within an SST clock tick
-    gem5_sim_cycles = clock->getFactor();
-    info.output("gem5: cycles per SST Tick: %i\n", gem5_sim_cycles);
 
     std::string cmd = params.find<std::string>("cmd", "");
     if (cmd.empty()) {
@@ -117,15 +111,45 @@ SST::gem5::gem5Component::gem5Component(SST::ComponentId_t id,
         setDebugFlag(flag);
     }
 
-    //ExternalMaster::registerHandler("sst", this); // these are idempotent
-    //ExternalSlave ::registerHandler("sst", this);
-
     initPython(args.size(), &args[0]);
 
-    // tell the simulator not to end without us
+    // Telling the SST not to end without this component
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
 
+
+    // setting SST clock
+    std::string clockFreq = params.find<std::string>("clock", "1GHz");
+    clockHandler = new Clock::Handler<SST::gem5::gem5Component>(this,
+        &gem5Component::clockTic);
+    clockTC = registerClock(clockFreq, clockHandler);
+
+    memory = loadUserSubComponent<SST::Interfaces::SimpleMem>(
+        "memory",
+        SST::ComponentInfo::SHARE_NONE,
+        clockTC,
+        new SST::Interfaces::SimpleMem::Handler<SST::gem5::gem5Component>(this,
+            &SST::gem5::gem5Component::handleEvent));
+
+    if (!memory)
+    {
+        SST::Params interfaceParams;
+        interfaceParams.insert("port", "mem_link");
+        memory = loadAnonymousSubComponent<SST::Interfaces::SimpleMem>(
+            "memHierarchy.memInterface",
+            "memory",
+            0,
+            SST::ComponentInfo::SHARE_PORTS | SST::ComponentInfo::INSERT_STATS,
+            interfaceParams,
+            clockTC,
+            new SST::Interfaces::SimpleMem::Handler<SST::gem5::gem5Component>(
+                this,
+                &SST::gem5::gem5Component::handleEvent));
+        info.output(CALL_INFO, "Error: Cannot find memory\n");
+        assert(false);
+    }
+
+    // Stats
     clocks_processed = 0;
 }
 
@@ -137,14 +161,7 @@ SST::gem5::gem5Component::~gem5Component()
 void
 SST::gem5::gem5Component::init(unsigned phase)
 {
-    /*
-    for (auto m : masters) {
-        m->init(phase);
-    }
-    for (auto s : slaves) {
-        s->init(phase);
-    }
-    */
+    memory->init(phase);
 }
 
 void
@@ -173,7 +190,7 @@ SST::gem5::gem5Component::finish(void)
 }
 
 bool
-SST::gem5::gem5Component::clockTick(Cycle_t cycle)
+SST::gem5::gem5Component::clockTic(Cycle_t cycle)
 {
     // what to do in a SST's Tick
 
@@ -193,6 +210,7 @@ SST::gem5::gem5Component::clockTick(Cycle_t cycle)
         primaryComponentOKToEndSim();
 
         info.output("Outputting stats\n");
+
         Stats::dump();
 
         return true;
@@ -311,24 +329,16 @@ SST::gem5::gem5Component::initPython(int argc, char *_argv[])
 
 }
 
-/*
-ExternalMaster::Port*
-gem5Component::getExternalPort(const std::string &name,
-    ExternalMaster &owner, const std::string &port_data)
+
+void
+SST::gem5::gem5Component::findMem()
 {
-    std::string s(name); // bridges non-& result and &-arg
-    auto master = new ExtMaster(this, info, owner, s);
-    masters.push_back(master);
-    return master;
+
 }
 
-ExternalSlave::Port*
-gem5Component::getExternalPort(const std::string &name,
-    ExternalSlave &owner, const std::string &port_data)
+
+void
+SST::gem5::gem5Component::handleEvent(SST::Interfaces::SimpleMem::Request *ev)
 {
-    std::string s(name); // bridges non-& result and &-arg
-    auto slave = new ExtSlave(this, info, owner, s);
-    slaves.push_back(slave);
-    return slave;
+    info.output("Handling mem events\n");
 }
-*/

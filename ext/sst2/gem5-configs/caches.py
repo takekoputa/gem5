@@ -33,10 +33,29 @@ line options from each individual class.
 """
 
 import m5
-from m5.objects import Cache
+from m5.objects import Cache, ExternalSlave, AddrRange, MaxAddr
 
 # Some specific options for caches
 # For all options see src/mem/cache/BaseCache.py
+
+class ExternalCache(ExternalSlave):
+    def __getattr__(cls, attr):
+        if (attr == "cpu_side"):
+            attr = "port"
+        return super(ExternalSlave, cls).__getattr__(attr)
+
+    def __setattr__(cls, attr, value):
+        if (attr == "cpu_side"):
+            attr = "port"
+        return super(ExternalSlave, cls).__setattr__(attr, value)
+
+
+
+def ExternalCacheFactory(port_type):
+    def make(name):
+        return ExternalCache(port_data=name, port_type=port_type,
+                             addr_ranges=[AddrRange(0, MaxAddr)])
+    return make
 
 class L1Cache(Cache):
     """Simple L1 Cache with default values"""

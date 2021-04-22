@@ -1,5 +1,6 @@
-# Copyright (c) 2021 The Regents of the University of California
-# All Rights Reserved.
+# -*- coding: utf-8 -*-
+# Copyright (c) 2015 Jason Power
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -24,13 +25,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" 
-A simple system configuration with a 2-level cache.
+"""
+Tweaked learning_gem5 part1/two_level.py
 """
 
 import m5
 from m5.objects import *
-#from external_cache import *
+
+from caches import *
 
 import argparse
 
@@ -50,61 +52,8 @@ def get_args():
                         help='Allow listeners to connect to gem5.')
     return parser.parse_args()
 
-def initialize_cpu(system, cpu_type_str):
-    name_to_cpu_memmode_map = {
-        "AtomicSimpleCPU": (AtomicSimpleCPU, "atomic"),
-        "TimingSimpleCPU": (TimingSimpleCPU, "timing"),
-        "DerivO3CPU": (DerivO3CPU, "timing")
-    }
-    CPUClass, mem_mode = name_to_cpu_memmode_map[cpu_type_str]
-    system.mem_mode = mem_mode
-    system.cpu = CPUClass()
-
 if __name__ == "__m5_main__":
     args = get_args()
-
-    system = System()
-
-    system.clk_domain = SrcClockDomain()
-    system.clk_domain.clock = '1GHz'
-    system.clk_domain.voltage_domain = VoltageDomain()
-
-    initialize_cpu(system, args.cpu_type)
-
-    system.mem_ranges = [AddrRange('1GB')]
-    system.membus = SystemXBar()
-
-    # cpu <-> mem
-    system.external_memory = ExternalSlave(
-        port_type = "sst",
-        port_data = "init_mem0", # ???
-        port = system.membus.mem_side_ports,
-        addr_ranges = system.mem_ranges
-    )
-
-    system.cpu.icache_port = system.membus.cpu_side_ports
-    system.cpu.dcache_port = system.membus.cpu_side_ports
-    system.cpu.createInterruptController()
-    if m5.defines.buildEnv['TARGET_ISA'] == "x86":
-        system.cpu.interrupts[0].pio = system.membus.mem_side_ports
-        system.cpu.interrupts[0].int_requestor = system.membus.cpu_side_ports
-        system.cpu.interrupts[0].int_responder = system.membus.mem_side_ports
-    system.cpu.connectUncachedPorts(system.membus)
-
-    # Connect to external cache
-    """
-    system.cpu.addPrivateSplitL1Caches(
-        ExternalCache("cpu.icache"),
-        ExternalCache("cpu.dcache" % i),
-        ExternalCache("cpu.itb_walker_cache" % i),
-        ExternalCache("cpu.dtb_walker_cache" % i))
-    """
-
-    system.mem_ctrl = MemCtrl()
-    system.mem_ctrl.dram = DDR3_1600_8x8()
-    system.mem_ctrl.dram.range = system.mem_ranges[0]
-    system.mem_ctrl.port = system.membus.mem_side_ports
-    system.system_port = system.membus.cpu_side_ports
 
     # Tell gem5 what the workload is
     if not args.binary:
@@ -114,19 +63,86 @@ if __name__ == "__m5_main__":
                     'tests/test-progs/hello/bin/', isa, 'linux/hello')
     else:
         binary = args.binary
+
+    system = System()
+
+    system.clk_domain = SrcClockDomain()
+    system.clk_domain.clock = '1GHz'
+    system.clk_domain.voltage_domain = VoltageDomain()
+
+    system.mem_mode = 'timing'               # Use timing accesses
+    system.mem_ranges = [AddrRange('512MB')] # Create an address range
+
+    # Create a simple CPU
+    system.cpu = TimingSimpleCPU()
+    x = """
+    system.cpu.icache = L1ICache()
+    system.cpu.dcache = L1DCache()
+
+    # Connect the instruction and data caches to the CPU
+    system.cpu.icache.connectCPU(system.cpu)
+    system.cpu.dcache.connectCPU(system.cpu)
+
+    # Create a memory bus, a coherent crossbar, in this case
+    system.l2bus = L2XBar()
+
+    # Hook the CPU ports up to the l2bus
+    system.cpu.icache.connectBus(system.l2bus)
+    system.cpu.dcache.connectBus(system.l2bus)
+
+    # Create an L2 cache and connect it to the l2bus
+    system.l2cache = L2Cache()
+    system.l2cache.connectCPUSideBus(system.l2bus)
+
+
+    # Connect the L2 cache to the membus
+    system.l2cache.connectMemSideBus(system.membus)
+    """
+    ExternalCache = ExternalCacheFactory("sst")
+    system.cpu.icache = ExternalCache("cpu.icache")
+    system.cpu.dcache = ExternalCache("cpu.dcache")
+    #system.cpu.icache.connectCPU(system.cpu)
+    #system.cpu.dcache.connectCPU(system.cpu)
+
+    # Create a memory bus
+    system.membus = SystemXBar()
+
+    # create the interrupt controller for the CPU
+    system.cpu.createInterruptController()
+
+    # For x86 only, make sure the interrupts are connected to the memory
+    # Note: these are directly connected to the memory bus and are not cached
+    if m5.defines.buildEnv['TARGET_ISA'] == "x86":
+        system.cpu.interrupts[0].pio = system.membus.mem_side_ports
+        system.cpu.interrupts[0].int_requestor = system.membus.cpu_side_ports
+        system.cpu.interrupts[0].int_responder = system.membus.mem_side_ports
+
+    # Connect the system up to the membus
+    system.system_port = system.membus.cpu_side_ports
+    x =  """
+    # Create a DDR3 memory controller
+    system.mem_ctrl = MemCtrl()
+    system.mem_ctrl.dram = DDR3_1600_8x8()
+    system.mem_ctrl.dram.range = system.mem_ranges[0]
+    system.mem_ctrl.port = system.membus.mem_side_ports
+"""
     system.workload = SEWorkload.init_compatible(binary)
 
-    # Create SE process
+    # Create a process for a simple "Hello World" application
     process = Process()
+    # Set the command
+    # cmd is a list which begins with the executable (like argv)
     process.cmd = [binary]
+    # Set the cpu to use the process as its workload and create thread contexts
     system.cpu.workload = process
     system.cpu.createThreads()
 
+    # set up the root SimObject and start the simulation
     root = Root(full_system = False, system = system)
+    # instantiate all of the objects we've created above
     m5.instantiate()
 
     if not args.not_simulate:
         print("Beginning simulation!")
         exit_event = m5.simulate()
-        print('Exiting @ tick %i because %s' % (m5.curTick(),
-              exit_event.getCause()))
+        print('Exiting @ tick %i because %s' % (m5.curTick(), exit_event.getCause()))

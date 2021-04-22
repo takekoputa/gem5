@@ -54,30 +54,36 @@
 #include <core/sst_config.h>
 #include <core/component.h>
 
-#include <sim/simulate.hh>
+#include <core/simulation.h>
+#include <core/interfaces/stringEvent.h>
+#include <core/interfaces/simpleMem.h>
 
-//#include "ExtMaster.hh"
-//#include "ExtSlave.hh"
+#include <sim/simulate.hh>
 
 namespace SST {
 namespace gem5 {
 
 class gem5Component : public SST::Component
-                      //public ExternalSlave::Handler,
-                      //public ExternalMaster::Handler 
 {
 private:
 
-    Output dbg;
-    Output info;
+    SST::Output dbg;
+    SST::Output info;
     uint64_t gem5_sim_cycles;
     uint64_t clocks_processed;
 
-    //std::vector<ExtMaster*> masters;
-    //std::vector<ExtSlave*> slaves;
+    SST::Interfaces::SimpleMem *memory;
 
+    SST::TimeConverter *clockTC;
+    SST::Clock::HandlerBase *clockHandler;
+
+    // parse command line
     void splitCommandArgs(std::string &cmd, std::vector<char*> &args);
+    // init m5
     void initPython(int argc, char **argv);
+
+    // handle mem events from SST
+    void handleEvent(SST::Interfaces::SimpleMem::Request *ev);
 
 public:
     gem5Component(ComponentId_t id, Params &params);
@@ -85,9 +91,10 @@ public:
     virtual void init(unsigned);
     virtual void setup();
     virtual void finish();
-    bool clockTick(Cycle_t);
+    bool clockTic(Cycle_t);
+    void findMem();
 
-    // REGISTER THIS COMPONENT INTO THE ELEMENT LIBRARY
+    // Register this component into the element library
     SST_ELI_REGISTER_COMPONENT(
         gem5Component,
         "gem5",
@@ -103,15 +110,14 @@ public:
         {"frequency", "Frequency with which to call into gem5"}
     )
 
-/*
-    virtual ExternalMaster::ExternalPort *getExternalPort(
-        const std::string &name, ExternalMaster &owner,
-        const std::string &port_data);
+    SST_ELI_DOCUMENT_PORTS(
+        { "input", "from SST to gem5 component", { "memHierarchy.MemEventBase" }}
+    )
 
-    virtual ExternalSlave::ExternalPort *getExternalPort(
-        const std::string &name, ExternalSlave &owner,
-        const std::string &port_data);
-*/
+    SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
+        { "memory", "Interface to memory hierarchy", "SST::Interfaces::SimpleMem" }
+    )
+
 };
 
 }
