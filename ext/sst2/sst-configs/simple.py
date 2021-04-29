@@ -29,11 +29,12 @@ l2_params = {
 
 cpu_params = {
     "frequency": "1GHz",
-    "cmd": "/scr/hn/takekoputa-gem5/cpu_only.py --num-cpus 1 --cpu-type TimingSimpleCPU"
+    "cmd": "/scr/hn/takekoputa-gem5/ext/sst2/gem5-configs/cpu_only.py --cpu-type TimingSimpleCPU --not-simulate"
 }
 
 gem5_node = sst.Component("node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
+
 
 # L1 icache
 l1i_cache = sst.Component("l1i_cache", "memHierarchy.Cache")
@@ -58,16 +59,18 @@ memory.addParams({
     "mem_size" : "1GiB",
 })
 
+
+
 # Connections
 # cpu <-> L1
 cpu_icache_link = sst.Link("cpu_l1i_cache_link")
 cpu_icache_link.connect(
-    (gem5_node, "icache_port_to_sst", cache_link_latency),
+    (gem5_node, "system.external_icache.port", cache_link_latency),
     (l1i_cache, "high_network_0", cache_link_latency)
 )
 cpu_dcache_link = sst.Link("cpu_l1d_cache_link")
 cpu_dcache_link.connect(
-    (gem5_node, "dcache_port_to_sst", cache_link_latency),
+    (gem5_node, "system.external_dcache.port", cache_link_latency),
     (l1d_cache, "high_network_0", cache_link_latency)
 )
 # L1 <-> mem

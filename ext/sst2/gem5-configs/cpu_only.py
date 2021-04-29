@@ -39,19 +39,35 @@ if __name__ == "__m5_main__":
 
     initialize_cpu(system, args.cpu_type)
 
+    system.membus = SystemXBar()    
+
+
     # cpu <-> mem
-    x = """
-    system.external_memory = ExternalSlave(
-        port_type = "sst",
+    system.external_icache = ExternalSlave(
+        port_type = "sst_icache",
         port_data = "init_mem0", # ???
         port = system.membus.mem_side_ports,
-        addr_ranges = system.mem_ranges
+        addr_ranges = [AllMemory]
     )
-    """
+    system.external_dcache = ExternalSlave(
+        port_type = "sst_dcache",
+        port_data = "init_mem0",
+        port = system.membus.mem_side_ports,
+        addr_ranges = [AllMemory]
+    )
 
-    #system.cpu.icache_port = system.membus.cpu_side_ports
-    #system.cpu.dcache_port = system.membus.cpu_side_ports
+    with open("zlog.log", "w") as f:
+        from pprint import pprint
+        pprint(vars(system), stream=f)
+        pprint(vars(system.external_icache), stream=f)
+
+    
+    system.cpu.icache_port = system.membus.cpu_side_ports
+    system.cpu.dcache_port = system.membus.cpu_side_ports
     system.cpu.createInterruptController()
+
+    with open("zlog.log", "a") as f:
+        f.write("aaaaaaa\n")
 
     # Tell gem5 what the workload is
     if not args.binary:
@@ -63,11 +79,18 @@ if __name__ == "__m5_main__":
         binary = args.binary
     system.workload = SEWorkload.init_compatible(binary)
 
+    with open("zlog.log", "a") as f:
+        f.write("bbbbbbbb\n")
+
     # Create SE process
     process = Process()
     process.cmd = [binary]
     system.cpu.workload = process
     system.cpu.createThreads()
+
+
+    with open("zlog.log", "a") as f:
+        f.write("cccccccc\n")
 
     root = Root(full_system = False, system = system)
     m5.instantiate()

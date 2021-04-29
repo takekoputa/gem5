@@ -54,6 +54,21 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
         output.output(CALL_INFO, "  Arg [%02zu] = %s\n", i, args[i]);
     }
 
+
+    /*
+        - registerHandler(port_type, handler) is a class function of ExternalMaster and ExternalSlave.
+        - It registers a handler handling events corresponding to a specific port_type as specified
+        in ExternalMaster and ExternalSlave constructors.
+        - E.g. 
+          
+          external_memory = ExternalSlave(port_type = "sst") # python config
+
+          registerHandler("sst", handler) will let `handler` reponse to events of external_memory
+
+    */
+    ExternalSlave::registerHandler("sst_icache", this);
+    ExternalSlave::registerHandler("sst_dcache", this);
+
     initPython(args.size(), &args[0]);
 
     registerAsPrimaryComponent();
@@ -81,6 +96,13 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
     primaryComponentOKToEndSim();
     return true;
+}
+
+template <class T>
+SST::Link*
+gem5Component::publicConfigureLink(const std::string& name, SST::Event::Handler<T>* handler)
+{
+    return this->configureLink(name, handler);
 }
 
 void
@@ -180,4 +202,17 @@ gem5Component::splitCommandArgs(std::string &cmd, std::vector<char*> &args)
 
     for (auto part: *curr)
         args.push_back(strdup(part.c_str()));
+}
+
+ExternalSlave::ExternalPort*
+gem5Component::getExternalPort(const std::string &name, ExternalSlave &owner,
+                               const std::string &port_data)
+{
+    std::string s(name.c_str());
+    output.output(CALL_INFO, "creating external port: named `%s`\n", name.c_str());
+    auto gem5_to_sst_port = new gem5ToSSTBridge(this, output, owner, s);
+    if (!gem5_to_sst_port)
+        output.output(CALL_INFO, "failed to create external port\n");
+    gem5_to_sst_ports.push_back(gem5_to_sst_port);
+    return gem5_to_sst_port;
 }
