@@ -98,9 +98,8 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
     return true;
 }
 
-template <class T>
 SST::Link*
-gem5Component::publicConfigureLink(const std::string& name, SST::Event::Handler<T>* handler)
+gem5Component::publicConfigureLink(const std::string& name, SST::Event::HandlerBase* handler)
 {
     return this->configureLink(name, handler);
 }

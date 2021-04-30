@@ -65,14 +65,16 @@ memory.addParams({
 # cpu <-> L1
 cpu_icache_link = sst.Link("cpu_l1i_cache_link")
 cpu_icache_link.connect(
-    (gem5_node, "system.external_icache.port", cache_link_latency),
+    (gem5_node, "icache_port", cache_link_latency),
     (l1i_cache, "high_network_0", cache_link_latency)
 )
+
 cpu_dcache_link = sst.Link("cpu_l1d_cache_link")
 cpu_dcache_link.connect(
-    (gem5_node, "system.external_dcache.port", cache_link_latency),
+    (gem5_node, "dcache_port", cache_link_latency),
     (l1d_cache, "high_network_0", cache_link_latency)
 )
+
 # L1 <-> mem
 icache_mem_link = sst.Link("l1i_cache_mem_link")
 icache_mem_link.connect(

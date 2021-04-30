@@ -39,35 +39,33 @@ if __name__ == "__m5_main__":
 
     initialize_cpu(system, args.cpu_type)
 
-    system.membus = SystemXBar()    
+    system.membus = SystemXBar()
+    system.membus_icache = SystemXBar()
+    system.membus_dcache = SystemXBar()
 
+    addr_ranges = [AddrRange('3GB')]
 
     # cpu <-> mem
     system.external_icache = ExternalSlave(
         port_type = "sst_icache",
         port_data = "init_mem0", # ???
-        port = system.membus.mem_side_ports,
-        addr_ranges = [AllMemory]
+        port = system.membus_icache.mem_side_ports,
+        addr_ranges = addr_ranges
     )
     system.external_dcache = ExternalSlave(
         port_type = "sst_dcache",
         port_data = "init_mem0",
-        port = system.membus.mem_side_ports,
-        addr_ranges = [AllMemory]
+        port = system.membus_dcache.mem_side_ports,
+        addr_ranges = addr_ranges
     )
-
-    with open("zlog.log", "w") as f:
-        from pprint import pprint
-        pprint(vars(system), stream=f)
-        pprint(vars(system.external_icache), stream=f)
-
     
-    system.cpu.icache_port = system.membus.cpu_side_ports
-    system.cpu.dcache_port = system.membus.cpu_side_ports
+    system.cpu.icache_port = system.membus_icache.cpu_side_ports
+    system.cpu.dcache_port = system.membus_dcache.cpu_side_ports
     system.cpu.createInterruptController()
-
-    with open("zlog.log", "a") as f:
-        f.write("aaaaaaa\n")
+    if m5.defines.buildEnv['TARGET_ISA'] == "x86":
+        system.cpu.interrupts[0].pio = system.membus.mem_side_ports
+        system.cpu.interrupts[0].int_requestor = system.membus.cpu_side_ports
+        system.cpu.interrupts[0].int_responder = system.membus.mem_side_ports
 
     # Tell gem5 what the workload is
     if not args.binary:
@@ -79,18 +77,11 @@ if __name__ == "__m5_main__":
         binary = args.binary
     system.workload = SEWorkload.init_compatible(binary)
 
-    with open("zlog.log", "a") as f:
-        f.write("bbbbbbbb\n")
-
     # Create SE process
     process = Process()
     process.cmd = [binary]
     system.cpu.workload = process
     system.cpu.createThreads()
-
-
-    with open("zlog.log", "a") as f:
-        f.write("cccccccc\n")
 
     root = Root(full_system = False, system = system)
     m5.instantiate()

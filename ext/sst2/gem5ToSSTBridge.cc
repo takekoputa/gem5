@@ -52,13 +52,22 @@
 gem5ToSSTBridge::gem5ToSSTBridge(gem5Component *g5c, SST::Output &out,
                                  ::ExternalSlave& port, std::string &name) :
     ExternalPort(name, port),
-    comp(g5c), out(out), simPhase(CONSTRUCTION), initPackets(NULL),
-    link(comp->publicConfigureLink<gem5ToSSTBridge>(
-            name,
-            new SST::Event::Handler<gem5ToSSTBridge>(
-                this, &gem5ToSSTBridge::handleEvent))
-    )
+    comp(g5c), out(out), simPhase(CONSTRUCTION), initPackets(NULL)
 {
+    if (name == "system.external_icache.port") {
+        link = g5c->publicConfigureLink(
+            "icache_port",
+            new SST::Event::Handler<gem5ToSSTBridge>(
+                this, &gem5ToSSTBridge::handleEvent)
+        );
+    }
+    else if (name == "system.external_dcache.port") {
+        link = g5c->publicConfigureLink(
+            "dcache_port",
+            new SST::Event::Handler<gem5ToSSTBridge>(
+                this, &gem5ToSSTBridge::handleEvent)
+        );
+    }
     if (!link) {
         out.fatal(CALL_INFO, 1, "Failed to configure link %s\n", name.c_str());
     }
@@ -99,6 +108,7 @@ gem5ToSSTBridge::recvFunctional(PacketPtr pkt)
 bool
 gem5ToSSTBridge::recvTimingReq(PacketPtr pkt)
 {
+    out.output(CALL_INFO, "Ignored recvTimingReq\n");
     /*
     Command cmd;
     switch ((::MemCmd::Command)pkt->cmd.toInt()) {

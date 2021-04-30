@@ -29,8 +29,7 @@ class gem5Component: public SST::Component, ExternalSlave::Handler
     void setup();
     void finish();
     bool clockTick(SST::Cycle_t currentCycle);
-    template <class T>
-    SST::Link* publicConfigureLink(const std::string&, SST::Event::Handler<T>*);
+    SST::Link* publicConfigureLink(const std::string&, SST::Event::HandlerBase*);
     std::vector<gem5ToSSTBridge*> gem5_to_sst_ports;
 
   public: // register the component to SST
@@ -38,7 +37,7 @@ class gem5Component: public SST::Component, ExternalSlave::Handler
         gem5Component,
         "gem5", // SST will look for libgem5.so
         "gem5Component",
-        SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Initialize gem5 and link SST's ports to gem5's ports",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
@@ -47,8 +46,10 @@ class gem5Component: public SST::Component, ExternalSlave::Handler
         {"cmd", "command to run gem5's config"}
     )
 
-    //SST_ELI_DOCUMENT_PORTS(
-    //)
+    SST_ELI_DOCUMENT_PORTS(
+        {"icache_port", "port to gem5's icache", {"memHierarchy.MemEventBase"}},
+        {"dcache_port", "port to gem5's dcache", {"memHierarchy.MemEventBase"}}
+    )
 
   private:
     SST::Output output;
