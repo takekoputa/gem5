@@ -210,8 +210,6 @@ gem5Component::getExternalPort(const std::string &name, ExternalSlave &owner,
     std::string s(name.c_str());
     output.output(CALL_INFO, "creating external port: named `%s`\n", name.c_str());
     auto gem5_to_sst_port = new gem5ToSSTBridge(this, output, owner, s);
-    if (!gem5_to_sst_port)
-        output.output(CALL_INFO, "failed to create external port\n");
     gem5_to_sst_ports.push_back(gem5_to_sst_port);
     return gem5_to_sst_port;
 }

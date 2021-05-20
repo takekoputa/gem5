@@ -1,3 +1,0 @@
-```sh
-env LD_LIBRARY_PATH=/scr/hn/takekoputa-gem5/build/X86 sst sst-configs/simple.py
-```
