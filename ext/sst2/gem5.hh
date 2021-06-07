@@ -23,9 +23,18 @@ class gem5Component: public SST::Component
     gem5Component(SST::ComponentId_t id, SST::Params& params);
     ~gem5Component();
 
+    void init(unsigned phase);
     void setup();
     void finish();
     bool clockTick(SST::Cycle_t currentCycle);
+
+    int startM5(int argc, char **_argv);
+
+
+  // stuff needed for gem5 sim
+  public:
+    PyObject *python_main;
+    int execPythonCommands(const std::vector<std::string>& commands);
 
   private:
     SST::Output output;

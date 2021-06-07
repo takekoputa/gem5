@@ -5,6 +5,7 @@
 
 // System headers
 #include <string>
+#include <vector>
 
 // gem5 Headers
 #include <sim/core.hh>
@@ -65,6 +66,17 @@ gem5Component::~gem5Component()
 }
 
 void
+gem5Component::init(unsigned phase)
+{
+    if (phase == 0) {
+        const std::vector<std::string> instantiate_command_2 = {
+            "m5.instantiate_step_2()"
+        };
+        this->execPythonCommands(instantiate_command_2);
+    }
+}
+
+void
 gem5Component::setup()
 {
     output.verbose(CALL_INFO, 1, 0, "Component is being setup.\n");
@@ -81,6 +93,75 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
     primaryComponentOKToEndSim();
     return true;
+}
+
+
+#define PyCC(x) (const_cast<char *>(x))
+
+int
+gem5Component::execPythonCommands(const std::vector<std::string>& commands)
+{
+    PyObject *dict = PyModule_GetDict(this->python_main);
+
+    // import the main m5 module
+    PyObject *result;
+
+    for (auto const command: commands) {
+        result = PyRun_String(command.c_str(), Py_file_input, dict, dict);
+        if (!result) {
+            PyErr_Print();
+            return 1;
+        }
+        Py_DECREF(result);
+    }
+}
+
+int
+gem5Component::startM5(int argc, char **_argv)
+{
+#if HAVE_PROTOBUF
+    // Verify that the version of the protobuf library that we linked
+    // against is compatible with the version of the headers we
+    // compiled against.
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+#endif
+
+
+#if PY_MAJOR_VERSION >= 3
+    typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
+    std::vector<WArgUPtr> v_argv;
+    std::vector<wchar_t *> vp_argv;
+    v_argv.reserve(argc);
+    vp_argv.reserve(argc);
+    for (int i = 0; i < argc; i++) {
+        v_argv.emplace_back(Py_DecodeLocale(_argv[i], NULL), &PyMem_RawFree);
+        vp_argv.emplace_back(v_argv.back().get());
+    }
+
+    wchar_t **argv = vp_argv.data();
+#else
+    char **argv = _argv;
+#endif
+
+    PySys_SetArgv(argc, argv);
+
+    // We have to set things up in the special __main__ module
+    //PyObject *module = PyImport_AddModule(PyCC("__main__"));
+    python_main = PyImport_AddModule(PyCC("__main__"));
+    if (python_main == NULL)
+        panic("Could not import __main__");
+
+    const std::vector<std::string> commands = {
+        "import m5",
+        "m5.main()"
+    };
+    this->execPythonCommands(commands);
+
+#if HAVE_PROTOBUF
+    google::protobuf::ShutdownProtobufLibrary();
+#endif
+
+    return 0;
 }
 
 void
@@ -126,12 +207,17 @@ gem5Component::initPython(int argc, char *_argv[])
     if (ret == 0)
     {
         // start m5
-        ret = m5Main(argc, _argv);
+        this->startM5(argc, _argv);
     }
     else
     {
         output.output(CALL_INFO, "Not calling m5Main due to ret=%d\n", ret);
     }
+
+    const std::vector<std::string> instantiate_command_1 = {
+        "m5.instantiate_step_1()"
+    };
+    this->execPythonCommands(instantiate_command_1);
 }
 
 void

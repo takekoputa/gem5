@@ -84,9 +84,9 @@ if __name__ == "__m5_main__":
     system.cpu.createThreads()
 
     root = Root(full_system = False, system = system)
-    m5.instantiate()
 
     if not args.not_simulate:
+        m5.instantiate()
         print("Beginning simulation!")
         exit_event = m5.simulate()
         print('Exiting @ tick %i because %s' % (m5.curTick(),
