@@ -1,7 +1,7 @@
 # These three variables are designed to be modifiable.
 SST_VERSION=SST-10.1.0
 GEM5_LIB=gem5_opt
-ARCH=X86
+ARCH=RISCV
 
 LDFLAGS=-shared -fno-common ${shell pkg-config ${SST_VERSION} --libs} -L../../build/${ARCH}/ -Wl,-rpath ../../build/${ARCH}
 CXXFLAGS=-std=c++17 -g -O2 -fPIC ${shell pkg-config ${SST_VERSION} --cflags} ${shell python3-config --includes} -I../../build/${ARCH}/ -I../../ext/pybind11/include/
