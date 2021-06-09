@@ -29,11 +29,14 @@ l2_params = {
 
 cpu_params = {
     "frequency": "1GHz",
-    "cmd": "gem5/cpu.py --cpu-type TimingSimpleCPU --not-simulate"
+   # "cmd": "gem5/cpu.py --cpu-type TimingSimpleCPU --not-simulate"
+    "cmd": "gem5/riscv_fs.py"
 }
 
-gem5_node = sst.Component("node", "gem5.gem5Component")
+gem5_node = sst.Component("node", "gem5.gem5Bridge")
 gem5_node.addParams(cpu_params)
+
+#request_receiver = sst.Component("receiver", "gem5.sst_responder")
 
 """
 # L1 icache
