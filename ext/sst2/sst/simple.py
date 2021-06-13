@@ -33,7 +33,7 @@ cpu_params = {
     "cmd": "gem5/riscv_fs.py"
 }
 
-gem5_node = sst.Component("node", "gem5.gem5Bridge")
+gem5_node = sst.Component("node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
 #request_receiver = sst.Component("receiver", "gem5.sst_responder")
