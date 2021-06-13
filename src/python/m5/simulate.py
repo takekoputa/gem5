@@ -203,6 +203,8 @@ def instantiate_step_1(ckpt_dir=None):
 
 def instantiate_step_2(ckpt_dir=None):
 
+    root = objects.Root.getInstance()
+
     # Do a second pass to finish initializing the sim objects
     for obj in root.descendants(): obj.init()
 
