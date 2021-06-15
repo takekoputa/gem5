@@ -199,6 +199,95 @@ def instantiate_step_1(ckpt_dir=None):
 
     # Create the C++ sim objects and connect ports
     for obj in root.descendants(): obj.createCCObject()
+    for obj in root.descendants(): obj.connectPorts()
+
+def instantiate_step_2(ckpt_dir=None):
+
+    root = objects.Root.getInstance()
+
+    # Do a second pass to finish initializing the sim objects
+    for obj in root.descendants(): obj.init()
+
+    # Do a third pass to initialize statistics
+    stats._bindStatHierarchy(root)
+    root.regStats()
+
+    # Do a fourth pass to initialize probe points
+    for obj in root.descendants(): obj.regProbePoints()
+
+    # Do a fifth pass to connect probe listeners
+    for obj in root.descendants(): obj.regProbeListeners()
+
+    # We want to generate the DVFS diagram for the system. This can only be
+    # done once all of the CPP objects have been created and initialised so
+    # that we are able to figure out which object belongs to which domain.
+    if options.dot_dvfs_config:
+        do_dvfs_dot(root, options.outdir, options.dot_dvfs_config)
+
+    # We're done registering statistics.  Enable the stats package now.
+    stats.enable()
+
+    # Restore checkpoint (if any)
+    if ckpt_dir:
+        _drain_manager.preCheckpointRestore()
+        ckpt = _m5.core.getCheckpoint(ckpt_dir)
+        _m5.core.unserializeGlobals(ckpt);
+        for obj in root.descendants(): obj.loadState(ckpt)
+    else:
+        for obj in root.descendants(): obj.initState()
+
+    # Check to see if any of the stat events are in the past after resuming
+    # from a checkpoint, If so, this call will shift them to be at a valid
+    # time.
+    updateStatEvents()
+
+# The final hook to generate .ini files.  Called from the user script
+# once the config is built.
+def instantiate_step_1(ckpt_dir=None):
+    from m5 import options
+
+    root = objects.Root.getInstance()
+
+    if not root:
+        fatal("Need to instantiate Root() before calling instantiate()")
+
+    # we need to fix the global frequency
+    ticks.fixGlobalFrequency()
+
+    # Make sure SimObject-valued params are in the configuration
+    # hierarchy so we catch them with future descendants() walks
+    for obj in root.descendants(): obj.adoptOrphanParams()
+
+    # Unproxy in sorted order for determinism
+    for obj in root.descendants(): obj.unproxyParams()
+
+    if options.dump_config:
+        ini_file = open(os.path.join(options.outdir, options.dump_config), 'w')
+        # Print ini sections in sorted order for easier diffing
+        for obj in sorted(root.descendants(), key=lambda o: o.path()):
+            obj.print_ini(ini_file)
+        ini_file.close()
+
+    if options.json_config:
+        try:
+            import json
+            json_file = open(
+                os.path.join(options.outdir, options.json_config), 'w')
+            d = root.get_config_as_dict()
+            json.dump(d, json_file, indent=4)
+            json_file.close()
+        except ImportError:
+            pass
+
+    if options.dot_config:
+        do_dot(root, options.outdir, options.dot_config)
+        do_ruby_dot(root, options.outdir, options.dot_config)
+
+    # Initialize the global statistics
+    stats.initSimStats()
+
+    # Create the C++ sim objects and connect ports
+    for obj in root.descendants(): obj.createCCObject()
     for obj in root.descendants():
         print(obj._name)
         obj.connectPorts()
