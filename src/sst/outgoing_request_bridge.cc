@@ -31,14 +31,14 @@ OutgoingRequestPort::~OutgoingRequestPort()
 Port &
 OutgoingRequestBridge::getPort(const std::string &if_name, PortID idx)
 {
-    if (if_name == "port")
-        return this->outgoingPort;
+    return this->outgoingPort;
 }
 
 Tick
 OutgoingRequestBridge::
 OutgoingRequestPort::recvAtomic(PacketPtr pkt)
 {
+    return Tick();
 }
 
 void
@@ -51,6 +51,7 @@ bool
 OutgoingRequestBridge::
 OutgoingRequestPort::recvTimingReq(PacketPtr pkt)
 {
+    return true;
 }
 
 void

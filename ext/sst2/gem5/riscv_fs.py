@@ -40,71 +40,23 @@ def generateDtb(system):
     fdt.writeDtsFile(path.join(m5.options.outdir, 'device.dts'))
     fdt.writeDtbFile(path.join(m5.options.outdir, 'device.dtb'))
 
-"""
-def createHiFivePlatform(system):
-    system.internal_membus = SystemXBar()
-
-    system.on_chip_devices = {
-        "clint": Clint(pio_addr=0x2000000),
-        "plic" = Plic(pio_add=0xc000000),
-        "uart" = Uart8250(pio_addr=0x10000000) # not on chip?
-    } 
-
-    # mem_side_ports of internal_membus
-    system.rtc = RiscvRTC(frequency=Frequency("100MHz"))
-    system.clint = system.on_chip_devices["clint"]
-    system.internal_membus.mem_side_ports = system.clint.pio
-    system.rtc.int_pin = system.clint.int_pin
-
-    system.plic = system.on_chip_devices["plic"]
-    system.internal_membus.mem_side_ports = system.plic.pio
-
-    system.uart = system.on_chip_devices["uart"]
-    system.internal_membus.mem_side_ports = system.uart.pio
-
-    # cpu_side_ports of internal_membus
-    system.system_port = OutgoingRequestBridge()
-
-    system.cpu_xbar = []
-
-    for n, cpu in enumerate(system.cpu):
-        cpu.createThreads()
-        cpu.createInterruptController()
-        cpu_xbar = SystemXBar()
-        cpu.icache_port = OutgoingRequestBridge()
-        cpu.dcache_port = cpu_xbar.cpu_side_ports
-        cpu.mmu.connectWalkerPorts(
-            system.internal_membus.cpu_side_ports,
-            system.internal_membus.cpu_side_ports)
-        cpu_xbar.mem_side_ports = OutgoingRequestBridge()
-        cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
-        system.cpu_xbar.append(cpu_xbar)
-    
-    uncacheable_ranges = []
-    for _, dev in system.on_chip_devices.items():
-        uncacheable_ranges.append(AddrRange(dev.pio_addr, size=dev.pio_size))
-
-    system.pma_checker = PMAChecker(uncacheable=uncacheable_ranges)
-"""
 def createHiFivePlatform(system):
     system.internal_membus = SystemXBar()
     system.internal_membus.badaddr_responder = BadAddr()
     system.internal_membus.default = \
         system.internal_membus.badaddr_responder.pio
 
-    #system.cpu_xbars = []
-
-    for n, cpu in enumerate(system.cpu):
+    for cpu in system.cpu:
         cpu.createThreads()
-        cpu_xbar = SystemXBar()
-        cpu.icache_port = OutgoingRequestBridge().port
-        cpu.dcache_port = cpu_xbar.cpu_side_ports
+        system.cpu_xbar = SystemXBar()
+        system.icache_outgoing_bridge = OutgoingRequestBridge()
+        cpu.icache_port = system.icache_outgoing_bridge.port
+        cpu.dcache_port = system.cpu_xbar.cpu_side_ports
         cpu.mmu.connectWalkerPorts(
-            system.internal_membus.cpu_side_ports,
-            system.internal_membus.cpu_side_ports)
-        cpu_xbar.mem_side_ports = OutgoingRequestBridge().port
-        cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
-        #system.cpu_xbars.append(cpu_xbar)
+            system.internal_membus.cpu_side_ports, system.internal_membus.cpu_side_ports)
+        system.dcache_outgoing_bridge = OutgoingRequestBridge()
+        system.cpu_xbar.mem_side_ports = system.dcache_outgoing_bridge.port
+        system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
 
     system.platform = HiFive()
 
@@ -137,13 +89,13 @@ system.mem_ranges = [AddrRange(start=0x80000000, size="512MB")]
 system.cpu = [TimingSimpleCPU(cpu_id=i) for i in range(1)]
 system.mem_mode = 'timing'
 
-system.intrctrl = IntrControl()
+#system.intrctrl = IntrControl()
 
 createHiFivePlatform(system)
 
 generateDtb(system)
 system.workload.dtb_filename = path.join(m5.options.outdir, 'device.dtb')
-system.workload.dtb_addr = 0x80000000 # how to determine this?
+system.workload.dtb_addr = 0x87e00000 # how to determine this?
 kernel_cmd = [
     "console=ttyS0",
     "root=/dev/vda",

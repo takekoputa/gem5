@@ -28,8 +28,8 @@ l2_params = {
 }
 
 cpu_params = {
-    "frequency": "1GHz",
-   # "cmd": "gem5/cpu.py --cpu-type TimingSimpleCPU --not-simulate"
+    "frequency": "3GHz",
+    #"cmd": "gem5/cpu.py --cpu-type TimingSimpleCPU --not-simulate"
     "cmd": "gem5/riscv_fs.py"
 }
 

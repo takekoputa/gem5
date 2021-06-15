@@ -199,9 +199,14 @@ def instantiate_step_1(ckpt_dir=None):
 
     # Create the C++ sim objects and connect ports
     for obj in root.descendants(): obj.createCCObject()
-    for obj in root.descendants(): obj.connectPorts()
+    for obj in root.descendants():
+        print(obj._name)
+        obj.connectPorts()
+
+    print("*** Done step 1 ***")
 
 def instantiate_step_2(ckpt_dir=None):
+    from m5 import options
 
     root = objects.Root.getInstance()
 
@@ -236,9 +241,12 @@ def instantiate_step_2(ckpt_dir=None):
     else:
         for obj in root.descendants(): obj.initState()
 
-    # Check to see if any of the stat events are in the past after resuming from
-    # a checkpoint, If so, this call will shift them to be at a valid time.
+    # Check to see if any of the stat events are in the past after resuming
+    # from a checkpoint, If so, this call will shift them to be at a valid
+    # time.
     updateStatEvents()
+
+    print("*** Done step 2 ***")
 
 need_startup = True
 def simulate(*args, **kwargs):

@@ -52,7 +52,8 @@ system.membus.default = system.membus.badaddr_responder.pio
 
 system.system_port = system.membus.cpu_side_ports
 
-system.cpu = [AtomicSimpleCPU(cpu_id=i) for i in range(1)]
+system.cpu = [TimingSimpleCPU(cpu_id=i) for i in range(1)]
+system.mem_mode = "timing"
 
 for cpu in system.cpu:
     cpu.createThreads()
@@ -62,7 +63,7 @@ for cpu in system.cpu:
            system.membus.cpu_side_ports, system.membus.cpu_side_ports)
 
 # Broken
-system.workload = RiscvLinux(object_file='bbl-no-dts')
+system.workload = RiscvLinux(object_file='/scr/hn/bbl-no-dts')
 
 system.platform = HiFive()
 

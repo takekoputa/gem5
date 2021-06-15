@@ -1,6 +1,8 @@
 #ifndef __SST_RESPONDER_HH__
 #define __SST_RESPONDER_HH__
 
+#define TRACING_ON 0
+
 #include <string>
 #include <vector>
 
@@ -15,9 +17,12 @@
 #include <sim/sim_object.hh>
 #include <sst/outgoing_request_bridge.hh>
 
+#ifdef fatal
+#undef fatal
+#endif
+
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
-
 
 class SSTResponder: public SST::Component
 {
