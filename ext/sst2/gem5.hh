@@ -15,10 +15,6 @@
 
 #include <sim/simulate.hh>
 
-//#ifdef fatal
-//#undef fatal
-//#endif
-
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
 
@@ -45,7 +41,7 @@ class gem5Component: public SST::Component
 
   private:
     SST::Output output;
-    std::vector<SSTResponder*> sst_responders;
+    std::vector<SST::Component*> gem5_connectors;
     //uint64_t gem5_sim_cycles;
     Tick gem5_sim_cycles;
     uint64_t clocks_processed;

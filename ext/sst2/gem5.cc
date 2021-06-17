@@ -1,4 +1,5 @@
 #include <sst/core/sst_config.h>
+#include <sst/core/componentInfo.h>
 #include <Python.h>  // Before serialization to prevent spurious warnings
 
 #include "gem5.hh"
@@ -80,6 +81,7 @@ gem5Component::init(unsigned phase)
         this->execPythonCommands(instantiate_command_2);
     }
 
+    /*
     const std::vector<std::string> find_sim_object_commands = {
         "print('-----------------------------------------')",
         "from m5.objects import OutgoingRequestBridge, Root",
@@ -88,6 +90,13 @@ gem5Component::init(unsigned phase)
         "for obj in root.descendants(): print(type(obj))"
     };
     this->execPythonCommands(find_sim_object_commands);
+    */
+    SSTResponder* system_port = loadUserSubComponent<SSTResponder>("system_port", 0);
+    //gem5_connectors.push_back(system_port);
+    SSTResponder* icache_port = loadUserSubComponent<SSTResponder>("icache_port", 0);
+    //gem5_connectors.push_back(icache_port);
+    SSTResponder* dcache_port = loadUserSubComponent<SSTResponder>("dcache_port", 0);
+    //gem5_connectors.push_back(dcache_port);
 }
 
 void
