@@ -13,13 +13,12 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/interfaces/simpleMem.h>
 
-#include <sim/simulate.hh>
 #include <sim/sim_object.hh>
 #include <sst/outgoing_request_bridge.hh>
 
-#ifdef fatal
-#undef fatal
-#endif
+//#ifdef fatal
+//#undef fatal
+//#endif
 
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
@@ -33,6 +32,7 @@ class SSTResponder: public SST::Component
     OutgoingRequestBridge* response_receiver;
     SST::Link* memory_link; // sending requests to SST::Memory
                             // receive responses from SST::Memory
+    bool findPort(const std::string& port_name);
 
   public: // register the component to SST
     SST_ELI_REGISTER_COMPONENT(

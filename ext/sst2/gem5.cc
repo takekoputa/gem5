@@ -1,4 +1,4 @@
-#include <core/sst_config.h>
+#include <sst/core/sst_config.h>
 #include <Python.h>  // Before serialization to prevent spurious warnings
 
 #include "gem5.hh"
@@ -19,9 +19,9 @@
 
 #include <cassert>
 
-#ifdef fatal  // gem5 sets this
-#undef fatal
-#endif
+//#ifdef fatal  // gem5 sets this
+//#undef fatal
+//#endif
 
 // More SST Headers
 #include <core/timeConverter.h>
@@ -32,18 +32,22 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
     output.init("gem5Component-" + getName() + "->", 1, 0, SST::Output::STDOUT);
 
     // Register a handler to be called on a set frequency.
-    registerClock(
+    SST::TimeConverter *clock = registerClock(
         "1MHz",
         new SST::Clock::Handler<gem5Component>(this, &gem5Component::clockTick)
     );
 
+    // how many gem5 cycles will be simulated within an SST clock tick
+    gem5_sim_cycles = clock->getFactor();
+
     // "cmd" -> gem5's Python
     std::string cmd = params.find<std::string>("cmd", "");
     if (cmd.empty()) {
-        output.fatal(
-            CALL_INFO, -1, "Component %s must have a 'cmd' parameter.\n",
+        output.output(
+            CALL_INFO, "Component %s must have a 'cmd' parameter.\n",
             getName().c_str()
         );
+        exit(-1);
     }
 
     // Telling SST the command line call to gem5
@@ -68,12 +72,22 @@ gem5Component::~gem5Component()
 void
 gem5Component::init(unsigned phase)
 {
+    output.output(CALL_INFO," init phase: %u\n", phase);
     if (phase == 0) {
         const std::vector<std::string> instantiate_command_2 = {
             "m5.instantiate_step_2()"
         };
         this->execPythonCommands(instantiate_command_2);
     }
+
+    const std::vector<std::string> find_sim_object_commands = {
+        "print('-----------------------------------------')",
+        "from m5.objects import OutgoingRequestBridge, Root",
+        "root = Root.getInstance()",
+        "print(root.find_all(OutgoingRequestBridge))",
+        "for obj in root.descendants(): print(type(obj))"
+    };
+    this->execPythonCommands(find_sim_object_commands);
 }
 
 void
@@ -91,10 +105,29 @@ gem5Component::finish()
 bool
 gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
-    primaryComponentOKToEndSim();
-    return true;
-}
+    // what to do in a SST's Tick
 
+    /*
+    for (auto requestor: requestors)
+        requestor->clock();
+    */
+
+//    return true;
+
+    GlobalSimLoopExitEvent *event = simulate(gem5_sim_cycles);
+    clocks_processed++;
+    if (event != simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
+        output.output("exiting: curTick()=%lu cause=`%s` code=%d\n",
+            curTick(), event->getCause().c_str(), event->getCode()
+        );
+        primaryComponentOKToEndSim();
+        return true;
+    }
+
+    // returning False means the simulation should go on
+    return false;
+
+}
 
 #define PyCC(x) (const_cast<char *>(x))
 

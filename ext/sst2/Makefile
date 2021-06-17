@@ -1,5 +1,5 @@
 # These three variables are designed to be modifiable.
-SST_VERSION=SST-10.1.0
+SST_VERSION=SST-11.0.0
 GEM5_LIB=gem5_opt
 ARCH=RISCV
 

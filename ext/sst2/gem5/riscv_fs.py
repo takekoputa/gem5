@@ -49,12 +49,12 @@ def createHiFivePlatform(system):
     for cpu in system.cpu:
         cpu.createThreads()
         system.cpu_xbar = SystemXBar()
-        system.icache_outgoing_bridge = OutgoingRequestBridge()
+        system.icache_outgoing_bridge = OutgoingRequestBridge(connector_name = "icache_port") # connector_name = x -> an SST object named "icache_port" will look for this bridge
         cpu.icache_port = system.icache_outgoing_bridge.port
         cpu.dcache_port = system.cpu_xbar.cpu_side_ports
         cpu.mmu.connectWalkerPorts(
             system.internal_membus.cpu_side_ports, system.internal_membus.cpu_side_ports)
-        system.dcache_outgoing_bridge = OutgoingRequestBridge()
+        system.dcache_outgoing_bridge = OutgoingRequestBridge(connector_name = "dcache_port")
         system.cpu_xbar.mem_side_ports = system.dcache_outgoing_bridge.port
         system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
 
@@ -93,6 +93,9 @@ system.mem_mode = 'timing'
 
 createHiFivePlatform(system)
 
+system.system_outgoing_bridge = OutgoingRequestBridge(connector_name = "system_port")
+system.system_port = system.system_outgoing_bridge.port
+
 generateDtb(system)
 system.workload.dtb_filename = path.join(m5.options.outdir, 'device.dtb')
 system.workload.dtb_addr = 0x87e00000 # how to determine this?
@@ -101,7 +104,7 @@ kernel_cmd = [
     "root=/dev/vda",
     "ro"
 ]
-system.workload.command_lline = " ".join(kernel_cmd)
+system.workload.command_line = " ".join(kernel_cmd)
 
 for cpu in system.cpu:
     cpu.createInterruptController()

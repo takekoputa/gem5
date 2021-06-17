@@ -15,9 +15,14 @@
 
 #include <sim/simulate.hh>
 
+//#ifdef fatal
+//#undef fatal
+//#endif
+
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
 
+#include "sst_responder.hh"
 
 class gem5Component: public SST::Component
 {
@@ -40,6 +45,10 @@ class gem5Component: public SST::Component
 
   private:
     SST::Output output;
+    std::vector<SSTResponder*> sst_responders;
+    //uint64_t gem5_sim_cycles;
+    Tick gem5_sim_cycles;
+    uint64_t clocks_processed;
 
     void initPython(int argc, char **argv);
     void splitCommandArgs(std::string &cmd, std::vector<char*> &args);
@@ -59,10 +68,11 @@ class gem5Component: public SST::Component
         {"cmd", "command to run gem5's config"}
     )
 
-    //SST_ELI_DOCUMENT_PORTS(
-    //    {"icache_port", "port to gem5's icache", {"memHierarchy.MemEventBase"}},
-    //    {"dcache_port", "port to gem5's dcache", {"memHierarchy.MemEventBase"}}
-    //)
+    SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
+        {"system_port", "Connection to gem5 system_port", "gem5.gem5Bridge"},
+        {"icache_port", "Connection to gem5 CPU icache", "gem5.gem5Bridge"},
+        {"dcache_port", "Connection to gem5 CPU dcache", "gem5.gem5Bridge"}
+    )
 
 };
 

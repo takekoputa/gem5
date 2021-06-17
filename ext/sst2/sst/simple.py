@@ -35,7 +35,9 @@ cpu_params = {
 gem5_node = sst.Component("node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
-#request_receiver = sst.Component("receiver", "gem5.sst_responder")
+system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0)
+icache_port = gem5_node.setSubComponent("icache_port", "gem5.gem5Bridge", 0)
+dcache_port = gem5_node.setSubComponent("dcache_port", "gem5.gem5Bridge", 0)
 
 """
 # L1 icache
