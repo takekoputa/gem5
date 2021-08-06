@@ -92,10 +92,12 @@ gem5Component::init(unsigned phase)
     this->execPythonCommands(find_sim_object_commands);
     */
     SSTResponder* system_port = loadUserSubComponent<SSTResponder>("system_port", 0);
-    //gem5_connectors.push_back(system_port);
-    SSTResponder* icache_port = loadUserSubComponent<SSTResponder>("icache_port", 0);
+    gem5_connectors.push_back(system_port);
+    SSTResponder* cache_port = loadUserSubComponent<SSTResponder>("cache_port", 0);
+    gem5_connectors.push_back(cache_port);
+    //SSTResponder* icache_port = loadUserSubComponent<SSTResponder>("icache_port", 0);
     //gem5_connectors.push_back(icache_port);
-    SSTResponder* dcache_port = loadUserSubComponent<SSTResponder>("dcache_port", 0);
+    //SSTResponder* dcache_port = loadUserSubComponent<SSTResponder>("dcache_port", 0);
     //gem5_connectors.push_back(dcache_port);
 }
 

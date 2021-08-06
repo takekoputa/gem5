@@ -41,7 +41,7 @@ class gem5Component: public SST::Component
 
   private:
     SST::Output output;
-    std::vector<SST::Component*> gem5_connectors;
+    std::vector<SSTResponder*> gem5_connectors;
     //uint64_t gem5_sim_cycles;
     Tick gem5_sim_cycles;
     uint64_t clocks_processed;
@@ -66,8 +66,7 @@ class gem5Component: public SST::Component
 
     SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
         {"system_port", "Connection to gem5 system_port", "gem5.gem5Bridge"},
-        {"icache_port", "Connection to gem5 CPU icache", "gem5.gem5Bridge"},
-        {"dcache_port", "Connection to gem5 CPU dcache", "gem5.gem5Bridge"}
+        {"cache_port", "Connection to gem5 CPU cache xbar", "gem5.gem5Bridge"}
     )
 
 };

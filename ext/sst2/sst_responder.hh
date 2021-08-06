@@ -47,6 +47,10 @@ class SSTResponder: public SST::SubComponent
         SSTResponder
     )
 
+    SST_ELI_DOCUMENT_PORTS(
+        {"port", "Handling mem events", {"memHierarchy.MemEvent",""}}
+    )
+
     SST_ELI_DOCUMENT_PARAMS(
         {"receiver_name", "Name of the SimObject receiving the responses"}
     )

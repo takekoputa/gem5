@@ -36,8 +36,7 @@ gem5_node = sst.Component("node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
 system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0)
-icache_port = gem5_node.setSubComponent("icache_port", "gem5.gem5Bridge", 0)
-dcache_port = gem5_node.setSubComponent("dcache_port", "gem5.gem5Bridge", 0)
+cache_port = gem5_node.setSubComponent("cache_port", "gem5.gem5Bridge", 0)
 
 """
 # L1 icache
@@ -46,6 +45,11 @@ l1i_cache.addParams(l1_params)
 # L1 dcache
 l1d_cache = sst.Component("l1d_cache", "memHierarchy.Cache")
 l1d_cache.addParams(l1_params)
+"""
+
+# L1 cache
+l1_cache = sst.Component("l1_cache", "memHierarchy.Cache")
+l1_cache.addParams(l1_params)
 
 # TODO: shared L2Cache
 
@@ -60,13 +64,13 @@ memctrl.addParams({
 memory = memctrl.setSubComponent("backend", "memHierarchy.simpleMem")
 memory.addParams({
     "access_time" : "30ns",
-    "mem_size" : "1GiB",
+    "mem_size" : "4GiB",
 })
-
 
 
 # Connections
 # cpu <-> L1
+"""
 cpu_icache_link = sst.Link("cpu_l1i_cache_link")
 cpu_icache_link.connect(
     (gem5_node, "icache_port", cache_link_latency),
@@ -78,8 +82,16 @@ cpu_dcache_link.connect(
     (gem5_node, "dcache_port", cache_link_latency),
     (l1d_cache, "high_network_0", cache_link_latency)
 )
+"""
+
+cpu_cache_link = sst.Link("cpu_l1_cache_link")
+cpu_cache_link.connect(
+    (cache_port, "port", cache_link_latency),
+    (l1_cache, "high_network_0", cache_link_latency)
+)
 
 # L1 <-> mem
+"""
 icache_mem_link = sst.Link("l1i_cache_mem_link")
 icache_mem_link.connect(
     (l1i_cache, "low_network_0", cache_link_latency),
@@ -91,3 +103,8 @@ dcache_mem_link.connect(
     (memctrl, "direct_link", cache_link_latency)
 )
 """
+cache_mem_link = sst.Link("l1_cache_mem_link")
+cache_mem_link.connect(
+    (l1_cache, "low_network_0", cache_link_latency),
+    (memctrl, "direct_link", cache_link_latency)
+)
