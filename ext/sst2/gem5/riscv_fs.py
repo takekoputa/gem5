@@ -47,6 +47,7 @@ def createHiFivePlatform(system):
         system.internal_membus.badaddr_responder.pio
 
     for cpu in system.cpu:
+        """
         cpu.createThreads()
         system.cpu_xbar = SystemXBar()
         system.icache_outgoing_bridge = OutgoingRequestBridge(connector_name = "icache_port") # connector_name = x -> an SST object named "icache_port" will look for this bridge
@@ -57,6 +58,18 @@ def createHiFivePlatform(system):
         system.dcache_outgoing_bridge = OutgoingRequestBridge(connector_name = "dcache_port")
         system.cpu_xbar.mem_side_ports = system.dcache_outgoing_bridge.port
         system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
+        """
+        cpu.createThreads()
+        system.cpu_xbar = SystemXBar()
+        system.cache_xbar = SystemXBar()
+        system.cache_outgoing_bridge = OutgoingRequestBridge() # connector_name = x -> an SST object named "cache_port" will look for this bridge
+        cpu.icache_port = system.cache_xbar.cpu_side_ports
+        cpu.dcache_port = system.cpu_xbar.cpu_side_ports
+        cpu.mmu.connectWalkerPorts(
+            system.internal_membus.cpu_side_ports, system.internal_membus.cpu_side_ports)
+        system.cpu_xbar.mem_side_ports = system.cache_xbar.cpu_side_ports
+        system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
+        system.cache_xbar.mem_side_ports = system.cache_outgoing_bridge.port
 
     system.platform = HiFive()
 
@@ -93,7 +106,7 @@ system.mem_mode = 'timing'
 
 createHiFivePlatform(system)
 
-system.system_outgoing_bridge = OutgoingRequestBridge(connector_name = "system_port")
+system.system_outgoing_bridge = OutgoingRequestBridge()
 system.system_port = system.system_outgoing_bridge.port
 
 generateDtb(system)
