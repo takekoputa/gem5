@@ -29,7 +29,7 @@ class SSTResponder: public SST::SubComponent
     SSTResponder(SST::ComponentId_t id, SST::Params& params);
     ~SSTResponder();
 
-    OutgoingRequestBridge* response_receiver;
+    gem5::OutgoingRequestBridge* response_receiver;
     SST::Link* memory_link; // sending requests to SST::Memory
                             // receive responses from SST::Memory
     bool findPort(const std::string& port_name);
