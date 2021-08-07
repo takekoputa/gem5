@@ -12,11 +12,14 @@
 #include <sim/core.hh>
 #include <sim/init.hh>
 #include <sim/init_signals.hh>
+#include <sim/root.hh>
 #include <sim/system.hh>
 #include <sim/sim_events.hh>
 #include <sim/sim_object.hh>
 #include <base/logging.hh>
 #include <base/debug.hh>
+
+#include <sst/outgoing_request_bridge.hh>
 
 #include <cassert>
 
@@ -95,6 +98,17 @@ gem5Component::init(unsigned phase)
     gem5_connectors.push_back(system_port);
     SSTResponder* cache_port = loadUserSubComponent<SSTResponder>("cache_port", 0);
     gem5_connectors.push_back(cache_port);
+
+    gem5::Root* gem5_root = gem5::Root::root();
+    gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
+    system_port->response_receiver = gem5_system_port;
+    gem5::OutgoingRequestBridge* gem5_cache_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.cache_outgoing_bridge"));
+    cache_port->response_receiver = gem5_cache_port;
+    //gem5::SimObject* gem5_system_port = gem5_root->find("system.system_outgoing_bridge");
+    //gem5::SimObject* gem5_cache_port = gem5_root->find("system.cache_outgoing_bridge");
+    assert(gem5_system_port != NULL);
+    assert(gem5_cache_port != NULL);
+
     //SSTResponder* icache_port = loadUserSubComponent<SSTResponder>("icache_port", 0);
     //gem5_connectors.push_back(icache_port);
     //SSTResponder* dcache_port = loadUserSubComponent<SSTResponder>("dcache_port", 0);
