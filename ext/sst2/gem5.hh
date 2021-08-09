@@ -66,7 +66,11 @@ class gem5Component: public SST::Component
 
     SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
         {"system_port", "Connection to gem5 system_port", "gem5.gem5Bridge"},
-        {"cache_port", "Connection to gem5 CPU cache xbar", "gem5.gem5Bridge"}
+        {"gem5_cache_port", "Connection to gem5 CPU cache xbar", "gem5.gem5Bridge"}
+    )
+
+    SST_ELI_DOCUMENT_PORTS(
+        {"sst_cache_port", "gem5 -> SST::Cache", {"memHierarchy.MemEvent",""}}
     )
 
 };

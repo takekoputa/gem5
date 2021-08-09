@@ -62,7 +62,7 @@ def createHiFivePlatform(system):
         cpu.createThreads()
         system.cpu_xbar = SystemXBar()
         system.cache_xbar = SystemXBar()
-        system.cache_outgoing_bridge = OutgoingRequestBridge() # connector_name = x -> an SST object named "cache_port" will look for this bridge
+        system.cache_outgoing_bridge = OutgoingRequestBridge()
         cpu.icache_port = system.cache_xbar.cpu_side_ports
         cpu.dcache_port = system.cpu_xbar.cpu_side_ports
         cpu.mmu.connectWalkerPorts(
