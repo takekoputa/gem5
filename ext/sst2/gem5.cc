@@ -7,6 +7,9 @@
 // System headers
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iterator>
+#include <sstream>
 
 // gem5 Headers
 #include <sim/core.hh>
@@ -22,6 +25,8 @@
 #include <sst/outgoing_request_bridge.hh>
 
 #include <cassert>
+
+#include <openssl/md5.h>
 
 //#ifdef fatal  // gem5 sets this
 //#undef fatal
@@ -106,7 +111,44 @@ gem5Component::init(unsigned phase)
         assert(gem5_system_port != NULL);
         assert(gem5_cache_port != NULL);
 
+        SST::Link* cache_link = configureLink("sst_cache_port");
+        assert(cache_link != NULL);
+        assert(cache_link != nullptr);
+
+        // https://stackoverflow.com/questions/15138353/how-to-read-a-binary-file-into-a-vector-of-unsigned-chars
+        // TODO: make path to bbl a parameter
+        std::ifstream input_stream("/scr/hn/bbl", std::ios::in | std::ios::binary);
+        input_stream.unsetf(std::ios::skipws); // avoid \n being ignored
+        std::istream_iterator<uint64_t> it(input_stream);
+        std::istream_iterator<uint64_t> it_end;
         
+        for (; it != it_end; it++)
+        {
+            uint64_t chunk = *it;
+            cache_link->sendInitdata(ev);
+        }
+
+        /* MD5 checking
+        MD5_CTX c;
+        MD5_Init(&c);
+        unsigned char out[MD5_DIGEST_LENGTH];
+
+        for(; it != it_end; it++)
+        {
+            uint8_t buf[1];
+            buf[0] = *it;
+            MD5_Update(&c, buf, 1);
+            count += 1;
+        }
+        MD5_Final(out, &c);
+
+        for(int n=0; n<MD5_DIGEST_LENGTH; n++)
+            printf("%02x", out[n]);
+        printf("\n");
+        */
+        
+        input_stream.close();
+
 
     }
 }
