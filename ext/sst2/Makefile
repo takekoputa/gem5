@@ -13,7 +13,7 @@ SRC=$(wildcard *.cc)
 all: libgem5.so
 
 libgem5.so: $(SRC:%.cc=%.o)
-	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB}
+	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB} -lcrypto -lssl -lz
 
 -include $(SRC:%.cc=%.d)
 
