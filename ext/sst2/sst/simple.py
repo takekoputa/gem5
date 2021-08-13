@@ -35,7 +35,7 @@ cpu_params = {
 
 
 
-gem5_node = sst.Component("node", "gem5.gem5Component")
+gem5_node = sst.Component("gem5_node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
 cache_bus = sst.Component("cache_bus", "memHierarchy.Bus")

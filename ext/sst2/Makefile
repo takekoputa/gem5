@@ -1,10 +1,11 @@
 # These three variables are designed to be modifiable.
 SST_VERSION=SST-11.0.0
-GEM5_LIB=gem5_opt
+GEM5_LIB=gem5_debug
 ARCH=RISCV
+OFLAG=0
 
 LDFLAGS=-shared -fno-common ${shell pkg-config ${SST_VERSION} --libs} -L../../build/${ARCH}/ -Wl,-rpath ../../build/${ARCH}
-CXXFLAGS=-std=c++17 -g -O2 -fPIC ${shell pkg-config ${SST_VERSION} --cflags} ${shell python3-config --includes} -I../../build/${ARCH}/ -I../../ext/pybind11/include/ -I../../build/softfloat/
+CXXFLAGS=-std=c++17 -g -O${OFLAG} -fPIC ${shell pkg-config ${SST_VERSION} --cflags} ${shell python3-config --includes} -I../../build/${ARCH}/ -I../../ext/pybind11/include/ -I../../build/softfloat/
 CPPFLAGS+=-MMD -MP
 SRC=$(wildcard *.cc)
 

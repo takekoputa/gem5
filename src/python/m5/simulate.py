@@ -200,7 +200,6 @@ def instantiate_step_1(ckpt_dir=None):
     # Create the C++ sim objects and connect ports
     for obj in root.descendants(): obj.createCCObject()
     for obj in root.descendants():
-        print(obj._name)
         obj.connectPorts()
 
     print("*** Done step 1 ***")

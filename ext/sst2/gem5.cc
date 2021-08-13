@@ -1,5 +1,10 @@
 #include <sst/core/sst_config.h>
 #include <sst/core/componentInfo.h>
+#include <sst/core/interfaces/simpleMem.h>
+#include <sst/elements/memHierarchy/memEvent.h>
+#include <sst/elements/memHierarchy/memTypes.h>
+#include <sst/elements/memHierarchy/util.h>
+
 #include <Python.h>  // Before serialization to prevent spurious warnings
 
 #include "gem5.hh"
@@ -119,14 +124,23 @@ gem5Component::init(unsigned phase)
         // TODO: make path to bbl a parameter
         std::ifstream input_stream("/scr/hn/bbl", std::ios::in | std::ios::binary);
         input_stream.unsetf(std::ios::skipws); // avoid \n being ignored
-        std::istream_iterator<uint64_t> it(input_stream);
-        std::istream_iterator<uint64_t> it_end;
+        //std::istream_iterator<uint8_t> it(input_stream);
+        //std::istream_iterator<uint8_t> it_end;
+        std::vector<uint8_t> chunks = std::vector<uint8_t> (
+            std::istream_iterator<uint8_t>(input_stream),
+            std::istream_iterator<uint8_t>()
+        );
         
-        for (; it != it_end; it++)
-        {
-            uint64_t chunk = *it;
-            cache_link->sendInitdata(ev);
-        }
+
+        // Information about MemEvent Commands:
+        // http://sst-simulator.org/SSTPages/SSTElementMemHierarchy/
+        // src/sst/elements/memHierarchy/cacheController.h
+        output.output(CALL_INFO,"dsfdsafsdafsfdsafsa \n");
+        uint64_t offset = 0x80000000;
+        SST::MemHierarchy::MemEvent* ev = new SST::MemHierarchy::MemEvent("gem5_node", offset, offset, SST::MemHierarchy::Command::GetX, chunks);
+        cache_link->sendInitData(ev);
+
+        output.output(CALL_INFO,"----------------------- %d\n", chunks.size());
 
         /* MD5 checking
         MD5_CTX c;
