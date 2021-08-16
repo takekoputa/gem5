@@ -1,5 +1,7 @@
 #include "sst/outgoing_request_bridge.hh"
 
+#include <cassert>
+
 namespace gem5
 {
 
@@ -48,12 +50,14 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvFunctional(PacketPtr pkt)
 {
+    assert("OutgoingRequestPort::recvFunctional not implemented");
 }
 
 bool
 OutgoingRequestBridge::
 OutgoingRequestPort::recvTimingReq(PacketPtr pkt)
 {
+    assert("OutgoingRequestPort::recvTimingReq not implemented");
     return true;
 }
 
@@ -61,12 +65,14 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvRespRetry()
 {
+    assert("OutgoingRequestPort::recvRespRetry not implemented");
 }
 
 AddrRangeList
 OutgoingRequestBridge::
 OutgoingRequestPort::getAddrRanges() const
 {
+    assert("OutgoingRequestPort::getAddrRanges not implemented");
     return AddrRangeList();
 }
 }; // namespace gem5
