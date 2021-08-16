@@ -47,6 +47,7 @@ class gem5Component: public SST::Component
     uint64_t clocks_processed;
 
     void initPython(int argc, char **argv);
+    void loadFileToMem(std::string filepath, uint64_t mem_offset);
     void splitCommandArgs(std::string &cmd, std::vector<char*> &args);
 
 
