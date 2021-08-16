@@ -72,6 +72,7 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
     for (size_t i = 0; i < args.size(); ++i) {
         output.output(CALL_INFO, "  Arg [%02zu] = %s\n", i, args[i]);
     }
+    gem5::setDebugFlag("All");
 
     initPython(args.size(), &args[0]);
 
@@ -115,32 +116,11 @@ gem5Component::init(unsigned phase)
         cache_port->response_receiver = gem5_cache_port;
         assert(gem5_system_port != NULL);
         assert(gem5_cache_port != NULL);
-
-        SST::Link* cache_link = configureLink("sst_cache_port");
-        assert(cache_link != NULL);
-        assert(cache_link != nullptr);
-
-        // https://stackoverflow.com/questions/15138353/how-to-read-a-binary-file-into-a-vector-of-unsigned-chars
-        // TODO: make path to bbl a parameter
-        std::ifstream input_stream("/scr/hn/bbl", std::ios::in | std::ios::binary);
-        input_stream.unsetf(std::ios::skipws); // avoid \n being ignored
-        //std::istream_iterator<uint8_t> it(input_stream);
-        //std::istream_iterator<uint8_t> it_end;
-        std::vector<uint8_t> chunks = std::vector<uint8_t> (
-            std::istream_iterator<uint8_t>(input_stream),
-            std::istream_iterator<uint8_t>()
-        );
-        
-
-        // Information about MemEvent Commands:
-        // http://sst-simulator.org/SSTPages/SSTElementMemHierarchy/
-        // src/sst/elements/memHierarchy/cacheController.h
-        output.output(CALL_INFO,"dsfdsafsdafsfdsafsa \n");
-        uint64_t offset = 0x80000000;
-        SST::MemHierarchy::MemEvent* ev = new SST::MemHierarchy::MemEvent("gem5_node", offset, offset, SST::MemHierarchy::Command::GetX, chunks);
-        cache_link->sendInitData(ev);
-
-        output.output(CALL_INFO,"----------------------- %d\n", chunks.size());
+    }
+    if (phase == 1)
+    {
+        loadFileToMem("/scr/hn/bbl", 0x80000000);
+        loadFileToMem("/scr/hn/device.dtb", 0x87e00000);
 
         /* MD5 checking
         MD5_CTX c;
@@ -161,9 +141,6 @@ gem5Component::init(unsigned phase)
         printf("\n");
         */
         
-        input_stream.close();
-
-
     }
 }
 
@@ -328,6 +305,35 @@ gem5Component::initPython(int argc, char *_argv[])
         "m5.instantiate_step_1()"
     };
     this->execPythonCommands(instantiate_command_1);
+}
+
+void
+gem5Component::loadFileToMem(std::string filepath, uint64_t mem_offset)
+{
+    SST::Link* cache_link = configureLink("sst_cache_port");
+    assert(cache_link != NULL);
+
+    // https://stackoverflow.com/questions/15138353/how-to-read-a-binary-file-into-a-vector-of-unsigned-chars
+    std::ifstream input_stream(filepath, std::ios::in | std::ios::binary);
+    input_stream.unsetf(std::ios::skipws); // avoid \n being ignored
+    //std::istream_iterator<uint8_t> it(input_stream);
+    //std::istream_iterator<uint8_t> it_end;
+    std::vector<uint8_t> chunks = std::vector<uint8_t> (
+       std::istream_iterator<uint8_t>(input_stream),
+       std::istream_iterator<uint8_t>()
+    );
+
+
+    // Information about MemEvent Commands:
+    // http://sst-simulator.org/SSTPages/SSTElementMemHierarchy/
+    // src/sst/elements/memHierarchy/cacheController.h
+    SST::MemHierarchy::MemEvent* ev = new SST::MemHierarchy::MemEvent(
+        "gem5_node", mem_offset, mem_offset,
+        SST::MemHierarchy::Command::GetX, chunks
+    );
+    cache_link->sendInitData(ev);
+
+    input_stream.close();
 }
 
 void

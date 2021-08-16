@@ -41,27 +41,17 @@ def generateDtb(system):
     fdt.writeDtbFile(path.join(m5.options.outdir, 'device.dtb'))
 
 def createHiFivePlatform(system):
-    system.internal_membus = SystemXBar()
-    system.internal_membus.badaddr_responder = BadAddr()
-    system.internal_membus.default = \
-        system.internal_membus.badaddr_responder.pio
+    system.membus = SystemXBar()
+    system.membus.badaddr_responder = BadAddr()
+    system.membus.default = \
+        system.membus.badaddr_responder.pio
+
+    system.memory_outgoing_bridge = OutgoingRequestBridge()
+    system.membus.mem_side_ports = system.memory_outgoing_bridge.port
 
     for cpu in system.cpu:
         """
         cpu.createThreads()
-        system.cpu_xbar = SystemXBar()
-        system.icache_outgoing_bridge = OutgoingRequestBridge(connector_name = "icache_port") # connector_name = x -> an SST object named "icache_port" will look for this bridge
-        cpu.icache_port = system.icache_outgoing_bridge.port
-        cpu.dcache_port = system.cpu_xbar.cpu_side_ports
-        cpu.mmu.connectWalkerPorts(
-            system.internal_membus.cpu_side_ports, system.internal_membus.cpu_side_ports)
-        system.dcache_outgoing_bridge = OutgoingRequestBridge(connector_name = "dcache_port")
-        system.cpu_xbar.mem_side_ports = system.dcache_outgoing_bridge.port
-        system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
-        """
-        cpu.createThreads()
-        system.cpu_xbar = SystemXBar()
-        system.cache_xbar = SystemXBar()
         system.cache_outgoing_bridge = OutgoingRequestBridge()
         cpu.icache_port = system.cache_xbar.cpu_side_ports
         cpu.dcache_port = system.cpu_xbar.cpu_side_ports
@@ -70,12 +60,30 @@ def createHiFivePlatform(system):
         system.cpu_xbar.mem_side_ports = system.cache_xbar.cpu_side_ports
         system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
         system.cache_xbar.mem_side_ports = system.cache_outgoing_bridge.port
+        """
+        cpu.createThreads()
+        cpu.icache_port = system.membus.cpu_side_ports
+        cpu.dcache_port = system.membus.cpu_side_ports
+
+        cpu.mmu.connectWalkerPorts(
+            system.membus.cpu_side_ports, system.membus.cpu_side_ports)
+
 
     system.platform = HiFive()
 
     system.platform.rtc = RiscvRTC(frequency=Frequency("100MHz"))
     system.platform.clint.int_pin = system.platform.rtc.int_pin
-    system.platform.attachPlic()
+
+    image = CowDiskImage(child=RawDiskImage(read_only=True), read_only=False)
+    image.child.image_file = "/scr/hn/riscv-disk.img"
+
+    # using reserved memory space
+    system.platform.disk = MmioVirtIO(
+        vio=VirtIOBlock(image=image),
+        interrupt_id=0x8,
+        pio_size = 4096,
+        pio_addr=0x10008000
+    )
 
     system.pma_checker = PMAChecker(
         uncacheable=[
@@ -84,8 +92,16 @@ def createHiFivePlatform(system):
         ]
     )
 
-    system.platform.attachOnChipIO(system.internal_membus)
-    system.platform.attachOffChipIO(system.internal_membus)
+    system.iobus = IOXBar()
+    system.bridge = Bridge(delay='50ns')
+    system.bridge.mem_side_port = system.iobus.cpu_side_ports
+    system.bridge.cpu_side_port = system.membus.mem_side_ports
+    system.bridge.ranges = system.platform._off_chip_ranges()
+
+    system.platform.attachOnChipIO(system.membus)
+    system.platform.attachOffChipIO(system.iobus)
+
+    system.platform.attachPlic()
 
     print("Done")
 
@@ -108,10 +124,12 @@ createHiFivePlatform(system)
 
 system.system_outgoing_bridge = OutgoingRequestBridge()
 system.system_port = system.system_outgoing_bridge.port
-
 generateDtb(system)
+system.workload = RiscvLinux()
+system.workload.addr_check = False
+system.workload.object_file = "/scr/hn/bbl"
 system.workload.dtb_filename = path.join(m5.options.outdir, 'device.dtb')
-system.workload.dtb_addr = 0x87e00000 # how to determine this?
+system.workload.dtb_addr = 0x87e00000
 kernel_cmd = [
     "console=ttyS0",
     "root=/dev/vda",
