@@ -147,6 +147,7 @@ def instantiate(ckpt_dir=None):
     # time.
     updateStatEvents()
 
+need_instantiate_step_2_start_up = True
 # The final hook to generate .ini files.  Called from the user script
 # once the config is built.
 def instantiate_step_1(ckpt_dir=None):
@@ -239,6 +240,23 @@ def instantiate_step_2(ckpt_dir=None):
     # from a checkpoint, If so, this call will shift them to be at a valid
     # time.
     updateStatEvents()
+
+    global need_instantiate_step_2_start_up
+
+    if need_instantiate_step_2_start_up:
+        root = objects.Root.getInstance()
+        for obj in root.descendants(): obj.startup()
+        need_instantiate_step_2_start_up = False
+
+        # Python exit handlers happen in reverse order.
+        # We want to dump stats last.
+        atexit.register(stats.dump)
+
+        # register our C++ exit callback function with Python
+        atexit.register(_m5.core.doExitCleanup)
+
+        # Reset to put the stats in a consistent state.
+        stats.reset()
 
     print("*** Done step 2 ***")
 
