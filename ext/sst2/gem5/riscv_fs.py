@@ -2,8 +2,6 @@ import m5
 from m5.objects import *
 from os import path
 
-ExternalResponder = ExternalSlave
-
 def generateMemNode(state, mem_range):
     node = FdtNode("memory@%x" % int(mem_range.start))
     node.append(FdtPropertyStrings("device_type", ["memory"]))
@@ -47,20 +45,8 @@ def createHiFivePlatform(system):
         system.membus.badaddr_responder.pio
 
     system.memory_outgoing_bridge = OutgoingRequestBridge()
-    system.membus.mem_side_ports = system.memory_outgoing_bridge.port
-
+    system.memory_outgoing_bridge.port = system.membus.mem_side_ports
     for cpu in system.cpu:
-        """
-        cpu.createThreads()
-        system.cache_outgoing_bridge = OutgoingRequestBridge()
-        cpu.icache_port = system.cache_xbar.cpu_side_ports
-        cpu.dcache_port = system.cpu_xbar.cpu_side_ports
-        cpu.mmu.connectWalkerPorts(
-            system.internal_membus.cpu_side_ports, system.internal_membus.cpu_side_ports)
-        system.cpu_xbar.mem_side_ports = system.cache_xbar.cpu_side_ports
-        system.cpu_xbar.mem_side_ports = system.internal_membus.cpu_side_ports
-        system.cache_xbar.mem_side_ports = system.cache_outgoing_bridge.port
-        """
         cpu.createThreads()
         cpu.icache_port = system.membus.cpu_side_ports
         cpu.dcache_port = system.membus.cpu_side_ports
