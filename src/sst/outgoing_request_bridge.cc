@@ -24,7 +24,7 @@ OutgoingRequestBridge::callback_when_received()
 OutgoingRequestBridge::
 OutgoingRequestPort::OutgoingRequestPort(const std::string &name_,
                                          OutgoingRequestBridge* owner) :
-    ResponsePort("sst", owner)
+    ResponsePort(name_, owner)
 {
 }
 
@@ -33,10 +33,24 @@ OutgoingRequestPort::~OutgoingRequestPort()
 {
 }
 
-gem5::Port &
+void
+OutgoingRequestBridge::init()
+{
+    //if (this->outgoingPort.isConnected())
+        this->outgoingPort.sendRangeChange();
+}
+
+Port &
 OutgoingRequestBridge::getPort(const std::string &if_name, PortID idx)
 {
     return this->outgoingPort;
+}
+
+AddrRangeList
+OutgoingRequestBridge::getAddrRanges() const
+{
+    warn("OutgoingRequestBridge::getAddrRange is called");
+    return outgoingPort.getAddrRanges();
 }
 
 Tick
@@ -72,7 +86,6 @@ AddrRangeList
 OutgoingRequestBridge::
 OutgoingRequestPort::getAddrRanges() const
 {
-    assert("OutgoingRequestPort::getAddrRanges not implemented");
-    return AddrRangeList();
+    return AddrRangeList({AddrRange(0x80000000, MaxAddr)});
 }
 }; // namespace gem5

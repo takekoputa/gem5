@@ -32,6 +32,10 @@ class OutgoingRequestBridge: public SimObject
     OutgoingRequestBridge(const OutgoingRequestBridgeParams &params);
     ~OutgoingRequestBridge();
 
+    void init();
+
+    AddrRangeList getAddrRanges() const;
+
     Port & getPort(const std::string &if_name, PortID idx);
 
     void callback_when_received();
