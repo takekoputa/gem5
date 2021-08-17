@@ -112,10 +112,9 @@ gem5Component::init(unsigned phase)
         gem5::Root* gem5_root = gem5::Root::root();
         gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
         system_port->response_receiver = gem5_system_port;
-        gem5::OutgoingRequestBridge* gem5_cache_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.cache_outgoing_bridge"));
-        cache_port->response_receiver = gem5_cache_port;
-        assert(gem5_system_port != NULL);
-        assert(gem5_cache_port != NULL);
+        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
+        assert(gem5_memory_port != NULL);
+        cache_port->response_receiver = gem5_memory_port;
     }
     if (phase == 1)
     {
