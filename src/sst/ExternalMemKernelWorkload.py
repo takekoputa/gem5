@@ -1,4 +1,4 @@
-# Copyright 2018 Google, Inc.
+# Copyright 2019 Google Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -23,13 +23,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Import('*')
+from m5.params import *
+from m5.SimObject import SimObject
 
-SimObject('ExternalMemKernelWorkload.py')
-SimObject('ExternalMemFsLinux.py')
-SimObject('OutgoingRequestBridge.py')
+from m5.objects.SimpleMemory import *
+from m5.objects.Workload import KernelWorkload
 
-Source('external_mem_kernel_workload.cc')
-Source('outgoing_request_bridge.cc')
-Source('sst_riscv_workload.cc')
-
+class ExternalMemKernelWorkload(KernelWorkload):
+    type = 'ExternalMemKernelWorkload'
+    cxx_header = "sst/external_mem_kernel_workload.hh"
+    cxx_class = 'gem5::ExternalMemKernelWorkload'

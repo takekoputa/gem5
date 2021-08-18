@@ -1,4 +1,8 @@
-# Copyright 2018 Google, Inc.
+# -*- mode:python -*-
+
+# Copyright (c) 2016 RISC-V Foundation
+# Copyright (c) 2016 The University of Virginia
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -23,13 +27,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Import('*')
+from m5.params import *
 
-SimObject('ExternalMemKernelWorkload.py')
-SimObject('ExternalMemFsLinux.py')
-SimObject('OutgoingRequestBridge.py')
+from m5.objects.System import System
+from m5.objects.ExternalMemKernelWorkload import ExternalMemKernelWorkload
 
-Source('external_mem_kernel_workload.cc')
-Source('outgoing_request_bridge.cc')
-Source('sst_riscv_workload.cc')
+class ExternalMemFsLinux(ExternalMemKernelWorkload):
+    type = 'ExternalMemFsLinux'
+    cxx_class = 'gem5::RiscvISA::ExternalMemFsLinux'
+    cxx_header = 'sst/sst_riscv_workload.hh'
 
+    dtb_filename = Param.String("",
+        "File that contains the Device Tree Blob. Don't use DTB if empty.")
+    dtb_addr = Param.Addr(0x87e00000, "DTB address")
