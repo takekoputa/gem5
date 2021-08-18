@@ -25,75 +25,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "sim/kernel_workload.hh"
+#include "sst/external_mem_kernel_workload.hh"
 
 #include "debug/Loader.hh"
-#include "params/KernelWorkload.hh"
+#include "params/ExternalMemKernelWorkload.hh"
+#include "sim/kernel_workload.hh"
 #include "sim/system.hh"
 
 namespace gem5
 {
 
-KernelWorkload::KernelWorkload(const Params &p) : Workload(p),
-    _loadAddrMask(p.load_addr_mask), _loadAddrOffset(p.load_addr_offset),
-    commandLine(p.command_line)
+ExternalMemKernelWorkload::ExternalMemKernelWorkload(const Params &p) :
+    KernelWorkload(p)
 {
-    if (params().object_file == "") {
-        inform("No kernel set for full system simulation. "
-               "Assuming you know what you're doing.");
-    } else {
-        kernelObj = loader::createObjectFile(params().object_file);
-        inform("kernel located at: %s", params().object_file);
-
-        fatal_if(!kernelObj,
-                "Could not load kernel file %s", params().object_file);
-
-        image = kernelObj->buildImage();
-
-        _start = image.minAddr();
-        _end = image.maxAddr();
-
-        // If load_addr_mask is set to 0x0, then calculate the smallest mask to
-        // cover all kernel addresses so gem5 can relocate the kernel to a new
-        // offset.
-        if (_loadAddrMask == 0)
-            _loadAddrMask = mask(findMsbSet(_end - _start) + 1);
-
-        image.move([this](Addr a) {
-            return (a & _loadAddrMask) + _loadAddrOffset;
-        });
-
-        kernelSymtab = kernelObj->symtab();
-        auto initKernelSymtab = kernelSymtab.mask(_loadAddrMask)
-            ->offset(_loadAddrOffset)
-            ->rename([](std::string &name) {
-                name = "kernel_init." + name;
-            });
-
-        loader::debugSymbolTable.insert(*initKernelSymtab);
-        loader::debugSymbolTable.insert(kernelSymtab);
-    }
-
-    // Loading only needs to happen once and after memory system is
-    // connected so it will happen in initState()
-
-    std::vector<Addr> extras_addrs = p.extras_addrs;
-    if (extras_addrs.empty())
-        extras_addrs.resize(p.extras.size(), MaxAddr);
-    fatal_if(p.extras.size() != extras_addrs.size(),
-        "Additional kernel objects, not all load addresses specified\n");
-    for (int ker_idx = 0; ker_idx < p.extras.size(); ker_idx++) {
-        const std::string &obj_name = p.extras[ker_idx];
-        const bool raw = extras_addrs[ker_idx] != MaxAddr;
-        auto *obj = loader::createObjectFile(obj_name, raw);
-        fatal_if(!obj, "Failed to build additional kernel object '%s'.\n",
-                 obj_name);
-        extras.push_back(obj);
-    }
 }
 
 void
-KernelWorkload::initState()
+ExternalMemKernelWorkload::initState()
 {
     auto &phys_mem = system->physProxy;
     /**
@@ -111,13 +59,10 @@ KernelWorkload::initState()
                     "start (%#x) - end (%#x) %#x:%#x\n",
                     _start, _end, mapper(_start), mapper(_end));
         }
-        // Load program sections into memory
-//        image.write(phys_mem);
 
         DPRINTF(Loader, "Kernel start = %#x\n", _start);
         DPRINTF(Loader, "Kernel end   = %#x\n", _end);
         DPRINTF(Loader, "Kernel entry = %#x\n", kernelObj->entryPoint());
-        DPRINTF(Loader, "Kernel loaded...\n");
     }
 
     std::vector<Addr> extras_addrs = params().extras_addrs;
@@ -134,16 +79,5 @@ KernelWorkload::initState()
     }
 }
 
-void
-KernelWorkload::serialize(CheckpointOut &cp) const
-{
-    kernelSymtab.serialize("symtab", cp);
-}
-
-void
-KernelWorkload::unserialize(CheckpointIn &cp)
-{
-    kernelSymtab.unserialize("symtab", cp);
-}
 
 } // namespace gem5
