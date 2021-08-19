@@ -43,6 +43,8 @@ class OutgoingRequestBridge: public SimObject
 
     Port & getPort(const std::string &if_name, PortID idx);
 
+    void setResponder(SSTResponderInterface* responder);
+
 };
 
 }; // namespace gem5

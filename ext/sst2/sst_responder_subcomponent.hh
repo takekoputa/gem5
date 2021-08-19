@@ -19,6 +19,7 @@
 // from gem5
 #include <sim/sim_object.hh>
 #include <sst/outgoing_request_bridge.hh>
+#include <sst/sst_responder_interface.hh>
 
 #include "sst_responder.hh"
 
@@ -28,13 +29,14 @@ class SSTResponderSubComponent: public SST::SubComponent
     gem5::OutgoingRequestBridge* response_receiver;
     SST::Link* memory_link; // sending requests to SST::Memory
                             // receive responses from SST::Memory
-    SSTResponder* sst_responder;
+    gem5::SSTResponderInterface* sst_responder;
 
   public:
     SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params);
     ~SSTResponderSubComponent();
 
     void init(unsigned phase);
+    void setup();
 
     void setResponseReceiver(gem5::OutgoingRequestBridge* gem5_bridge);
 

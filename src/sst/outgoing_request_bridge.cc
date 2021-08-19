@@ -46,8 +46,13 @@ OutgoingRequestBridge::getPort(const std::string &if_name, PortID idx)
 AddrRangeList
 OutgoingRequestBridge::getAddrRanges() const
 {
-    warn("OutgoingRequestBridge::getAddrRange is called");
     return outgoingPort.getAddrRanges();
+}
+
+void
+OutgoingRequestBridge::setResponder(SSTResponderInterface* responder)
+{
+    this->sstResponder = responder;
 }
 
 Tick
