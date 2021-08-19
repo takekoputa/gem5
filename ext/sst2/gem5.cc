@@ -104,17 +104,17 @@ gem5Component::init(unsigned phase)
         };
         this->execPythonCommands(find_sim_object_commands);
         */
-        SSTResponder* system_port = loadUserSubComponent<SSTResponder>("system_port", 0);
+        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
         gem5_connectors.push_back(system_port);
-        SSTResponder* cache_port = loadUserSubComponent<SSTResponder>("cache_port", 0);
+        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
         gem5_connectors.push_back(cache_port);
 
         gem5::Root* gem5_root = gem5::Root::root();
         gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
-        system_port->response_receiver = gem5_system_port;
+        system_port->setResponseReceiver(gem5_system_port);
         gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
         assert(gem5_memory_port != NULL);
-        cache_port->response_receiver = gem5_memory_port;
+        cache_port->setResponseReceiver(gem5_memory_port);
     }
     if (phase == 1)
     {
@@ -159,13 +159,6 @@ bool
 gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
     // what to do in a SST's Tick
-
-    /*
-    for (auto requestor: requestors)
-        requestor->clock();
-    */
-
-//    return true;
 
     gem5::GlobalSimLoopExitEvent *event = gem5::simulate(gem5_sim_cycles);
     clocks_processed++;

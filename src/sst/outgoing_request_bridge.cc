@@ -8,7 +8,8 @@ namespace gem5
 OutgoingRequestBridge::OutgoingRequestBridge(
     const OutgoingRequestBridgeParams &params) :
     SimObject(params),
-    outgoingPort(std::string(name()), this)
+    outgoingPort(std::string(name()), this),
+    sstResponder(nullptr)
 {
 }
 
@@ -16,16 +17,12 @@ OutgoingRequestBridge::~OutgoingRequestBridge()
 {
 }
 
-void
-OutgoingRequestBridge::callback_when_received()
-{
-}
-
 OutgoingRequestBridge::
 OutgoingRequestPort::OutgoingRequestPort(const std::string &name_,
-                                         OutgoingRequestBridge* owner) :
-    ResponsePort(name_, owner)
+                                         OutgoingRequestBridge* owner_) :
+    ResponsePort(name_, owner_)
 {
+    this->owner = owner_;
 }
 
 OutgoingRequestBridge::
@@ -36,7 +33,7 @@ OutgoingRequestPort::~OutgoingRequestPort()
 void
 OutgoingRequestBridge::init()
 {
-    //if (this->outgoingPort.isConnected())
+    if (this->outgoingPort.isConnected())
         this->outgoingPort.sendRangeChange();
 }
 
@@ -57,6 +54,7 @@ Tick
 OutgoingRequestBridge::
 OutgoingRequestPort::recvAtomic(PacketPtr pkt)
 {
+    assert(false && "OutgoingRequestPort::recvAtomic not implemented");
     return Tick();
 }
 
@@ -64,14 +62,14 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvFunctional(PacketPtr pkt)
 {
-    assert("OutgoingRequestPort::recvFunctional not implemented");
+    assert(false && "OutgoingRequestPort::recvFunctional not implemented");
 }
 
 bool
 OutgoingRequestBridge::
 OutgoingRequestPort::recvTimingReq(PacketPtr pkt)
 {
-    assert("OutgoingRequestPort::recvTimingReq not implemented");
+    owner->sstResponder->handleTimingReq(pkt);
     return true;
 }
 
@@ -79,7 +77,7 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvRespRetry()
 {
-    assert("OutgoingRequestPort::recvRespRetry not implemented");
+    assert(false && "OutgoingRequestPort::recvRespRetry not implemented");
 }
 
 AddrRangeList

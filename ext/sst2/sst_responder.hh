@@ -13,47 +13,23 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/interfaces/simpleMem.h>
 
-#include <sim/sim_object.hh>
-#include <sst/outgoing_request_bridge.hh>
-
-//#ifdef fatal
-//#undef fatal
-//#endif
-
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
 
-class SSTResponder: public SST::SubComponent
+// from gem5
+#include <sim/sim_object.hh>
+#include <sst/outgoing_request_bridge.hh>
+#include <sst/sst_responder_interface.hh>
+
+class SSTResponder: public gem5::SSTResponderInterface
 {
+  private:
+    SST::SubComponent* owner;
   public:
-    SSTResponder(SST::ComponentId_t id, SST::Params& params);
+    SSTResponder(SST::SubComponent* owner_);
     ~SSTResponder();
 
-    gem5::OutgoingRequestBridge* response_receiver;
-    SST::Link* memory_link; // sending requests to SST::Memory
-                            // receive responses from SST::Memory
-    bool findPort(const std::string& port_name);
-
-    void init(unsigned phase);
-
-  public: // register the component to SST
-    SST_ELI_REGISTER_SUBCOMPONENT_API(SSTResponder);
-    SST_ELI_REGISTER_SUBCOMPONENT_DERIVED(
-        SSTResponder,
-        "gem5", // SST will look for libgem5.so
-        "gem5Bridge",
-        SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Initialize gem5 and link SST's ports to gem5's ports",
-        SSTResponder
-    )
-
-    SST_ELI_DOCUMENT_PORTS(
-        {"port", "Handling mem events", {"memHierarchy.MemEvent",""}}
-    )
-
-    SST_ELI_DOCUMENT_PARAMS(
-        {"receiver_name", "Name of the SimObject receiving the responses"}
-    )
+    bool handleTimingReq(gem5::PacketPtr pkt) override;
 
 };
 

@@ -18,7 +18,7 @@
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
 
-#include "sst_responder.hh"
+#include "sst_responder_subcomponent.hh"
 
 class gem5Component: public SST::Component
 {
@@ -41,7 +41,7 @@ class gem5Component: public SST::Component
 
   private:
     SST::Output output;
-    std::vector<SSTResponder*> gem5_connectors;
+    std::vector<SSTResponderSubComponent*> gem5_connectors;
     //uint64_t gem5_sim_cycles;
     gem5::Tick gem5_sim_cycles;
     uint64_t clocks_processed;
