@@ -104,17 +104,17 @@ gem5Component::init(unsigned phase)
         };
         this->execPythonCommands(find_sim_object_commands);
         */
-        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
-        gem5_connectors.push_back(system_port);
-        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
-        gem5_connectors.push_back(cache_port);
+//        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+//        gem5_connectors.push_back(system_port);
+//        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+//        gem5_connectors.push_back(cache_port);
 
-        gem5::Root* gem5_root = gem5::Root::root();
-        gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
-        system_port->setResponseReceiver(gem5_system_port);
-        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
-        assert(gem5_memory_port != NULL);
-        cache_port->setResponseReceiver(gem5_memory_port);
+//        gem5::Root* gem5_root = gem5::Root::root();
+//        gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
+//        system_port->setResponseReceiver(gem5_system_port);
+//        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
+//        assert(gem5_memory_port != NULL);
+//        cache_port->setResponseReceiver(gem5_memory_port);
     }
     if (phase == 1)
     {
@@ -147,6 +147,17 @@ void
 gem5Component::setup()
 {
     output.verbose(CALL_INFO, 1, 0, "Component is being setup.\n");
+    SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+    gem5_connectors.push_back(system_port);
+    SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+    gem5_connectors.push_back(cache_port);
+
+    gem5::Root* gem5_root = gem5::Root::root();
+    gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
+    system_port->setResponseReceiver(gem5_system_port);
+    gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
+    assert(gem5_memory_port != NULL);
+    cache_port->setResponseReceiver(gem5_memory_port);
 }
 
 void
