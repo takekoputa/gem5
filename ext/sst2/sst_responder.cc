@@ -2,22 +2,19 @@
 
 #include <cassert>
 
-SSTResponder::SSTResponder(SST::ComponentId_t id, SST::Params& params)
-    : SubComponent(id)
+SSTResponder::SSTResponder(SST::SubComponent* owner_)
+    : gem5::SSTResponderInterface()
 {
+    this->owner = owner_;
 }
 
 SSTResponder::~SSTResponder()
 {
 }
 
-void
-SSTResponder::init(unsigned phase)
-{
-}
-
 bool
-SSTResponder::findPort(const std::string& port_name)
+SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 {
-    assert("SSTResponder::findPort not implemented");
+    assert(false && "SSTResponder::handleTimingReq is not implemented");
+    return true;
 }

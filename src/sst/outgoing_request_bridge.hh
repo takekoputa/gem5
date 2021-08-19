@@ -5,6 +5,7 @@
 #include "mem/port.hh"
 #include "params/OutgoingRequestBridge.hh"
 #include "sim/sim_object.hh"
+#include "sst/sst_responder_interface.hh"
 
 namespace gem5
 {
@@ -14,9 +15,11 @@ class OutgoingRequestBridge: public SimObject
   public:
     class OutgoingRequestPort: public ResponsePort
     {
+      private:
+        OutgoingRequestBridge* owner;
       public:
         OutgoingRequestPort(const std::string &name_,
-                            OutgoingRequestBridge* owner);
+                            OutgoingRequestBridge* owner_);
         ~OutgoingRequestPort();
         Tick recvAtomic(PacketPtr pkt);
         void recvFunctional(PacketPtr pkt);
@@ -28,6 +31,8 @@ class OutgoingRequestBridge: public SimObject
   public:
     OutgoingRequestPort outgoingPort;
 
+    SSTResponderInterface* sstResponder;
+
   public:
     OutgoingRequestBridge(const OutgoingRequestBridgeParams &params);
     ~OutgoingRequestBridge();
@@ -38,7 +43,6 @@ class OutgoingRequestBridge: public SimObject
 
     Port & getPort(const std::string &if_name, PortID idx);
 
-    void callback_when_received();
 };
 
 }; // namespace gem5
