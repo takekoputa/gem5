@@ -46,13 +46,13 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
     output.init("gem5Component-" + getName() + "->", 1, 0, SST::Output::STDOUT);
 
     // Register a handler to be called on a set frequency.
-    SST::TimeConverter *clock = registerClock(
+    this->time_converter = registerClock(
         "1MHz",
         new SST::Clock::Handler<gem5Component>(this, &gem5Component::clockTick)
     );
 
     // how many gem5 cycles will be simulated within an SST clock tick
-    gem5_sim_cycles = clock->getFactor();
+    gem5_sim_cycles = this->time_converter->getFactor();
 
     // "cmd" -> gem5's Python
     std::string cmd = params.find<std::string>("cmd", "");
@@ -158,6 +158,9 @@ gem5Component::setup()
     gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
     assert(gem5_memory_port != NULL);
     cache_port->setResponseReceiver(gem5_memory_port);
+
+    cache_port->setup(this->time_converter);
+
 }
 
 void
