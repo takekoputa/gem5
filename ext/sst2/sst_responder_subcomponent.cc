@@ -10,7 +10,6 @@ SSTResponderSubComponent::SSTResponderSubComponent(SST::ComponentId_t id, SST::P
 
 SSTResponderSubComponent::~SSTResponderSubComponent()
 {
-    assert(false);
     delete this->sst_responder;
 }
 
@@ -24,15 +23,23 @@ SSTResponderSubComponent::setResponseReceiver(gem5::OutgoingRequestBridge* gem5_
     //assert(false);
 }
 
+bool
+SSTResponderSubComponent::handleTimingReq(SST::MemHierarchy::MemEvent* mem_event)
+{
+    this->memory_link->send(mem_event);
+    return true;
+}
+
 void
 SSTResponderSubComponent::init(unsigned phase)
 {
 }
 
 void
-SSTResponderSubComponent::setup()
+SSTResponderSubComponent::setup(SST::TimeConverter* tc)
 {
-    //this->sst_responder = new SSTResponder(this);
-    //this->response_receiver->setResponder(this->sst_responder);
+    //this->memory_link = this->configureLink("cpu_l1_cache_link");
+    this->memory_link = this->configureLink("port", tc);
+    assert(this->memory_link != NULL);
 }
 

@@ -16,17 +16,25 @@
 #include <sst/core/eli/elementinfo.h>
 #include <sst/core/link.h>
 
+#include <sst/elements/memHierarchy/memEvent.h>
+#include <sst/elements/memHierarchy/memTypes.h>
+#include <sst/elements/memHierarchy/util.h>
+
 // from gem5
 #include <sim/sim_object.hh>
 #include <sst/outgoing_request_bridge.hh>
 #include <sst/sst_responder_interface.hh>
 
+#include "sst_responder_subcomponent.hh"
+
+class SSTResponderSubComponent;
+
 class SSTResponder: public gem5::SSTResponderInterface
 {
   private:
-    SST::SubComponent* owner;
+    SSTResponderSubComponent* owner;
   public:
-    SSTResponder(SST::SubComponent* owner_);
+    SSTResponder(SSTResponderSubComponent* owner_);
     ~SSTResponder();
 
     bool handleTimingReq(gem5::PacketPtr pkt) override;

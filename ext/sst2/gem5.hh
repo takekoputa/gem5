@@ -45,6 +45,7 @@ class gem5Component: public SST::Component
     //uint64_t gem5_sim_cycles;
     gem5::Tick gem5_sim_cycles;
     uint64_t clocks_processed;
+    SST::TimeConverter* time_converter;
 
     void initPython(int argc, char **argv);
     void loadFileToMem(std::string filepath, uint64_t mem_offset);

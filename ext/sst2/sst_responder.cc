@@ -2,7 +2,9 @@
 
 #include <cassert>
 
-SSTResponder::SSTResponder(SST::SubComponent* owner_)
+#include "translator.hh"
+
+SSTResponder::SSTResponder(SSTResponderSubComponent* owner_)
     : gem5::SSTResponderInterface()
 {
     this->owner = owner_;
@@ -15,6 +17,6 @@ SSTResponder::~SSTResponder()
 bool
 SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 {
-    assert(false && "SSTResponder::handleTimingReq is not implemented");
-    return true;
+    auto mem_event = Translator::gem5RequestToSSTMemEvent(this->owner->getName(), pkt);
+    return owner->handleTimingReq(mem_event);
 }
