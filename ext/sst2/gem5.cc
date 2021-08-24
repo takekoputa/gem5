@@ -94,6 +94,9 @@ gem5Component::init(unsigned phase)
         };
         this->execPythonCommands(instantiate_command_2);
 
+    system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+    cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+
         /*
         const std::vector<std::string> find_sim_object_commands = {
             "print('-----------------------------------------')",
@@ -121,6 +124,10 @@ gem5Component::init(unsigned phase)
         loadFileToMem("/scr/hn/bbl", 0x80000000);
         loadFileToMem("/scr/hn/device.dtb", 0x87e00000);
 
+//        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+        system_port->setTimeConverter(this->time_converter);
+//        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+        cache_port->setTimeConverter(this->time_converter);
         /* MD5 checking
         MD5_CTX c;
         MD5_Init(&c);
@@ -141,15 +148,15 @@ gem5Component::init(unsigned phase)
         */
         
     }
+    system_port->init(phase);
+    cache_port->init(phase);
 }
 
 void
 gem5Component::setup()
 {
     output.verbose(CALL_INFO, 1, 0, "Component is being setup.\n");
-    SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
     gem5_connectors.push_back(system_port);
-    SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
     gem5_connectors.push_back(cache_port);
 
     gem5::Root* gem5_root = gem5::Root::root();
@@ -159,6 +166,7 @@ gem5Component::setup()
     assert(gem5_memory_port != NULL);
     cache_port->setResponseReceiver(gem5_memory_port);
 
+    system_port->setup(this->time_converter);
     cache_port->setup(this->time_converter);
 
 }

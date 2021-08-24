@@ -30,15 +30,18 @@ class SSTResponderSubComponent: public SST::SubComponent
     SST::Link* memory_link; // sending requests to SST::Memory
                             // receive responses from SST::Memory
     gem5::SSTResponderInterface* sst_responder; 
-
+    SST::TimeConverter* time_converter;
+ 
   public:
     SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params);
     ~SSTResponderSubComponent();
 
     void init(unsigned phase);
     void setup(SST::TimeConverter* tc);
+    void setTimeConverter(SST::TimeConverter* tc);
 
     void setResponseReceiver(gem5::OutgoingRequestBridge* gem5_bridge);
+    void portEventHandler(SST::Event* ev);
 
     bool handleTimingReq(SST::MemHierarchy::MemEvent* mem_event);
 
