@@ -42,6 +42,8 @@ class gem5Component: public SST::Component
   private:
     SST::Output output;
     std::vector<SSTResponderSubComponent*> gem5_connectors;
+    SSTResponderSubComponent* system_port;
+    SSTResponderSubComponent* cache_port;
     //uint64_t gem5_sim_cycles;
     gem5::Tick gem5_sim_cycles;
     uint64_t clocks_processed;
@@ -72,7 +74,7 @@ class gem5Component: public SST::Component
     )
 
     SST_ELI_DOCUMENT_PORTS(
-        {"sst_cache_port", "gem5 -> SST::Cache", {"memHierarchy.MemEvent",""}}
+        {"sst_cache_port", "gem5 -> SST::Cache", {"memHierarchy.MemEvent", "memHierarchy.MemEventBase", ""}}
     )
 
 };

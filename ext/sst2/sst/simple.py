@@ -39,7 +39,7 @@ gem5_node = sst.Component("gem5_node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
 cache_bus = sst.Component("cache_bus", "memHierarchy.Bus")
-cache_bus.addParams( { "bus_frequency" : clock } )
+cache_bus.addParams( { "bus_frequency" : clock, "debug": "3", "debug_level" : 10} )
 
 system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0)
 cache_port = gem5_node.setSubComponent("cache_port", "gem5.gem5Bridge", 0) # SST -> gem5
@@ -76,6 +76,11 @@ gem5_comp_cache_link = sst.Link("gem5_comp_cache_link")
 gem5_comp_cache_link.connect(
     (gem5_node, "sst_cache_port", cache_link_latency), # gem5 -> SST
     (cache_bus, "high_network_1", cache_link_latency)
+)
+dummy_link = sst.Link("dummy_link")
+dummy_link.connect(
+    (system_port, "port", cache_link_latency),
+    (cache_bus, "high_network_2", cache_link_latency)
 )
 cache_bus_cache_link = sst.Link("cache_bus_cache_link")
 cache_bus_cache_link.connect(
