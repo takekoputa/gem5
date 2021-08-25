@@ -99,7 +99,7 @@ system.clk_domain = SrcClockDomain(
     clock="3GHz", voltage_domain=VoltageDomain()
 )
 
-system.mem_ranges = [AddrRange(start=0x80000000, size="512MB")]
+system.mem_ranges = [AddrRange(start=0x80000000, size="4GB")]
 
 system.cpu = [TimingSimpleCPU(cpu_id=i) for i in range(1)]
 system.mem_mode = 'timing'
