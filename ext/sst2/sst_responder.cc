@@ -14,6 +14,12 @@ SSTResponder::~SSTResponder()
 {
 }
 
+void
+SSTResponder::setOutputStream(SST::Output* output_)
+{
+    this->output = output_;
+}
+
 bool
 SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 {

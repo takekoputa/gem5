@@ -33,9 +33,9 @@
 
 #include <openssl/md5.h>
 
-//#ifdef fatal  // gem5 sets this
-//#undef fatal
-//#endif
+#ifdef fatal  // gem5 sets this
+#undef fatal
+#endif
 
 // More SST Headers
 #include <core/timeConverter.h>
@@ -94,8 +94,8 @@ gem5Component::init(unsigned phase)
         };
         this->execPythonCommands(instantiate_command_2);
 
-    system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
-    cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+        system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+        cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
 
         /*
         const std::vector<std::string> find_sim_object_commands = {
@@ -126,8 +126,10 @@ gem5Component::init(unsigned phase)
 
 //        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
         system_port->setTimeConverter(this->time_converter);
+        system_port->setOutputStream(&(this->output));
 //        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
         cache_port->setTimeConverter(this->time_converter);
+        cache_port->setOutputStream(&(this->output));
         /* MD5 checking
         MD5_CTX c;
         MD5_Init(&c);
@@ -165,10 +167,6 @@ gem5Component::setup()
     gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
     assert(gem5_memory_port != NULL);
     cache_port->setResponseReceiver(gem5_memory_port);
-
-    system_port->setup(this->time_converter);
-    cache_port->setup(this->time_converter);
-
 }
 
 void
