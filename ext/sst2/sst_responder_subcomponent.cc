@@ -2,6 +2,10 @@
 
 #include <cassert>
 
+#ifdef fatal  // gem5 sets this
+#undef fatal
+#endif
+
 SSTResponderSubComponent::SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params)
     : SubComponent(id)
 {
@@ -17,6 +21,12 @@ void
 SSTResponderSubComponent::setTimeConverter(SST::TimeConverter* tc)
 {
     this->time_converter = tc;
+}
+
+void
+SSTResponderSubComponent::setOutputStream(SST::Output* output_)
+{
+    this->output = output_;
 }
 
 void
@@ -55,7 +65,7 @@ SSTResponderSubComponent::init(unsigned phase)
 void
 SSTResponderSubComponent::portEventHandler(SST::Event* ev)
 {
-    assert(false && "portEventHandler is not implemented");
+    //assert(false && "portEventHandler is not implemented");
 }
 
 void

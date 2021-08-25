@@ -33,9 +33,12 @@ class SSTResponder: public gem5::SSTResponderInterface
 {
   private:
     SSTResponderSubComponent* owner;
+    SST::Output* output;
   public:
     SSTResponder(SSTResponderSubComponent* owner_);
     ~SSTResponder();
+
+    void setOutputStream(SST::Output* output_);
 
     bool handleTimingReq(gem5::PacketPtr pkt) override;
 
