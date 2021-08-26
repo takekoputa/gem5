@@ -8,18 +8,25 @@
 #include <sst/elements/memHierarchy/memTypes.h>
 #include <sst/elements/memHierarchy/util.h>
 
+struct TSSTEventIdHash
+{
+    size_t operator() (const SST::Event::id_type& p) const
+    {
+        return (uint64_t)(p.first) ^ (uint64_t)(p.second);
+    }
+
+};
+
+
+typedef std::unordered_map<SST::Event::id_type, gem5::PacketPtr, TSSTEventIdHash> TPacketMap;
+
 namespace Translator
 {
 
-
-SST::MemHierarchy::MemEvent*
-gem5RequestToSSTMemEvent(std::string comp, gem5::PacketPtr pkt)
+inline SST::MemHierarchy::MemEvent*
+gem5RequestToSSTMemEvent(std::string comp, gem5::PacketPtr pkt,
+                         TPacketMap& event_id_to_packet_map)
 {
-//    SST::MemHierarchy::Command cmd = SST::MemHierarchy::Command::GetS;
-
-//    SST::MemHierarchy::MemEvent* mem_event = new SST::MemHierarchy::MemEvent(
-//        comp, ptk->getAddr(), ptk->getAddr(), cmd);
-
     SST::MemHierarchy::Command cmd;
     switch ((gem5::MemCmd::Command)pkt->cmd.toInt()) {
         case gem5::MemCmd::HardPFReq:
@@ -60,10 +67,26 @@ gem5RequestToSSTMemEvent(std::string comp, gem5::PacketPtr pkt)
 // as not deserving of responses, or something else -- not sure yet.
 //  ev->setPrefetchFlag(pkt->req->isPrefetch());
 
-//    if (pkt->needsResponse())
-//        PacketMap[ev->getID()] = pkt;
+    if (pkt->needsResponse())
+        event_id_to_packet_map[ev->getID()] = pkt;
 
     return ev;
+}
+
+inline void
+inplaceSSTMemEventToGem5PacketPtr(gem5::PacketPtr pkt,
+                                  SST::MemHierarchy::MemEvent* event)
+{   
+    pkt->makeResponse();  // Convert to a response packet
+    pkt->setData(event->getPayload().data());
+
+    // Resolve the success of Store Conditionals
+    if (pkt->isLLSC() && pkt->isWrite()) {
+        //pkt->req->setExtraData(event->isAtomic());
+    }
+
+    // Clear out bus delay notifications
+    pkt->headerDelay = pkt->payloadDelay = 0;
 }
 
 }; // namespace Translator

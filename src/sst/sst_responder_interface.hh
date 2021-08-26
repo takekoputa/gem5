@@ -12,6 +12,7 @@ class SSTResponderInterface
   public:
     SSTResponderInterface();
     virtual bool handleTimingReq(PacketPtr pkt) = 0;
+    virtual void handleRecvRespRetry() = 0;
     virtual std::string getName() = 0;
 };
 } // namespace gem5
