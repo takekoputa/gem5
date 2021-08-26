@@ -55,6 +55,18 @@ OutgoingRequestBridge::setResponder(SSTResponderInterface* responder)
     this->sstResponder = responder;
 }
 
+bool
+OutgoingRequestBridge::sendTimingResp(gem5::PacketPtr pkt)
+{
+    return this->outgoingPort.sendTimingResp(pkt);
+}
+
+void
+OutgoingRequestBridge::sendTimingSnoopReq(gem5::PacketPtr pkt)
+{
+    this->outgoingPort.sendTimingSnoopReq(pkt);
+}
+
 Tick
 OutgoingRequestBridge::
 OutgoingRequestPort::recvAtomic(PacketPtr pkt)
@@ -82,7 +94,8 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvRespRetry()
 {
-    assert(false && "OutgoingRequestPort::recvRespRetry not implemented");
+    //assert(false && "OutgoingRequestPort::recvRespRetry not implemented");
+    owner->sstResponder->handleRecvRespRetry();
 }
 
 AddrRangeList

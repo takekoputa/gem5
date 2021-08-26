@@ -45,6 +45,9 @@ class OutgoingRequestBridge: public SimObject
 
     void setResponder(SSTResponderInterface* responder);
 
+    bool sendTimingResp(gem5::PacketPtr pkt);
+    void sendTimingSnoopReq(gem5::PacketPtr pkt);
+
 };
 
 }; // namespace gem5

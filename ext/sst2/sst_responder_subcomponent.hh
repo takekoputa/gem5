@@ -5,6 +5,8 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <queue>
 
 #include <sst/core/sst_config.h>
 #include <sst/core/component.h>
@@ -21,6 +23,7 @@
 #include <sst/outgoing_request_bridge.hh>
 #include <sst/sst_responder_interface.hh>
 
+#include "translator.hh"
 #include "sst_responder.hh"
 
 class SSTResponderSubComponent: public SST::SubComponent
@@ -32,13 +35,13 @@ class SSTResponderSubComponent: public SST::SubComponent
     gem5::SSTResponderInterface* sst_responder; 
     SST::TimeConverter* time_converter;
     SST::Output* output;
+    std::queue<gem5::PacketPtr> response_queue;
  
   public:
     SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params);
     ~SSTResponderSubComponent();
 
     void init(unsigned phase);
-    void setup(SST::TimeConverter* tc);
     void setTimeConverter(SST::TimeConverter* tc);
     void setOutputStream(SST::Output* output_);
 
@@ -46,6 +49,10 @@ class SSTResponderSubComponent: public SST::SubComponent
     void portEventHandler(SST::Event* ev);
 
     bool handleTimingReq(SST::MemHierarchy::MemEvent* mem_event);
+    void handleRecvRespRetry();
+    bool blocked();
+
+    TPacketMap event_id_to_packet_map;
 
   public: // register the component to SST
     SST_ELI_REGISTER_SUBCOMPONENT_API(SSTResponderSubComponent);
