@@ -58,7 +58,8 @@ ExternalMemFsLinux::initState()
                  params().dtb_filename);
         }
 
-        dtb_file->buildImage().offset(params().dtb_addr);
+        dtb_file->buildImage().offset(params().dtb_addr)
+            .write(system->physProxy);
         delete dtb_file;
 
         for (auto *tc: system->threads) {

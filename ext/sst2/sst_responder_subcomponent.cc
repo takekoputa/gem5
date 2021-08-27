@@ -34,6 +34,11 @@ SSTResponderSubComponent::setResponseReceiver(gem5::OutgoingRequestBridge* gem5_
 {
     this->response_receiver = gem5_bridge;
     this->response_receiver->setResponder(this->sst_responder);
+    //auto init_packets = gem5_bridge->getInitPackets();
+    //for (auto pkt: init_packets)
+    //{
+    //    this->handleRecvFunctional(pkt);
+    //}
 }
 
 bool
@@ -60,6 +65,27 @@ SSTResponderSubComponent::init(unsigned phase)
         SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
         this->memory_link->sendInitData(mem_event);
     }
+    else if (phase == 2)
+    {
+        for (auto pkt: this->response_receiver->getInitPackets())
+        {
+            gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
+            //assert(pktCmd == gem5::MemCmd::WriteReq);
+            if (pktCmd != gem5::MemCmd::WriteReq)
+                continue;
+            gem5::Addr addr = pkt->getAddr();
+            // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
+            std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
+            SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
+            this->memory_link->sendInitData(mem_event);
+        }
+        
+    }
+}
+
+void
+SSTResponderSubComponent::setup()
+{
 }
 
 void
@@ -117,6 +143,22 @@ SSTResponderSubComponent::handleRecvRespRetry()
     {
         this->response_queue.pop();
     }
+}
+
+void
+SSTResponderSubComponent::handleRecvFunctional(gem5::PacketPtr pkt)
+{
+    gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
+    //assert(pktCmd == gem5::MemCmd::WriteReq);
+    if (pktCmd != gem5::MemCmd::WriteReq)
+        return;
+    gem5::Addr addr = pkt->getAddr();
+    // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
+    std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
+    SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
+    //mem_event->setAddr(addr);
+    //mem_event->setPayload(pkt->getSize(), pkt->getPtr<uint8_t>());
+    this->init_events.push_back(mem_event);
 }
 
 bool
