@@ -72,7 +72,11 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
     for (size_t i = 0; i < args.size(); ++i) {
         output.output(CALL_INFO, "  Arg [%02zu] = %s\n", i, args[i]);
     }
-    gem5::setDebugFlag("All");
+
+    // Setting gem5 debug flags
+    std::string gem5_debug_flags = params.find<std::string>("debug_flags", "");
+    if (gem5_debug_flags != "")
+        gem5::setDebugFlag(gem5_debug_flags.c_str());
 
     initPython(args.size(), &args[0]);
 
@@ -97,28 +101,6 @@ gem5Component::init(unsigned phase)
 
         system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
         cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
-
-        /*
-        const std::vector<std::string> find_sim_object_commands = {
-            "print('-----------------------------------------')",
-            "from m5.objects import OutgoingRequestBridge, Root",
-            "root = Root.getInstance()",
-            "print(root.find_all(OutgoingRequestBridge))",
-            "for obj in root.descendants(): print(type(obj))"
-        };
-        this->execPythonCommands(find_sim_object_commands);
-        */
-//        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
-//        gem5_connectors.push_back(system_port);
-//        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
-//        gem5_connectors.push_back(cache_port);
-
-//        gem5::Root* gem5_root = gem5::Root::root();
-//        gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
-//        system_port->setResponseReceiver(gem5_system_port);
-//        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
-//        assert(gem5_memory_port != NULL);
-//        cache_port->setResponseReceiver(gem5_memory_port);
     }
     else if (phase == 1)
     {
