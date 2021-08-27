@@ -33,6 +33,8 @@ class OutgoingRequestBridge: public SimObject
 
     SSTResponderInterface* sstResponder;
 
+    std::vector<gem5::PacketPtr> initPackets;
+
   public:
     OutgoingRequestBridge(const OutgoingRequestBridgeParams &params);
     ~OutgoingRequestBridge();
@@ -43,11 +45,14 @@ class OutgoingRequestBridge: public SimObject
 
     Port & getPort(const std::string &if_name, PortID idx);
 
+    std::vector<gem5::PacketPtr> getInitPackets();
+
     void setResponder(SSTResponderInterface* responder);
 
     bool sendTimingResp(gem5::PacketPtr pkt);
     void sendTimingSnoopReq(gem5::PacketPtr pkt);
 
+    void handleRecvFunctional(gem5::PacketPtr pkt);
 };
 
 }; // namespace gem5

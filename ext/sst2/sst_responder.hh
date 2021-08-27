@@ -42,6 +42,7 @@ class SSTResponder: public gem5::SSTResponderInterface
 
     bool handleTimingReq(gem5::PacketPtr pkt) override;
     void handleRecvRespRetry() override;
+    void handleRecvFunctional(gem5::PacketPtr pkt) override;
 
     std::string getName();
 };

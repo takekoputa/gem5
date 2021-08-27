@@ -88,7 +88,8 @@ void
 gem5Component::init(unsigned phase)
 {
     output.output(CALL_INFO," init phase: %u\n", phase);
-    if (phase == 0) {
+    if (phase == 0)
+    {
         const std::vector<std::string> instantiate_command_2 = {
             "m5.instantiate_step_2()"
         };
@@ -119,37 +120,26 @@ gem5Component::init(unsigned phase)
 //        assert(gem5_memory_port != NULL);
 //        cache_port->setResponseReceiver(gem5_memory_port);
     }
-    if (phase == 1)
+    else if (phase == 1)
     {
-        loadFileToMem("/scr/hn/bbl", 0x80000000);
-        loadFileToMem("/scr/hn/device.dtb", 0x87e00000);
-
-//        SSTResponderSubComponent* system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
         system_port->setTimeConverter(this->time_converter);
         system_port->setOutputStream(&(this->output));
-//        SSTResponderSubComponent* cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
         cache_port->setTimeConverter(this->time_converter);
         cache_port->setOutputStream(&(this->output));
-        /* MD5 checking
-        MD5_CTX c;
-        MD5_Init(&c);
-        unsigned char out[MD5_DIGEST_LENGTH];
-
-        for(; it != it_end; it++)
-        {
-            uint8_t buf[1];
-            buf[0] = *it;
-            MD5_Update(&c, buf, 1);
-            count += 1;
-        }
-        MD5_Final(out, &c);
-
-        for(int n=0; n<MD5_DIGEST_LENGTH; n++)
-            printf("%02x", out[n]);
-        printf("\n");
-        */
-        
     }
+    else if (phase == 2)
+    {
+        gem5_connectors.push_back(system_port);
+        gem5_connectors.push_back(cache_port);
+
+        gem5::Root* gem5_root = gem5::Root::root();
+        gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
+        system_port->setResponseReceiver(gem5_system_port);
+        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
+        assert(gem5_memory_port != NULL);
+        cache_port->setResponseReceiver(gem5_memory_port);
+    }
+
     system_port->init(phase);
     cache_port->init(phase);
 }
@@ -158,15 +148,9 @@ void
 gem5Component::setup()
 {
     output.verbose(CALL_INFO, 1, 0, "Component is being setup.\n");
-    gem5_connectors.push_back(system_port);
-    gem5_connectors.push_back(cache_port);
 
-    gem5::Root* gem5_root = gem5::Root::root();
-    gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
-    system_port->setResponseReceiver(gem5_system_port);
-    gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
-    assert(gem5_memory_port != NULL);
-    cache_port->setResponseReceiver(gem5_memory_port);
+    system_port->setup();
+    cache_port->setup();
 }
 
 void
@@ -343,6 +327,7 @@ gem5Component::loadFileToMem(std::string filepath, uint64_t mem_offset)
         "gem5_node", mem_offset, mem_offset,
         SST::MemHierarchy::Command::GetX, chunks
     );
+    ev->setDst("l1_cache");
     cache_link->sendInitData(ev);
 
     input_stream.close();

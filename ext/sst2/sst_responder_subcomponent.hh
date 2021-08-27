@@ -36,6 +36,8 @@ class SSTResponderSubComponent: public SST::SubComponent
     SST::TimeConverter* time_converter;
     SST::Output* output;
     std::queue<gem5::PacketPtr> response_queue;
+
+    std::vector<SST::MemHierarchy::MemEventInit*> init_events;
  
   public:
     SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params);
@@ -50,7 +52,9 @@ class SSTResponderSubComponent: public SST::SubComponent
 
     bool handleTimingReq(SST::MemHierarchy::MemEvent* mem_event);
     void handleRecvRespRetry();
+    void handleRecvFunctional(gem5::PacketPtr pkt);
     bool blocked();
+    void setup();
 
     TPacketMap event_id_to_packet_map;
 

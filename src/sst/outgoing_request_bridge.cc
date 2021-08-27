@@ -49,6 +49,12 @@ OutgoingRequestBridge::getAddrRanges() const
     return outgoingPort.getAddrRanges();
 }
 
+std::vector<gem5::PacketPtr>
+OutgoingRequestBridge::getInitPackets()
+{
+    return this->initPackets;
+}
+
 void
 OutgoingRequestBridge::setResponder(SSTResponderInterface* responder)
 {
@@ -67,6 +73,13 @@ OutgoingRequestBridge::sendTimingSnoopReq(gem5::PacketPtr pkt)
     this->outgoingPort.sendTimingSnoopReq(pkt);
 }
 
+void
+OutgoingRequestBridge::handleRecvFunctional(gem5::PacketPtr pkt)
+{
+    gem5::PacketPtr pkt_clone = new gem5::Packet(pkt, false, true);
+    this->initPackets.push_back(pkt_clone);
+}
+
 Tick
 OutgoingRequestBridge::
 OutgoingRequestPort::recvAtomic(PacketPtr pkt)
@@ -79,7 +92,7 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvFunctional(PacketPtr pkt)
 {
-    assert(false && "OutgoingRequestPort::recvFunctional not implemented");
+    owner->handleRecvFunctional(pkt);
 }
 
 bool

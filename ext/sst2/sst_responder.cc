@@ -32,12 +32,17 @@ SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 void
 SSTResponder::handleRecvRespRetry()
 {
-    owner->handleRecvRespRetry();
+    this->owner->handleRecvRespRetry();
 }
 
+void
+SSTResponder::handleRecvFunctional(gem5::PacketPtr pkt)
+{
+    this->owner->handleRecvFunctional(pkt);
+}
 
 std::string
 SSTResponder::getName()
 {
-    return owner->getName() + ".port";
+    return this->owner->getName() + ".port";
 }
