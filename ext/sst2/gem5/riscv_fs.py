@@ -84,6 +84,8 @@ def createHiFivePlatform(system):
     system.bridge.cpu_side_port = system.membus.mem_side_ports
     system.bridge.ranges = system.platform._off_chip_ranges()
 
+    system.platform.setNumCores(1)
+
     system.platform.attachOnChipIO(system.membus)
     system.platform.attachOffChipIO(system.iobus)
 
