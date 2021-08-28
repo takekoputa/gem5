@@ -1,6 +1,8 @@
 #include "sst_responder_subcomponent.hh"
 
 #include <cassert>
+#include <sstream>
+#include <iomanip>
 
 #ifdef fatal  // gem5 sets this
 #undef fatal
@@ -67,6 +69,7 @@ SSTResponderSubComponent::init(unsigned phase)
     }
     else if (phase == 2)
     {
+        /*
         for (auto pkt: this->response_receiver->getInitPackets())
         {
             gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
@@ -75,7 +78,31 @@ SSTResponderSubComponent::init(unsigned phase)
                 continue;
             gem5::Addr addr = pkt->getAddr();
             // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
-            std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
+//            std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
+            std::vector<uint8_t> data;
+            auto ptr = pkt->getPtr<uint8_t>();
+            for (unsigned int k = 0; k < pkt->getSize(); k++)
+            {
+                data.push_back(*ptr);
+                ptr++;
+            }
+            if (addr >= 0x87e00000)
+            {
+                std::stringstream s;
+                s << this->getName() << " sends "<< pkt->getSize() << " packets to [";
+                for (auto n: data)
+                    s << std::hex << (uint16_t)n << ",";
+                s << "] to " << std::hex << addr;
+                this->output->output(CALL_INFO, "%s\n", s.str().c_str());
+            }
+            SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
+            this->memory_link->sendInitData(mem_event);
+        }
+        */
+        for (auto p: this->response_receiver->getInitData())
+        {
+            gem5::Addr addr = p.first;
+            std::vector<uint8_t> data = p.second;
             SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
             this->memory_link->sendInitData(mem_event);
         }

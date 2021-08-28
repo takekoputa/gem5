@@ -1,6 +1,11 @@
 #include "sst/outgoing_request_bridge.hh"
 
 #include <cassert>
+#include <iomanip>
+#include <sstream>
+
+#include "base/trace.hh"
+#include "debug/SST.hh"
 
 namespace gem5
 {
@@ -49,10 +54,10 @@ OutgoingRequestBridge::getAddrRanges() const
     return outgoingPort.getAddrRanges();
 }
 
-std::vector<gem5::PacketPtr>
-OutgoingRequestBridge::getInitPackets()
+std::unordered_map<Addr, std::vector<uint8_t>>
+OutgoingRequestBridge::getInitData()
 {
-    return this->initPackets;
+    return this->initData;
 }
 
 void
@@ -74,10 +79,27 @@ OutgoingRequestBridge::sendTimingSnoopReq(gem5::PacketPtr pkt)
 }
 
 void
-OutgoingRequestBridge::handleRecvFunctional(gem5::PacketPtr pkt)
+OutgoingRequestBridge::handleRecvFunctional(PacketPtr pkt)
 {
-    gem5::PacketPtr pkt_clone = new gem5::Packet(pkt, false, true);
-    this->initPackets.push_back(pkt_clone);
+    std::stringstream s;
+    s << "gem5 wants to send to " << std::hex << pkt->getAddr() << " data: [";
+    auto ptr = pkt->getPtr<uint8_t>();
+    for (unsigned int k = 0; k < pkt->getSize(); k++)
+    {
+        uint64_t data = (uint64_t)(*ptr);
+        s << std::hex <<data << ",";
+        ptr++;
+    }
+    s << "]\n";
+    DPRINTF(SST, "%s", s.str().c_str());
+    std::vector<uint8_t> data;
+    auto ptr = pkt->getPtr<uint8_t>();
+    for (unsigned int k = 0; k < pkt->getSize(); k++)
+    {
+        data.push_back(*ptr);
+        ptr++;
+    }
+    this->initData[pkt->getAddr()] = data;
 }
 
 Tick

@@ -8,3 +8,5 @@ Source('external_mem_kernel_workload.cc')
 Source('outgoing_request_bridge.cc')
 Source('sst_riscv_workload.cc')
 Source('sst_responder_interface.cc')
+
+DebugFlag('SST')

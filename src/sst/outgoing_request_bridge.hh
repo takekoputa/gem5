@@ -1,6 +1,9 @@
 #ifndef __SST_OUTGOING_REQUEST_BRIDGE_HH__
 #define __SST_OUTGOING_REQUEST_BRIDGE_HH__
 
+#include <unordered_map>
+#include <vector>
+
 #include "mem/external_slave.hh"
 #include "mem/port.hh"
 #include "params/OutgoingRequestBridge.hh"
@@ -33,7 +36,8 @@ class OutgoingRequestBridge: public SimObject
 
     SSTResponderInterface* sstResponder;
 
-    std::vector<gem5::PacketPtr> initPackets;
+//    std::vector<uint8_t> initData;
+    std::unordered_map<Addr, std::vector<uint8_t>> initData;
 
   public:
     OutgoingRequestBridge(const OutgoingRequestBridgeParams &params);
@@ -45,14 +49,15 @@ class OutgoingRequestBridge: public SimObject
 
     Port & getPort(const std::string &if_name, PortID idx);
 
-    std::vector<gem5::PacketPtr> getInitPackets();
+//    std::vector<uint8_t> getInitData();
+    std::unordered_map<Addr, std::vector<uint8_t>> getInitData();
 
     void setResponder(SSTResponderInterface* responder);
 
-    bool sendTimingResp(gem5::PacketPtr pkt);
-    void sendTimingSnoopReq(gem5::PacketPtr pkt);
+    bool sendTimingResp(PacketPtr pkt);
+    void sendTimingSnoopReq(PacketPtr pkt);
 
-    void handleRecvFunctional(gem5::PacketPtr pkt);
+    void handleRecvFunctional(PacketPtr pkt);
 };
 
 }; // namespace gem5

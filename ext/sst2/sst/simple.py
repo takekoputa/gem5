@@ -30,7 +30,8 @@ l2_params = {
 
 cpu_params = {
     "frequency": clock,
-    "cmd": "gem5/riscv_fs.py"
+    "cmd": " gem5/riscv_fs.py",
+    "debug_flags": "ExecAll"
 }
 
 
