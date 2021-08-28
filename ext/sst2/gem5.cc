@@ -75,8 +75,23 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
 
     // Setting gem5 debug flags
     std::string gem5_debug_flags = params.find<std::string>("debug_flags", "");
-    if (gem5_debug_flags != "")
-        gem5::setDebugFlag(gem5_debug_flags.c_str());
+//    if (gem5_debug_flags != "")
+//        gem5::setDebugFlag(gem5_debug_flags.c_str());
+    std::string s = gem5_debug_flags + ",";
+    int prev_pos = 0;
+    int pos = 0;
+    output.output(CALL_INFO, "  DebugFlags = %s %d\n", s.c_str(), s.size());
+    while (prev_pos < (int)s.size())
+    {
+        pos = s.find(",", prev_pos);
+        output.output(CALL_INFO, " %d %d\n", prev_pos, pos);
+        if (pos == s.npos)
+            break;
+        std::string debug_flag = s.substr(prev_pos, pos-prev_pos);
+        gem5::setDebugFlag(debug_flag.c_str());
+        output.output(CALL_INFO, "  DebugFlag += %s\n", debug_flag.c_str());
+        prev_pos = pos + 1;
+    }
 
     initPython(args.size(), &args[0]);
 
