@@ -14,7 +14,8 @@ l1_params = {
     "cache_line_size" : "64",
     "cache_size" : "4 KB",
     "L1" : "1",
-    "debug" : "0",
+    "debug" : "3",
+    "debug_level": "10"
 }
 
 l2_params = {
@@ -40,10 +41,13 @@ gem5_node = sst.Component("gem5_node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
 cache_bus = sst.Component("cache_bus", "memHierarchy.Bus")
-cache_bus.addParams( { "bus_frequency" : clock, "debug": "3", "debug_level" : 10} )
+cache_bus.addParams( { "bus_frequency" : clock, "debug": "3", "debug_level" : 10 } )
 
-system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0)
+system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0) # for initialization
+#system_port_mem_interface = system_port.setSubComponent("system_port_mem_interface", "memHierarchy.memInterface")
+
 cache_port = gem5_node.setSubComponent("cache_port", "gem5.gem5Bridge", 0) # SST -> gem5
+#cache_port_mem_interface = cache_port.setSubComponent("cache_port_mem_interface", "memHierarchy.memInterface")
 
 # L1 cache
 l1_cache = sst.Component("l1_cache", "memHierarchy.Cache")

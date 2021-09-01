@@ -23,10 +23,10 @@ SSTResponder::setOutputStream(SST::Output* output_)
 bool
 SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 {
-    auto mem_event = Translator::gem5RequestToSSTMemEvent(
-        this->owner->getName(), pkt, this->owner->event_id_to_packet_map);
-    mem_event->setDst("l1_cache");
-    return owner->handleTimingReq(mem_event);
+    auto request = Translator::gem5RequestToSSTRequest(
+        pkt, this->owner->sst_request_id_to_packet_map);
+    //mem_event->setDst("l1_cache");
+    return owner->handleTimingReq(request);
 }
 
 void

@@ -30,14 +30,14 @@ class SSTResponderSubComponent: public SST::SubComponent
 {
   private:
     gem5::OutgoingRequestBridge* response_receiver;
-    SST::Link* memory_link; // sending requests to SST::Memory
-                            // receive responses from SST::Memory
     gem5::SSTResponderInterface* sst_responder; 
+
+    SST::Interfaces::SimpleMem* memory_interface;
     SST::TimeConverter* time_converter;
     SST::Output* output;
     std::queue<gem5::PacketPtr> response_queue;
 
-    std::vector<SST::MemHierarchy::MemEventInit*> init_events;
+    std::vector<SST::Interfaces::SimpleMem::Request*> init_requests;
  
   public:
     SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params);
@@ -48,15 +48,15 @@ class SSTResponderSubComponent: public SST::SubComponent
     void setOutputStream(SST::Output* output_);
 
     void setResponseReceiver(gem5::OutgoingRequestBridge* gem5_bridge);
-    void portEventHandler(SST::Event* ev);
+    void portEventHandler(SST::Interfaces::SimpleMem::Request* request);
 
-    bool handleTimingReq(SST::MemHierarchy::MemEvent* mem_event);
+    bool handleTimingReq(SST::Interfaces::SimpleMem::Request* request);
     void handleRecvRespRetry();
     void handleRecvFunctional(gem5::PacketPtr pkt);
     bool blocked();
     void setup();
 
-    TPacketMap event_id_to_packet_map;
+    TPacketMap sst_request_id_to_packet_map;
 
   public: // register the component to SST
     SST_ELI_REGISTER_SUBCOMPONENT_API(SSTResponderSubComponent);
@@ -69,8 +69,12 @@ class SSTResponderSubComponent: public SST::SubComponent
         SSTResponderSubComponent
     )
 
+    SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
+        {"memory", "Interface to the memory subsystem", "SST::Interfaces::SimpleMem"}
+    )
+
     SST_ELI_DOCUMENT_PORTS(
-        {"port", "Handling mem events", {"memHierarchy.MemEvent",""}}
+        {"port", "Handling mem events", {"memHierarchy.MemEvent", ""}}
     )
 
     SST_ELI_DOCUMENT_PARAMS(

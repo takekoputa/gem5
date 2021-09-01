@@ -39,9 +39,9 @@ SSTResponderSubComponent::setResponseReceiver(gem5::OutgoingRequestBridge* gem5_
 }
 
 bool
-SSTResponderSubComponent::handleTimingReq(SST::MemHierarchy::MemEvent* mem_event)
+SSTResponderSubComponent::handleTimingReq(SST::Interfaces::SimpleMem::Request* request)
 {
-    this->memory_link->send(mem_event);
+    this->memory_interface->sendRequest(request);
     return true;
 }
 
@@ -50,13 +50,21 @@ SSTResponderSubComponent::init(unsigned phase)
 {
     if (phase == 0)
     {
-        //this->memory_link = this->configureLink("cpu_l1_cache_link");
-        this->memory_link = this->configureLink(
-            "port", this->time_converter,
-            new SST::Event::Handler<SSTResponderSubComponent>(this, &SSTResponderSubComponent::portEventHandler));
-        assert(this->memory_link != NULL);
-        SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
-        this->memory_link->sendInitData(mem_event);
+        // Get the memory interface
+        SST::Params interface_params;
+        interface_params.insert("port", "port"); // This is how you tell the interface the name of the port it should use
+
+        // Loads a “memHierarchy.memInterface” into index 0 of the “memory” slot
+        // SHARE_PORTS means the interface can use our port as if it were its own
+        // INSERT_STATS means the interface will inherit our statistic configuration (e.g., if ours are enabled, the interface’s will be too)
+        this->memory_interface = loadAnonymousSubComponent<SST::Interfaces::SimpleMem>(
+            "memHierarchy.memInterface", "memory", 0,
+            SST::ComponentInfo::SHARE_PORTS | SST::ComponentInfo::INSERT_STATS, interface_params, this->time_converter,
+            new SST::Interfaces::SimpleMem::Handler<SSTResponderSubComponent>(this, &SSTResponderSubComponent::portEventHandler)
+        );
+        assert(this->memory_interface != NULL);
+        //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
+        //this->memory_interface->sendInitData(mem_event);
     }
     else if (phase == 1)
     {
@@ -64,11 +72,15 @@ SSTResponderSubComponent::init(unsigned phase)
         {
             gem5::Addr addr = p.first;
             std::vector<uint8_t> data = p.second;
-            SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
-            this->memory_link->sendInitData(mem_event);
+            //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
+            //this->memory_link->sendInitData(mem_event);
+            SST::Interfaces::SimpleMem::Request* request = new SST::Interfaces::SimpleMem::Request(
+                SST::Interfaces::SimpleMem::Request::Command::Write, addr, data.size(), data
+            );
+            this->memory_interface->sendInitData(request);
         }
-        
     }
+    this->memory_interface->init(phase);
 }
 
 void
@@ -77,26 +89,19 @@ SSTResponderSubComponent::setup()
 }
 
 void
-SSTResponderSubComponent::portEventHandler(SST::Event* ev)
+SSTResponderSubComponent::portEventHandler(SST::Interfaces::SimpleMem::Request* request)
 {
-    // Expect to handle sending packets from SST to gem5
-    SST::MemHierarchy::MemEvent* mem_event = dynamic_cast<SST::MemHierarchy::MemEvent*>(ev);
-    if (!mem_event)
-    {
-        output->fatal(CALL_INFO, 1, "SSTResponder received a non-MemEvent Event\n");
-        delete ev;
-        return;
-    }
-    SST::Event::id_type event_id = mem_event->getID();
+    // Expect to handle an SST response
+    SST::Interfaces::SimpleMem::Request::id_t request_id = request->id;
 
-    TPacketMap::iterator it = event_id_to_packet_map.find(event_id);
+    TPacketMap::iterator it = this->sst_request_id_to_packet_map.find(request_id);
 
-    if (it != event_id_to_packet_map.end()) // replying to prior request
+    if (it != sst_request_id_to_packet_map.end()) // replying to prior request
     {
         gem5::PacketPtr pkt = it->second; // the packet that needs response
-        event_id_to_packet_map.erase(it);
+        sst_request_id_to_packet_map.erase(it);
 
-        Translator::inplaceSSTMemEventToGem5PacketPtr(pkt, mem_event);
+        Translator::inplaceSSTRequestToGem5PacketPtr(pkt, request);
 
         if (this->blocked() || !this->response_receiver->sendTimingResp(pkt))
         {
@@ -105,13 +110,14 @@ SSTResponderSubComponent::portEventHandler(SST::Event* ev)
     }
     else // we can handle unexpected invalidates, but nothing else.
     {
-        SST::MemHierarchy::Command cmd = mem_event->getCmd();
-        assert(cmd == SST::MemHierarchy::Command::Inv);
+        SST::Interfaces::SimpleMem::Request::Command cmd = request->cmd;
+        assert(cmd == SST::Interfaces::SimpleMem::Request::Command::Inv);
 
         // make Req/Pkt for Snoop/no response needed
         // presently no consideration for masterId, packet type, flags...
         gem5::RequestPtr req = std::make_shared<gem5::Request>(
-            mem_event->getAddr(), mem_event->getSize(), 0, 0);
+            request->addr, request->size, 0, 0
+        );
 
         gem5::PacketPtr pkt = new gem5::Packet(req, gem5::MemCmd::InvalidateReq);
 
@@ -121,7 +127,7 @@ SSTResponderSubComponent::portEventHandler(SST::Event* ev)
         this->response_receiver->sendTimingSnoopReq(pkt);
     }
 
-    delete mem_event;
+    delete request;
 }
 
 void
@@ -136,6 +142,7 @@ SSTResponderSubComponent::handleRecvRespRetry()
 void
 SSTResponderSubComponent::handleRecvFunctional(gem5::PacketPtr pkt)
 {
+    /*
     gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
     //assert(pktCmd == gem5::MemCmd::WriteReq);
     if (pktCmd != gem5::MemCmd::WriteReq)
@@ -143,10 +150,12 @@ SSTResponderSubComponent::handleRecvFunctional(gem5::PacketPtr pkt)
     gem5::Addr addr = pkt->getAddr();
     // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
     std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
-    SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
+    //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
     //mem_event->setAddr(addr);
     //mem_event->setPayload(pkt->getSize(), pkt->getPtr<uint8_t>());
-    this->init_events.push_back(mem_event);
+    SST::Interfaces::SimpleMem::Request* request = new SST::Interfaces::SimpleMem::Request(SST::Interfaces::SimpleMem::Command::Write, addr, data.size(), data);
+    this->init_requests.push_back(request);
+    */
 }
 
 bool
