@@ -75,8 +75,6 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
 
     // Setting gem5 debug flags
     std::string gem5_debug_flags = params.find<std::string>("debug_flags", "");
-//    if (gem5_debug_flags != "")
-//        gem5::setDebugFlag(gem5_debug_flags.c_str());
     std::string s = gem5_debug_flags + ",";
     int prev_pos = 0;
     int pos = 0;
@@ -97,6 +95,29 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
 
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
+
+    const std::vector<std::string> instantiate_command_2 = {
+        "m5.instantiate_step_2()"
+    };
+    this->execPythonCommands(instantiate_command_2);
+
+    this->system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
+    this->cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
+
+    system_port->setTimeConverter(this->time_converter);
+    system_port->setOutputStream(&(this->output));
+    cache_port->setTimeConverter(this->time_converter);
+    cache_port->setOutputStream(&(this->output));
+
+    gem5_connectors.push_back(system_port);
+    gem5_connectors.push_back(cache_port);
+
+    gem5::Root* gem5_root = gem5::Root::root();
+    gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
+    this->system_port->setResponseReceiver(gem5_system_port);
+    gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
+    assert(gem5_memory_port != NULL);
+    this->cache_port->setResponseReceiver(gem5_memory_port);
 }
 
 gem5Component::~gem5Component()
@@ -107,38 +128,8 @@ void
 gem5Component::init(unsigned phase)
 {
     output.output(CALL_INFO," init phase: %u\n", phase);
-    if (phase == 0)
-    {
-        const std::vector<std::string> instantiate_command_2 = {
-            "m5.instantiate_step_2()"
-        };
-        this->execPythonCommands(instantiate_command_2);
-
-        system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
-        cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
-    }
-    else if (phase == 1)
-    {
-        system_port->setTimeConverter(this->time_converter);
-        system_port->setOutputStream(&(this->output));
-        cache_port->setTimeConverter(this->time_converter);
-        cache_port->setOutputStream(&(this->output));
-    }
-    else if (phase == 2)
-    {
-        gem5_connectors.push_back(system_port);
-        gem5_connectors.push_back(cache_port);
-
-        gem5::Root* gem5_root = gem5::Root::root();
-        gem5::OutgoingRequestBridge* gem5_system_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.system_outgoing_bridge"));
-        system_port->setResponseReceiver(gem5_system_port);
-        gem5::OutgoingRequestBridge* gem5_memory_port = dynamic_cast<gem5::OutgoingRequestBridge*>(gem5_root->find("system.memory_outgoing_bridge"));
-        assert(gem5_memory_port != NULL);
-        cache_port->setResponseReceiver(gem5_memory_port);
-    }
-
-    system_port->init(phase);
-    cache_port->init(phase);
+    this->system_port->init(phase);
+    this->cache_port->init(phase);
 }
 
 void

@@ -11,7 +11,7 @@
 SSTResponderSubComponent::SSTResponderSubComponent(SST::ComponentId_t id, SST::Params& params)
     : SubComponent(id)
 {
-    //this->sst_responder = new SSTResponder(this);
+    this->sst_responder = new SSTResponder(this);
 }
 
 SSTResponderSubComponent::~SSTResponderSubComponent()
@@ -36,11 +36,6 @@ SSTResponderSubComponent::setResponseReceiver(gem5::OutgoingRequestBridge* gem5_
 {
     this->response_receiver = gem5_bridge;
     this->response_receiver->setResponder(this->sst_responder);
-    //auto init_packets = gem5_bridge->getInitPackets();
-    //for (auto pkt: init_packets)
-    //{
-    //    this->handleRecvFunctional(pkt);
-    //}
 }
 
 bool
@@ -55,10 +50,6 @@ SSTResponderSubComponent::init(unsigned phase)
 {
     if (phase == 0)
     {
-        this->sst_responder = new SSTResponder(this);
-    }
-    else if (phase == 1)
-    {
         //this->memory_link = this->configureLink("cpu_l1_cache_link");
         this->memory_link = this->configureLink(
             "port", this->time_converter,
@@ -67,38 +58,8 @@ SSTResponderSubComponent::init(unsigned phase)
         SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
         this->memory_link->sendInitData(mem_event);
     }
-    else if (phase == 2)
+    else if (phase == 1)
     {
-        /*
-        for (auto pkt: this->response_receiver->getInitPackets())
-        {
-            gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
-            //assert(pktCmd == gem5::MemCmd::WriteReq);
-            if (pktCmd != gem5::MemCmd::WriteReq)
-                continue;
-            gem5::Addr addr = pkt->getAddr();
-            // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
-//            std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
-            std::vector<uint8_t> data;
-            auto ptr = pkt->getPtr<uint8_t>();
-            for (unsigned int k = 0; k < pkt->getSize(); k++)
-            {
-                data.push_back(*ptr);
-                ptr++;
-            }
-            if (addr >= 0x87e00000)
-            {
-                std::stringstream s;
-                s << this->getName() << " sends "<< pkt->getSize() << " packets to [";
-                for (auto n: data)
-                    s << std::hex << (uint16_t)n << ",";
-                s << "] to " << std::hex << addr;
-                this->output->output(CALL_INFO, "%s\n", s.str().c_str());
-            }
-            SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
-            this->memory_link->sendInitData(mem_event);
-        }
-        */
         for (auto p: this->response_receiver->getInitData())
         {
             gem5::Addr addr = p.first;
@@ -122,7 +83,7 @@ SSTResponderSubComponent::portEventHandler(SST::Event* ev)
     SST::MemHierarchy::MemEvent* mem_event = dynamic_cast<SST::MemHierarchy::MemEvent*>(ev);
     if (!mem_event)
     {
-        output->fatal(CALL_INFO, 1, "SSTRes457fponder received a non-MemEvent Event\n");
+        output->fatal(CALL_INFO, 1, "SSTResponder received a non-MemEvent Event\n");
         delete ev;
         return;
     }
