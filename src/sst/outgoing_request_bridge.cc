@@ -83,7 +83,7 @@ OutgoingRequestBridge::handleRecvFunctional(PacketPtr pkt)
 {
     std::stringstream s;
     s << "gem5 wants to send to " << std::hex << pkt->getAddr() << " data: [";
-    auto ptr = pkt->getPtr<uint8_t>();
+    uint8_t* ptr = pkt->getPtr<uint8_t>();
     for (unsigned int k = 0; k < pkt->getSize(); k++)
     {
         uint64_t data = (uint64_t)(*ptr);
@@ -92,8 +92,9 @@ OutgoingRequestBridge::handleRecvFunctional(PacketPtr pkt)
     }
     s << "]\n";
     DPRINTF(SST, "%s", s.str().c_str());
+
     std::vector<uint8_t> data;
-    auto ptr = pkt->getPtr<uint8_t>();
+    ptr = pkt->getPtr<uint8_t>();
     for (unsigned int k = 0; k < pkt->getSize(); k++)
     {
         data.push_back(*ptr);
