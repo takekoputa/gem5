@@ -89,6 +89,60 @@ SSTResponderSubComponent::setup()
 }
 
 void
+SSTResponderSubComponent::handleSwapReqFirstStage(gem5::PacketPtr pkt)
+{
+    // send a read request first
+    SST::Interfaces::SimpleMem::Request::Command cmd = SST::Interfaces::SimpleMem::Request::Command::Read;
+    SST::Interfaces::SimpleMem::Addr addr = pkt->getAddr();
+
+    uint8_t* data_ptr = pkt->getPtr<uint8_t>();
+    auto data_size = pkt->getSize();
+    std::vector<uint8_t> data = std::vector<uint8_t>(data_ptr, data_ptr + data_size);
+
+    SST::Interfaces::SimpleMem::Request* request = new SST::Interfaces::SimpleMem::Request(
+        cmd, addr, data_size, data
+    );
+
+    request->setMemFlags(SST::Interfaces::SimpleMem::Request::Flags::F_LOCKED);
+    sst_request_id_to_packet_map[request->id] = pkt;
+    this->memory_interface->sendRequest(request);
+}
+
+void
+SSTResponderSubComponent::handleSwapReqSecondStage(SST::Interfaces::SimpleMem::Request* request)
+{
+    // get the data, then,
+    //     1. send a response to gem5 with the original data
+    //     2. send a write with atomic op applied to memory
+
+    SST::Interfaces::SimpleMem::Request::id_t request_id = request->id;
+    TPacketMap::iterator it = this->sst_request_id_to_packet_map.find(request_id);
+    assert(it != sst_request_id_to_packet_map.end());
+    std::vector<uint8_t> data = request->data;
+
+    // step 1
+    gem5::PacketPtr pkt = it->second;
+    pkt->setData(request->data.data());
+    pkt->makeAtomicResponse();
+    pkt->headerDelay = pkt->payloadDelay = 0;
+    if (this->blocked() || !this->response_receiver->sendTimingResp(pkt))
+        this->response_queue.push(pkt);
+
+    // step 2
+    (*(pkt->getAtomicOp()))(data.data()); // apply the atomic op
+    SST::Interfaces::SimpleMem::Request::Command cmd = SST::Interfaces::SimpleMem::Request::Command::Write;
+    SST::Interfaces::SimpleMem::Addr addr = request->addr;
+    auto data_size = data.size();
+    SST::Interfaces::SimpleMem::Request* write_request = new SST::Interfaces::SimpleMem::Request(
+        cmd, addr, data_size, data
+    );
+    write_request->setMemFlags(SST::Interfaces::SimpleMem::Request::Flags::F_LOCKED);
+    this->memory_interface->sendRequest(write_request);
+
+    delete request;
+}
+
+void
 SSTResponderSubComponent::portEventHandler(SST::Interfaces::SimpleMem::Request* request)
 {
     // Expect to handle an SST response
@@ -99,6 +153,13 @@ SSTResponderSubComponent::portEventHandler(SST::Interfaces::SimpleMem::Request* 
     if (it != sst_request_id_to_packet_map.end()) // replying to prior request
     {
         gem5::PacketPtr pkt = it->second; // the packet that needs response
+
+        if ((gem5::MemCmd::Command)pkt->cmd.toInt() == gem5::MemCmd::SwapReq)
+        {
+            this->handleSwapReqSecondStage(request);
+            return;
+        }
+
         sst_request_id_to_packet_map.erase(it);
 
         Translator::inplaceSSTRequestToGem5PacketPtr(pkt, request);
@@ -111,6 +172,8 @@ SSTResponderSubComponent::portEventHandler(SST::Interfaces::SimpleMem::Request* 
     else // we can handle unexpected invalidates, but nothing else.
     {
         SST::Interfaces::SimpleMem::Request::Command cmd = request->cmd;
+        if (cmd == SST::Interfaces::SimpleMem::Request::Command::WriteResp)
+            return;
         assert(cmd == SST::Interfaces::SimpleMem::Request::Command::Inv);
 
         // make Req/Pkt for Snoop/no response needed

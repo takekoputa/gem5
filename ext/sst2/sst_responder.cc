@@ -23,6 +23,11 @@ SSTResponder::setOutputStream(SST::Output* output_)
 bool
 SSTResponder::handleTimingReq(gem5::PacketPtr pkt)
 {
+    if ((gem5::MemCmd::Command)pkt->cmd.toInt() == gem5::MemCmd::SwapReq)
+    {
+        owner->handleSwapReqFirstStage(pkt);
+        return true;
+    }
     auto request = Translator::gem5RequestToSSTRequest(
         pkt, this->owner->sst_request_id_to_packet_map);
     //mem_event->setDst("l1_cache");

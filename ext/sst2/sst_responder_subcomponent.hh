@@ -56,6 +56,9 @@ class SSTResponderSubComponent: public SST::SubComponent
     bool blocked();
     void setup();
 
+    void handleSwapReqFirstStage(gem5::PacketPtr pkt);
+    void handleSwapReqSecondStage(SST::Interfaces::SimpleMem::Request* request);
+
     TPacketMap sst_request_id_to_packet_map;
 
   public: // register the component to SST
