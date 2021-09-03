@@ -76,17 +76,13 @@ inplaceSSTRequestToGem5PacketPtr(gem5::PacketPtr pkt,
                                  SST::Interfaces::SimpleMem::Request* request)
 {
     pkt->makeResponse();
-    /*
+
     // Resolve the success of Store Conditionals
     if (pkt->isLLSC() && pkt->isWrite()) {
         //pkt->req->setExtraData(event->isAtomic());
-        pkt->makeAtomicResponse();
+        pkt->req->setExtraData(1);
     }
-    else
-    {
-        pkt->makeResponse();  // Convert to a response packet
-    }
-    */
+
     //pkt->setData(event->getPayload().data());
     pkt->setData(request->data.data());
 

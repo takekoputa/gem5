@@ -61,12 +61,12 @@ memctrl.addParams({
     "debug" : "0",
     "clock" : "1GHz",
     "request_width" : "64",
-    "addr_range_end" : 4*1024*1024*1024-1,
+    "addr_range_end" : 8*1024*1024*1024-1,
 })
 memory = memctrl.setSubComponent("backend", "memHierarchy.simpleMem")
 memory.addParams({
     "access_time" : "30ns",
-    "mem_size" : "4GB",
+    "mem_size" : "8GiB",
 })
 
 

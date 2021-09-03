@@ -23,6 +23,22 @@ void
 SSTResponderSubComponent::setTimeConverter(SST::TimeConverter* tc)
 {
     this->time_converter = tc;
+
+    // Get the memory interface
+    SST::Params interface_params;
+    interface_params.insert("port", "port"); // This is how you tell the interface the name of the port it should use
+    interface_params.insert("mem_size", "8GiB");
+    // Loads a “memHierarchy.memInterface” into index 0 of the “memory” slot
+    // SHARE_PORTS means the interface can use our port as if it were its own
+    // INSERT_STATS means the interface will inherit our statistic configuration (e.g., if ours are enabled, the interface’s will be too)
+    this->memory_interface = loadAnonymousSubComponent<SST::Interfaces::SimpleMem>(
+        "memHierarchy.memInterface", "memory", 0,
+        SST::ComponentInfo::SHARE_PORTS | SST::ComponentInfo::INSERT_STATS, interface_params, this->time_converter,
+        new SST::Interfaces::SimpleMem::Handler<SSTResponderSubComponent>(this, &SSTResponderSubComponent::portEventHandler)
+    );
+    assert(this->memory_interface != NULL);
+    //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
+    //this->memory_interface->sendInitData(mem_event);
 }
 
 void
@@ -48,25 +64,7 @@ SSTResponderSubComponent::handleTimingReq(SST::Interfaces::SimpleMem::Request* r
 void
 SSTResponderSubComponent::init(unsigned phase)
 {
-    if (phase == 0)
-    {
-        // Get the memory interface
-        SST::Params interface_params;
-        interface_params.insert("port", "port"); // This is how you tell the interface the name of the port it should use
-
-        // Loads a “memHierarchy.memInterface” into index 0 of the “memory” slot
-        // SHARE_PORTS means the interface can use our port as if it were its own
-        // INSERT_STATS means the interface will inherit our statistic configuration (e.g., if ours are enabled, the interface’s will be too)
-        this->memory_interface = loadAnonymousSubComponent<SST::Interfaces::SimpleMem>(
-            "memHierarchy.memInterface", "memory", 0,
-            SST::ComponentInfo::SHARE_PORTS | SST::ComponentInfo::INSERT_STATS, interface_params, this->time_converter,
-            new SST::Interfaces::SimpleMem::Handler<SSTResponderSubComponent>(this, &SSTResponderSubComponent::portEventHandler)
-        );
-        assert(this->memory_interface != NULL);
-        //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
-        //this->memory_interface->sendInitData(mem_event);
-    }
-    else if (phase == 1)
+    if (phase == 1)
     {
         for (auto p: this->response_receiver->getInitData())
         {
