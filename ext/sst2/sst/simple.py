@@ -14,8 +14,6 @@ l1_params = {
     "cache_line_size" : "64",
     "cache_size" : "4 KB",
     "L1" : "1",
-    "debug" : "3",
-    "debug_level": "10"
 }
 
 l2_params = {
@@ -26,7 +24,6 @@ l2_params = {
     "associativity" : "8",
     "cache_line_size" : "64",
     "cache_size" : "32 KB",
-    "debug" : "0",
 }
 
 cpu_params = {
@@ -35,8 +32,6 @@ cpu_params = {
     "debug_flags": "ExecAll"
 }
 
-
-
 gem5_node = sst.Component("gem5_node", "gem5.gem5Component")
 gem5_node.addParams(cpu_params)
 
@@ -44,10 +39,8 @@ cache_bus = sst.Component("cache_bus", "memHierarchy.Bus")
 cache_bus.addParams( { "bus_frequency" : clock, "debug": "3", "debug_level" : 10 } )
 
 system_port = gem5_node.setSubComponent("system_port", "gem5.gem5Bridge", 0) # for initialization
-#system_port_mem_interface = system_port.setSubComponent("system_port_mem_interface", "memHierarchy.memInterface")
 
 cache_port = gem5_node.setSubComponent("cache_port", "gem5.gem5Bridge", 0) # SST -> gem5
-#cache_port_mem_interface = cache_port.setSubComponent("cache_port_mem_interface", "memHierarchy.memInterface")
 
 # L1 cache
 l1_cache = sst.Component("l1_cache", "memHierarchy.Cache")
@@ -74,18 +67,13 @@ memory.addParams({
 # cpu <-> L1
 cpu_cache_link = sst.Link("cpu_l1_cache_link")
 cpu_cache_link.connect(
-    (cache_port, "port", cache_link_latency), # SST -> gem5
+    (cache_port, "port", cache_link_latency),
     (cache_bus, "high_network_0", cache_link_latency)
 )
-gem5_comp_cache_link = sst.Link("gem5_comp_cache_link")
-gem5_comp_cache_link.connect(
-    (gem5_node, "sst_cache_port", cache_link_latency), # gem5 -> SST
-    (cache_bus, "high_network_1", cache_link_latency)
-)
-dummy_link = sst.Link("dummy_link")
-dummy_link.connect(
+system_cache_link = sst.Link("system_cache_link")
+system_cache_link.connect(
     (system_port, "port", cache_link_latency),
-    (cache_bus, "high_network_2", cache_link_latency)
+    (cache_bus, "high_network_1", cache_link_latency)
 )
 cache_bus_cache_link = sst.Link("cache_bus_cache_link")
 cache_bus_cache_link.connect(
