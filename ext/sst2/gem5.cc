@@ -292,36 +292,6 @@ gem5Component::initPython(int argc, char *_argv[])
 }
 
 void
-gem5Component::loadFileToMem(std::string filepath, uint64_t mem_offset)
-{
-    SST::Link* cache_link = configureLink("sst_cache_port");
-    assert(cache_link != NULL);
-
-    // https://stackoverflow.com/questions/15138353/how-to-read-a-binary-file-into-a-vector-of-unsigned-chars
-    std::ifstream input_stream(filepath, std::ios::in | std::ios::binary);
-    input_stream.unsetf(std::ios::skipws); // avoid \n being ignored
-    //std::istream_iterator<uint8_t> it(input_stream);
-    //std::istream_iterator<uint8_t> it_end;
-    std::vector<uint8_t> chunks = std::vector<uint8_t> (
-       std::istream_iterator<uint8_t>(input_stream),
-       std::istream_iterator<uint8_t>()
-    );
-
-
-    // Information about MemEvent Commands:
-    // http://sst-simulator.org/SSTPages/SSTElementMemHierarchy/
-    // src/sst/elements/memHierarchy/cacheController.h
-    SST::MemHierarchy::MemEvent* ev = new SST::MemHierarchy::MemEvent(
-        "gem5_node", mem_offset, mem_offset,
-        SST::MemHierarchy::Command::GetX, chunks
-    );
-    ev->setDst("l1_cache");
-    cache_link->sendInitData(ev);
-
-    input_stream.close();
-}
-
-void
 gem5Component::splitCommandArgs(std::string &cmd, std::vector<char*> &args)
 {
     const std::array<char, 4> delimiters = { {'\\', ' ', '\'', '\"'} };
