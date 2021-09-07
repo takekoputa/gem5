@@ -37,8 +37,6 @@ class OutgoingRequestBridge: public SimObject
 
     SSTResponderInterface* sstResponder;
 
-//    std::vector<uint8_t> initData;
-//    std::unordered_map<Addr, std::vector<uint8_t>> initData;
     std::vector<std::pair<Addr, std::vector<uint8_t>>> initData;
 
 
@@ -52,8 +50,6 @@ class OutgoingRequestBridge: public SimObject
 
     Port & getPort(const std::string &if_name, PortID idx);
 
-//    std::vector<uint8_t> getInitData();
-//    std::unordered_map<Addr, std::vector<uint8_t>> getInitData();
     std::vector<std::pair<Addr, std::vector<uint8_t>>> getInitData();
 
     void setResponder(SSTResponderInterface* responder);

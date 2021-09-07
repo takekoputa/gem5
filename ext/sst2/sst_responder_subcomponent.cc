@@ -37,8 +37,6 @@ SSTResponderSubComponent::setTimeConverter(SST::TimeConverter* tc)
         new SST::Interfaces::SimpleMem::Handler<SSTResponderSubComponent>(this, &SSTResponderSubComponent::portEventHandler)
     );
     assert(this->memory_interface != NULL);
-    //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::MemEventInit::InitCommand::Data);
-    //this->memory_interface->sendInitData(mem_event);
 }
 
 void
@@ -70,8 +68,6 @@ SSTResponderSubComponent::init(unsigned phase)
         {
             gem5::Addr addr = p.first;
             std::vector<uint8_t> data = p.second;
-            //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
-            //this->memory_link->sendInitData(mem_event);
             SST::Interfaces::SimpleMem::Request* request = new SST::Interfaces::SimpleMem::Request(
                 SST::Interfaces::SimpleMem::Request::Command::Write, addr, data.size(), data
             );
@@ -203,20 +199,6 @@ SSTResponderSubComponent::handleRecvRespRetry()
 void
 SSTResponderSubComponent::handleRecvFunctional(gem5::PacketPtr pkt)
 {
-    /*
-    gem5::MemCmd::Command pktCmd = (gem5::MemCmd::Command)pkt->cmd.toInt();
-    //assert(pktCmd == gem5::MemCmd::WriteReq);
-    if (pktCmd != gem5::MemCmd::WriteReq)
-        return;
-    gem5::Addr addr = pkt->getAddr();
-    // https://stackoverflow.com/questions/9510684/assigning-a-vector-from-an-array-pointer/9510724
-    std::vector<uint8_t> data(pkt->getPtr<uint8_t>(), pkt->getPtr<uint8_t>() + pkt->getSize());
-    //SST::MemHierarchy::MemEventInit* mem_event = new SST::MemHierarchy::MemEventInit(this->getName(), SST::MemHierarchy::Command::GetX, addr, data);
-    //mem_event->setAddr(addr);
-    //mem_event->setPayload(pkt->getSize(), pkt->getPtr<uint8_t>());
-    SST::Interfaces::SimpleMem::Request* request = new SST::Interfaces::SimpleMem::Request(SST::Interfaces::SimpleMem::Command::Write, addr, data.size(), data);
-    this->init_requests.push_back(request);
-    */
 }
 
 bool

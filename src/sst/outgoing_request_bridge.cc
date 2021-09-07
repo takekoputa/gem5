@@ -130,7 +130,6 @@ void
 OutgoingRequestBridge::
 OutgoingRequestPort::recvRespRetry()
 {
-    //assert(false && "OutgoingRequestPort::recvRespRetry not implemented");
     owner->sstResponder->handleRecvRespRetry();
 }
 
