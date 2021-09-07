@@ -2,6 +2,7 @@
 #define __SST_OUTGOING_REQUEST_BRIDGE_HH__
 
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "mem/external_slave.hh"
@@ -37,7 +38,9 @@ class OutgoingRequestBridge: public SimObject
     SSTResponderInterface* sstResponder;
 
 //    std::vector<uint8_t> initData;
-    std::unordered_map<Addr, std::vector<uint8_t>> initData;
+//    std::unordered_map<Addr, std::vector<uint8_t>> initData;
+    std::vector<std::pair<Addr, std::vector<uint8_t>>> initData;
+
 
   public:
     OutgoingRequestBridge(const OutgoingRequestBridgeParams &params);
@@ -50,7 +53,8 @@ class OutgoingRequestBridge: public SimObject
     Port & getPort(const std::string &if_name, PortID idx);
 
 //    std::vector<uint8_t> getInitData();
-    std::unordered_map<Addr, std::vector<uint8_t>> getInitData();
+//    std::unordered_map<Addr, std::vector<uint8_t>> getInitData();
+    std::vector<std::pair<Addr, std::vector<uint8_t>>> getInitData();
 
     void setResponder(SSTResponderInterface* responder);
 

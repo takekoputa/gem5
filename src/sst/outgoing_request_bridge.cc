@@ -54,7 +54,7 @@ OutgoingRequestBridge::getAddrRanges() const
     return outgoingPort.getAddrRanges();
 }
 
-std::unordered_map<Addr, std::vector<uint8_t>>
+std::vector<std::pair<Addr, std::vector<uint8_t>>>
 OutgoingRequestBridge::getInitData()
 {
     return this->initData;
@@ -100,7 +100,7 @@ OutgoingRequestBridge::handleRecvFunctional(PacketPtr pkt)
         data.push_back(*ptr);
         ptr++;
     }
-    this->initData[pkt->getAddr()] = data;
+    this->initData.push_back(std::make_pair(pkt->getAddr(), data));
 }
 
 Tick
