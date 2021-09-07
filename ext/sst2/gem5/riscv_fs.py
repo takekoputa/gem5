@@ -113,7 +113,7 @@ createHiFivePlatform(system)
 system.system_outgoing_bridge = OutgoingRequestBridge()
 system.system_port = system.system_outgoing_bridge.port
 generateDtb(system)
-system.workload = ExternalMemFsLinux()
+system.workload = RiscvLinux()
 system.workload.addr_check = False
 system.workload.object_file = "/scr/hn/bbl"
 system.workload.dtb_filename = path.join(m5.options.outdir, 'device.dtb')

@@ -112,7 +112,7 @@ KernelWorkload::initState()
                     _start, _end, mapper(_start), mapper(_end));
         }
         // Load program sections into memory
-//        image.write(phys_mem);
+        image.write(phys_mem);
 
         DPRINTF(Loader, "Kernel start = %#x\n", _start);
         DPRINTF(Loader, "Kernel end   = %#x\n", _end);
