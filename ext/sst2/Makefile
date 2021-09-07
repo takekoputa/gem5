@@ -14,7 +14,7 @@ SRC=$(wildcard *.cc)
 all: libgem5.so
 
 libgem5.so: $(SRC:%.cc=%.o)
-	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB} -pthread
+	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB}
 
 -include $(SRC:%.cc=%.d)
 

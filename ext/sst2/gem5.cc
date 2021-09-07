@@ -48,8 +48,7 @@
 #include <core/timeConverter.h>
 
 gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
-    SST::Component(id),
-    thread(nullptr), thread_initialized(false), simulate_limit_event(nullptr)
+    SST::Component(id)
 {
     output.init("gem5Component-" + getName() + "->", 1, 0, SST::Output::STDOUT);
 
@@ -169,7 +168,7 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
     //gem5::GlobalSimLoopExitEvent *event = gem5::simulate(gem5_sim_cycles);
     gem5::GlobalSimLoopExitEvent *event = this->simulate_gem5(gem5_sim_cycles);
     clocks_processed++;
-    if (event != this->simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
+    if (event != gem5::simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
         output.output("exiting: curTick()=%lu cause=`%s` code=%d\n",
             gem5::curTick(), event->getCause().c_str(), event->getCode()
         );
@@ -189,15 +188,14 @@ gem5Component::simulate_gem5(gem5::Tick n_cycles)
 {
     if (!(this->thread_initialized))
     {
-        this->thread = new std::thread(&(gem5Component::doSimLoop), gem5::mainEventQueue[1]); // the queue[0] is for the main thread
         this->thread_initialized = true;
-        this->simulate_limit_event = new gem5::GlobalSimLoopExitEvent(gem5::mainEventQueue[0]->getCurTick(), "simulate() limit reached", 0);
+        gem5::simulate_limit_event = new gem5::GlobalSimLoopExitEvent(gem5::mainEventQueue[0]->getCurTick(), "simulate() limit reached", 0);
     }
 
     inform_once("Entering event queue @ %d.  Starting simulation...\n", gem5::curTick());
 
     gem5::Tick next_end_cycle = gem5::curTick() + n_cycles;
-    this->simulate_limit_event->reschedule(next_end_cycle);
+    gem5::simulate_limit_event->reschedule(next_end_cycle);
     gem5::Event *local_event = this->doSimLoop(gem5::mainEventQueue[0]);
     assert(local_event != NULL);
     gem5::BaseGlobalEvent *global_event = local_event->globalEvent();
@@ -213,11 +211,6 @@ gem5Component::doSimLoop(gem5::EventQueue* eventq)
 {
     gem5::curEventQueue(eventq);
     eventq->handleAsyncInsertions();
-    //while (!(eventq->async_queue.empty()))
-    //{
-    //    eventq->insert(eventq->async_queue.front());
-    //    eventq->async_queue.pop_front();
-    //}
 
     while (true)
     {
