@@ -44,7 +44,6 @@ class gem5Component: public SST::Component
     std::vector<SSTResponderSubComponent*> gem5_connectors;
     SSTResponderSubComponent* system_port;
     SSTResponderSubComponent* cache_port;
-    //uint64_t gem5_sim_cycles;
     gem5::Tick gem5_sim_cycles;
     uint64_t clocks_processed;
     SST::TimeConverter* time_converter;

@@ -96,10 +96,16 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
 
-    const std::vector<std::string> instantiate_command_2 = {
-        "m5.instantiate_step_2()"
+    const std::vector<std::string> simobject_setup_commands = {
+        "import atexit",
+        "import _m5",
+        "root = m5.objects.Root.getInstance()",
+        "for obj in root.descendants(): obj.startup()",
+        "atexit.register(m5.stats.dump)",
+        "atexit.register(_m5.core.doExitCleanup)",
+        "m5.stats.reset()"
     };
-    this->execPythonCommands(instantiate_command_2);
+    this->execPythonCommands(simobject_setup_commands);
 
     this->system_port = loadUserSubComponent<SSTResponderSubComponent>("system_port", 0);
     this->cache_port = loadUserSubComponent<SSTResponderSubComponent>("cache_port", 0);
@@ -285,10 +291,10 @@ gem5Component::initPython(int argc, char *_argv[])
         output.output(CALL_INFO, "Not calling m5Main due to ret=%d\n", ret);
     }
 
-    const std::vector<std::string> instantiate_command_1 = {
-        "m5.instantiate_step_1()"
+    const std::vector<std::string> m5_instantiate_commands = {
+        "m5.instantiate()"
     };
-    this->execPythonCommands(instantiate_command_1);
+    this->execPythonCommands(m5_instantiate_commands);
 }
 
 void
