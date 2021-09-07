@@ -1,6 +1,6 @@
 # These three variables are designed to be modifiable.
 SST_VERSION=SST-11.0.0
-GEM5_LIB=gem5_opt
+GEM5_LIB=gem5_debug
 ARCH=RISCV
 OFLAG=0
 
@@ -14,7 +14,7 @@ SRC=$(wildcard *.cc)
 all: libgem5.so
 
 libgem5.so: $(SRC:%.cc=%.o)
-	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB}
+	${CXX} ${CPPFLAGS} ${LDFLAGS} $? -o $@ -l${GEM5_LIB} -pthread
 
 -include $(SRC:%.cc=%.d)
 

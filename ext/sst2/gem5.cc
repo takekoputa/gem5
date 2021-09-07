@@ -27,6 +27,13 @@
 #include <base/logging.hh>
 #include <base/debug.hh>
 
+#include <base/pollevent.hh>
+#include <base/types.hh>
+#include <sim/async.hh>
+#include <sim/eventq.hh>
+#include <sim/sim_exit.hh>
+#include <sim/stat_control.hh>
+
 #include <sst/outgoing_request_bridge.hh>
 
 #include <cassert>
@@ -41,7 +48,8 @@
 #include <core/timeConverter.h>
 
 gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
-    SST::Component(id)
+    SST::Component(id),
+    thread(nullptr), thread_initialized(false), simulate_limit_event(nullptr)
 {
     output.init("gem5Component-" + getName() + "->", 1, 0, SST::Output::STDOUT);
 
@@ -158,9 +166,10 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
     // what to do in a SST's Tick
 
-    gem5::GlobalSimLoopExitEvent *event = gem5::simulate(gem5_sim_cycles);
+    //gem5::GlobalSimLoopExitEvent *event = gem5::simulate(gem5_sim_cycles);
+    gem5::GlobalSimLoopExitEvent *event = this->simulate_gem5(gem5_sim_cycles);
     clocks_processed++;
-    if (event != gem5::simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
+    if (event != this->simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
         output.output("exiting: curTick()=%lu cause=`%s` code=%d\n",
             gem5::curTick(), event->getCause().c_str(), event->getCode()
         );
@@ -174,6 +183,86 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
 }
 
 #define PyCC(x) (const_cast<char *>(x))
+
+gem5::GlobalSimLoopExitEvent*
+gem5Component::simulate_gem5(gem5::Tick n_cycles)
+{
+    if (!(this->thread_initialized))
+    {
+        this->thread = new std::thread(&(gem5Component::doSimLoop), gem5::mainEventQueue[1]); // the queue[0] is for the main thread
+        this->thread_initialized = true;
+        this->simulate_limit_event = new gem5::GlobalSimLoopExitEvent(gem5::mainEventQueue[0]->getCurTick(), "simulate() limit reached", 0);
+    }
+
+    inform_once("Entering event queue @ %d.  Starting simulation...\n", gem5::curTick());
+
+    gem5::Tick next_end_cycle = gem5::curTick() + n_cycles;
+    this->simulate_limit_event->reschedule(next_end_cycle);
+    gem5::Event *local_event = this->doSimLoop(gem5::mainEventQueue[0]);
+    assert(local_event != NULL);
+    gem5::BaseGlobalEvent *global_event = local_event->globalEvent();
+    assert(global_event != NULL);
+    gem5::GlobalSimLoopExitEvent *global_exit_event =
+        dynamic_cast<gem5::GlobalSimLoopExitEvent *>(global_event);
+    assert(global_exit_event != NULL);
+    return global_exit_event;
+}
+
+gem5::Event*
+gem5Component::doSimLoop(gem5::EventQueue* eventq)
+{
+    gem5::curEventQueue(eventq);
+    eventq->handleAsyncInsertions();
+    //while (!(eventq->async_queue.empty()))
+    //{
+    //    eventq->insert(eventq->async_queue.front());
+    //    eventq->async_queue.pop_front();
+    //}
+
+    while (true)
+    {
+        // there should always be at least one event (the SimLoopExitEvent
+        // we just scheduled) in the queue
+        assert(!eventq->empty());
+        assert(gem5::curTick() <= eventq->nextTick() &&
+               "event scheduled in the past");
+
+        if (gem5::async_event)
+        {
+            // Take the event queue lock in case any of the service
+            // routines want to schedule new events.
+            if (gem5::async_statdump || gem5::async_statreset)
+            {
+                gem5::statistics::schedStatEvent(gem5::async_statdump, gem5::async_statreset);
+                gem5::async_statdump = false;
+                gem5::async_statreset = false;
+            }
+
+            if (gem5::async_io)
+            {
+                gem5::async_io = false;
+                gem5::pollQueue.service();
+            }
+
+            if (gem5::async_exit)
+            {
+                gem5::async_exit = false;
+                gem5::exitSimLoop("user interrupt received");
+            }
+
+            if (gem5::async_exception)
+            {
+                gem5::async_exception = false;
+                return NULL;
+            }
+        }
+
+        gem5::Event *exit_event = eventq->serviceOne();
+        if (exit_event != NULL) {
+            return exit_event;
+        }
+    }
+}
 
 int
 gem5Component::execPythonCommands(const std::vector<std::string>& commands)

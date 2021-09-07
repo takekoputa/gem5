@@ -4,6 +4,7 @@
 #define TRACING_ON 0
 
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <sst/core/sst_config.h>
@@ -47,9 +48,16 @@ class gem5Component: public SST::Component
     gem5::Tick gem5_sim_cycles;
     uint64_t clocks_processed;
     SST::TimeConverter* time_converter;
+    gem5::GlobalSimLoopExitEvent *simulate_limit_event;
 
     void initPython(int argc, char **argv);
     void splitCommandArgs(std::string &cmd, std::vector<char*> &args);
+
+    std::thread* thread;
+    bool thread_initialized;
+
+    gem5::GlobalSimLoopExitEvent* simulate_gem5(gem5::Tick n_cycles);
+    static gem5::Event* doSimLoop(gem5::EventQueue* eventq);
 
 
   public: // register the component to SST
