@@ -39,7 +39,8 @@ def generateDtb(system):
     fdt.writeDtbFile(path.join(m5.options.outdir, 'device.dtb'))
 
 def createHiFivePlatform(system):
-    system.membus = SystemXBar()
+    #system.membus = SystemXBar()
+    system.membus = NoncoherentXBar(frontend_latency = 0, forward_latency = 0, response_latency = 0, header_latency = 0, width = 64)
     system.membus.badaddr_responder = BadAddr()
     system.membus.default = \
         system.membus.badaddr_responder.pio

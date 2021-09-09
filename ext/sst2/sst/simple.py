@@ -2,7 +2,7 @@ import sst
 import sys
 import os
 
-cache_link_latency = "1ns"
+cache_link_latency = "1ps"
 clock = "3GHz"
 
 l1_params = {

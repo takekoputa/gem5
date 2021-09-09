@@ -38,8 +38,6 @@
 
 #include <cassert>
 
-#include <openssl/md5.h>
-
 #ifdef fatal  // gem5 sets this
 #undef fatal
 #endif
@@ -54,7 +52,7 @@ gem5Component::gem5Component(SST::ComponentId_t id, SST::Params& params):
 
     // Register a handler to be called on a set frequency.
     this->time_converter = registerClock(
-        "1MHz",
+        "1GHz",
         new SST::Clock::Handler<gem5Component>(this, &gem5Component::clockTick)
     );
 
@@ -164,9 +162,8 @@ bool
 gem5Component::clockTick(SST::Cycle_t currentCycle)
 {
     // what to do in a SST's Tick
-
-    //gem5::GlobalSimLoopExitEvent *event = gem5::simulate(gem5_sim_cycles);
-    gem5::GlobalSimLoopExitEvent *event = this->simulate_gem5(gem5_sim_cycles);
+    //output.output(CALL_INFO, "SST Cycle: %d, gem5 ticks per ps: %d\n", currentCycle, gem5::sim_clock::as_int::ps);
+    gem5::GlobalSimLoopExitEvent *event = this->simulate_gem5(currentCycle);
     clocks_processed++;
     if (event != gem5::simulate_limit_event) { // gem5 exits due to reasons other than reaching simulation limit
         output.output("exiting: curTick()=%lu cause=`%s` code=%d\n",
@@ -184,7 +181,7 @@ gem5Component::clockTick(SST::Cycle_t currentCycle)
 #define PyCC(x) (const_cast<char *>(x))
 
 gem5::GlobalSimLoopExitEvent*
-gem5Component::simulate_gem5(gem5::Tick n_cycles)
+gem5Component::simulate_gem5(uint64_t current_cycle) // expect 1 cycle = 1 ns
 {
     if (!(this->thread_initialized))
     {
@@ -194,8 +191,11 @@ gem5Component::simulate_gem5(gem5::Tick n_cycles)
 
     inform_once("Entering event queue @ %d.  Starting simulation...\n", gem5::curTick());
 
-    gem5::Tick next_end_cycle = gem5::curTick() + n_cycles;
-    gem5::simulate_limit_event->reschedule(next_end_cycle);
+    uint64_t next_end_tick = current_cycle * 1000;
+    //inform("gem5::curTick() @ %d | SST::SimTime @ %d | next_end_tick @ %d | top_queue @ %d\n", gem5::curTick(), this->getCurrentSimTimeNano()*1000, next_end_tick, gem5::mainEventQueue[0]->getHead()->when());
+    if (next_end_tick < gem5::mainEventQueue[0]->getHead()->when())
+        return gem5::simulate_limit_event;
+    gem5::simulate_limit_event->reschedule(next_end_tick);
     gem5::Event *local_event = this->doSimLoop(gem5::mainEventQueue[0]);
     assert(local_event != NULL);
     gem5::BaseGlobalEvent *global_event = local_event->globalEvent();
