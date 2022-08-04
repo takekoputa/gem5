@@ -1,4 +1,3 @@
-
 /*============================================================================
 
 This C source file is part of the SoftFloat IEEE Floating-Point Arithmetic
