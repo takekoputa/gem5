@@ -41,7 +41,7 @@
 from m5.params import Enum
 from m5.params import Param
 from m5.objects.BaseISA import BaseISA
-
+from m5.params import Param
 
 class RiscvType(Enum):
     vals = ["RV32", "RV64"]
@@ -56,3 +56,13 @@ class RiscvISA(BaseISA):
         False, "whether to check memory access alignment"
     )
     riscv_type = Param.RiscvType("RV64", "RV32 or RV64")
+    vlen = Param.Int(
+        1024,
+        "VLEN: The number of bits in a single vector register, VLEN>=ELEN, "
+        "which must be a power of 2, and must be no greater than 65536."
+    )
+    elen = Param.Int(
+        128,
+        "ELEN: The maximum size in bits of a vector element that any operation"
+        " can produce or consume, ELEN>=8, which must be a power of 2."
+    )

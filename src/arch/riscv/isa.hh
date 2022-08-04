@@ -69,6 +69,10 @@ enum FPUStatus
 
 class ISA : public BaseISA
 {
+  private:
+    int vlen;
+    int elen;
+
   protected:
     RiscvType rv_type;
     std::vector<RegVal> miscRegFile;
@@ -121,6 +125,8 @@ class ISA : public BaseISA
     }
 
     bool alignmentCheckEnabled() const { return checkAlignment; }
+    int getVlen() const { return vlen; }
+    int getElen() const { return elen; }
 
     bool inUserMode() const override;
     void copyRegsFrom(ThreadContext *src) override;
