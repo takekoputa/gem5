@@ -28,9 +28,11 @@
  */
 
 #include "arch/riscv/decoder.hh"
+#include "arch/riscv/isa.hh"
 #include "arch/riscv/types.hh"
 #include "base/bitfield.hh"
 #include "debug/Decode.hh"
+#include "debug/RVV.hh"
 
 namespace gem5
 {
@@ -81,17 +83,24 @@ Decoder::moreBytes(const PCStateBase &pc, Addr fetchPC)
 }
 
 StaticInstPtr
-Decoder::decode(ExtMachInst mach_inst, Addr addr)
+Decoder::decode(ExtMachInst mach_inst,
+                Addr addr,
+                RiscvISA::VTYPE mach_vtype,
+                uint32_t mach_vl,
+                int vlen)
 {
     DPRINTF(Decode, "Decoding instruction 0x%08x at address %#x\n",
             mach_inst.instBits, addr);
 
     StaticInstPtr &si = instMap[mach_inst];
-    if (!si)
-        si = decodeInst(mach_inst);
+    if (!si || si->isVector())
+        si = decodeInst(mach_inst, mach_vtype, mach_vl, vlen);
 
     DPRINTF(Decode, "Decode: Decoded %s instruction: %#x\n",
             si->getName(), mach_inst);
+    DPRINTF(RVV, "Decoder: predicted vl = %d, predicted vtype = %d\n",
+            mach_vl, mach_vtype);
+
     return si;
 }
 
@@ -102,7 +111,7 @@ Decoder::decode(PCStateBase &_next_pc)
         return nullptr;
     instDone = false;
 
-    auto &next_pc = _next_pc.as<PCState>();
+    auto &next_pc = _next_pc.as<RiscvISA::PCState>();
 
     if (compressed(emi)) {
         next_pc.npc(next_pc.instAddr() + sizeof(machInst) / 2);
@@ -113,7 +122,8 @@ Decoder::decode(PCStateBase &_next_pc)
     }
 
     emi.rv_type = static_cast<int>(next_pc.rvType());
-    return decode(emi, next_pc.instAddr());
+    return decode(emi, next_pc.instAddr(), next_pc.vtype(),
+                  next_pc.vl(), isa->getVlen());
 }
 
 } // namespace RiscvISA
