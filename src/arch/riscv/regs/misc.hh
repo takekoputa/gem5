@@ -191,6 +191,16 @@ enum MiscRegIndex
     MISCREG_FFLAGS,
     MISCREG_FRM,
 
+    // Vector spec registers.
+    MISCREG_VSTART,
+    MISCREG_VXSAT,
+    MISCREG_VXRM,
+    MISCREG_VCSR,
+    MISCREG_VL,
+    MISCREG_VTYPE,
+    MISCREG_VLENB,
+    MISCREG_ELEN, // Note, this is not exposed in the ISA
+
     // These registers are not in the standard, hence does not exist in the
     // CSRData map. These are mainly used to provide a minimal implementation
     // for non-maskable-interrupt in our simple cpu.
@@ -476,7 +486,16 @@ enum CSRIndex
     CSR_TDATA3 = 0x7A3,
     CSR_DCSR = 0x7B0,
     CSR_DPC = 0x7B1,
-    CSR_DSCRATCH = 0x7B2
+    CSR_DSCRATCH = 0x7B2,
+
+    // CSR for risc-v vector extension
+    CSR_VSTART       = 0x008,
+    CSR_VXSAT        = 0x009,
+    CSR_VXRM         = 0x00A,
+    CSR_VCSR         = 0x00F,
+    CSR_VL           = 0xC20,
+    CSR_VTYPE        = 0xC21,
+    CSR_VLENB        = 0xC22
 };
 
 struct CSRMetadata
@@ -718,7 +737,15 @@ const std::unordered_map<int, CSRMetadata> CSRData = {
     {CSR_TDATA3, {"tdata3", MISCREG_TDATA3, rvTypeFlags(RV64, RV32)}},
     {CSR_DCSR, {"dcsr", MISCREG_DCSR, rvTypeFlags(RV64, RV32)}},
     {CSR_DPC, {"dpc", MISCREG_DPC, rvTypeFlags(RV64, RV32)}},
-    {CSR_DSCRATCH, {"dscratch", MISCREG_DSCRATCH, rvTypeFlags(RV64, RV32)}}
+    {CSR_DSCRATCH, {"dscratch", MISCREG_DSCRATCH, rvTypeFlags(RV64, RV32)}},
+
+    {CSR_VSTART,       {"vstart", MISCREG_VSTART, rvTypeFlags(RV64, RV32)}},
+    {CSR_VXSAT,        {"vxsat" , MISCREG_VXSAT, rvTypeFlags(RV64, RV32)}},
+    {CSR_VXRM,         {"vxrm"  , MISCREG_VXRM, rvTypeFlags(RV64, RV32)}},
+    {CSR_VCSR,         {"vcsr"  , MISCREG_VCSR, rvTypeFlags(RV64, RV32)}},
+    {CSR_VL,           {"vl"    , MISCREG_VL, rvTypeFlags(RV64, RV32)}},
+    {CSR_VTYPE,        {"vtype" , MISCREG_VTYPE, rvTypeFlags(RV64, RV32)}},
+    {CSR_VLENB,        {"vlenb" , MISCREG_VLENB, rvTypeFlags(RV64, RV32)}},
 };
 
 /**
