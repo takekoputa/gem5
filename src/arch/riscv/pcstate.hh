@@ -44,6 +44,7 @@
 
 #include "arch/generic/pcstate.hh"
 #include "enums/RiscvType.hh"
+#include "base/bitunion.hh"
 
 namespace gem5
 {
@@ -53,12 +54,22 @@ namespace RiscvISA
 using RiscvType = enums::RiscvType;
 constexpr enums::RiscvType RV32 = enums::RV32;
 constexpr enums::RiscvType RV64 = enums::RV64;
+BitUnion32(VTYPE)
+    Bitfield<31> vill;
+    Bitfield<7> vma;
+    Bitfield<6> vta;
+    Bitfield<5, 3> vsew;
+    Bitfield<2, 0> vlmul;
+EndBitUnion(VTYPE)
 
 class PCState : public GenericISA::UPCState<4>
 {
   private:
     bool _compressed = false;
     RiscvType _rv_type = RV64;
+    bool _rv32 = false;
+    VTYPE _vtype = 0;
+    uint32_t _vl = 0;
 
   public:
     PCState() = default;
@@ -73,9 +84,12 @@ class PCState : public GenericISA::UPCState<4>
     update(const PCStateBase &other) override
     {
         Base::update(other);
-        auto &pcstate = other.as<PCState>();
+        auto &pcstate = other.as<RiscvISA::PCState>();
         _compressed = pcstate._compressed;
         _rv_type = pcstate._rv_type;
+        _rv32 = pcstate._rv32;
+        _vtype = pcstate._vtype;
+        _vl = pcstate._vl;
     }
 
     void compressed(bool c) { _compressed = c; }
@@ -83,6 +97,12 @@ class PCState : public GenericISA::UPCState<4>
 
     void rvType(RiscvType rv_type) { _rv_type = rv_type; }
     RiscvType rvType() const { return _rv_type; }
+
+    void vl(uint32_t val) { _vl = val; }
+    uint32_t vl() const { return _vl; }
+
+    void vtype(RiscvISA::VTYPE val) { _vtype = val; }
+    RiscvISA::VTYPE vtype() const { return _vtype; }
 
     bool
     branching() const override
@@ -93,6 +113,17 @@ class PCState : public GenericISA::UPCState<4>
             return npc() != pc() + 4 || nupc() != upc() + 1;
         }
     }
+
+    bool
+    equals(const PCStateBase &_other) const override
+    {
+        auto &other = _other.as<RiscvISA::PCState>();
+        return _pc == other._pc \
+            && _upc == other._upc \
+            && _vl == other._vl \
+            && _vtype == other._vtype;
+    }
+
 };
 
 } // namespace RiscvISA
