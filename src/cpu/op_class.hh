@@ -134,6 +134,9 @@ static const OpClass VectorFloatReduceOp = enums::VectorFloatReduce;
 static const OpClass VectorMiscOp = enums::VectorMisc;
 static const OpClass VectorIntegerExtensionOp = enums::VectorIntegerExtension;
 static const OpClass VectorConfigOp = enums::VectorConfig;
+
+static const OpClass VectorCfgOpClass = enums::VectorCfg;
+
 static const OpClass Num_OpClasses = enums::Num_OpClass;
 
 } // namespace gem5
