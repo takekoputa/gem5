@@ -87,16 +87,12 @@ system.mem_ctrl.port = system.membus.mem_side_ports
 # Connect the system up to the membus
 system.system_port = system.membus.cpu_side_ports
 
-# Here we set the X86 "hello world" binary. With other ISAs you must specify
-# workloads compiled to those ISAs. Other "hello world" binaries for other ISAs
-# can be found in "tests/test-progs/hello".
-thispath = os.path.dirname(os.path.realpath(__file__))
-binary = os.path.join(
-    thispath,
-    "../../../",
-    "tests/test-progs/hello/bin/x86/linux/hello",
-)
+# get ISA for the binary to run.
+isa = str(m5.defines.buildEnv["TARGET_ISA"]).lower()
 
+# Default to running 'hello', use the compiled ISA to find the binary
+# grab the specific path to the binary
+binary = "/scr/hn/simple-vectorizable-microbenchmarks/vadd_va_vb.riscv"
 system.workload = SEWorkload.init_compatible(binary)
 
 # Create a process for a simple "Hello World" application

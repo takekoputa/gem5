@@ -99,7 +99,6 @@ class OpClass(Enum):
         "FloatMemRead",
         "FloatMemWrite",
         "IprAccess",
-        'VectorCfg',
         "InstPrefetch",
         "VectorUnitStrideLoad",
         "VectorUnitStrideStore",
@@ -120,6 +119,9 @@ class OpClass(Enum):
         "VectorMisc",
         "VectorIntegerExtension",
         "VectorConfig",
+        'VectorCfg',
+        'VectorOPIVIMacroOp',
+        'VectorOPIVIMicroOp'
     ]
 
 
