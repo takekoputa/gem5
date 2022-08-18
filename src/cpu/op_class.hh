@@ -138,6 +138,8 @@ static const OpClass VectorConfigOp = enums::VectorConfig;
 static const OpClass VectorCfgOpClass = enums::VectorCfg;
 static const OpClass VectorOPIVIMacroClass = enums::VectorOPIVIMacroOp;
 static const OpClass VectorOPIVIMicroClass = enums::VectorOPIVIMicroOp;
+static const OpClass VectorUnitStrideMemLoadMacroOpClass = enums::VectorUnitStrideMemLoadMacroOp;
+static const OpClass VectorUnitStrideMemLoadMicroOpClass = enums::VectorUnitStrideMemLoadMicroOp;
 
 static const OpClass Num_OpClasses = enums::Num_OpClass;
 

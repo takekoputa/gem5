@@ -121,7 +121,9 @@ class OpClass(Enum):
         "VectorConfig",
         'VectorCfg',
         'VectorOPIVIMacroOp',
-        'VectorOPIVIMicroOp'
+        'VectorOPIVIMicroOp',
+        'VectorUnitStrideMemLoadMacroOp',
+        'VectorUnitStrideMemLoadMicroOp'
     ]
 
 
