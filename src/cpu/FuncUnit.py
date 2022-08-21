@@ -139,7 +139,9 @@ class OpClass(Enum):
         'VectorIndexedMemLoadMacroOp',
         'VectorIndexedMemLoadMicroOp',
         'VectorUnitStrideMemStoreMacroOp',
-        'VectorUnitStrideMemStoreMicroOp'
+        'VectorUnitStrideMemStoreMicroOp',
+        'VectorIndexedMemStoreMacroOp',
+        'VectorIndexedMemStoreMicroOp'
     ]
 
 
