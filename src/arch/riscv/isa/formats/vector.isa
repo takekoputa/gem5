@@ -43,7 +43,7 @@ def template VectorCfgConstructor {{
 def template VectorConfigExecute {{
     Fault
     %(class_name)s::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -167,7 +167,7 @@ def template VectorOPIVIMicroOpConstructor {{
 def template VectorOPIVIMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -198,7 +198,7 @@ def template VectorOPIVIMicroExecute {{
         uint32_t tail_reg_idx = (vmRegID == 0) ? 2 : 1;
         RiscvISA::VecRegContainer old_Vd_container;
         if (has_to_copy_tail_elements)
-            xc->getRegOperand(this, tail_reg_idx, &old_Vd_container);        
+            xc->getRegOperand(this, tail_reg_idx, &old_Vd_container);
 
         bool utilize_mask = vmRegID == 0;
 
@@ -315,7 +315,7 @@ def template VectorOPIVIMicroDeclare {{
         uint64_t vmRegID, uint64_t mask_offset,
         uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
         uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -425,7 +425,7 @@ def template VectorVdVs2Vs1MicroConstructor {{
 def template VectorVdVs2Vs1OpMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -569,7 +569,7 @@ def template VectorVdVs2Vs1MicroDeclare {{
         uint64_t vs2RegID, uint64_t vmRegID, uint64_t mask_offset,
         uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
         uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -605,7 +605,7 @@ def template VectorVRXUNARY0Constructor {{
 def template VectorVRXUNARY0Execute {{
     Fault
     %(class_name)s::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -662,7 +662,7 @@ def template VectorVRXUNARY0Declare {{
       public:
         /// Constructor.
         %(class_name)s(MachInst machInst, RiscvISA::VTYPE vtype, uint32_t vl, int vlen);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -744,7 +744,7 @@ def template VectorSameElementWidthIntegerReductionMicroDeclare {{
         uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
         uint64_t sew, uint64_t mask_policy, uint64_t tail_policy,
         bool use_VS1);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -791,7 +791,7 @@ def template VectorSameElementWidthIntegerReductionMicroConstructor {{
 def template VectorSameElementWidthIntegerReductionMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -954,7 +954,7 @@ def template VectorVWXUNARY0Constructor {{
 def template VectorVWXUNARY0Execute {{
     Fault
     %(class_name)s::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -1013,7 +1013,7 @@ def template VectorVWXUNARY0Declare {{
       public:
         /// Constructor.
         %(class_name)s(MachInst machInst, RiscvISA::VTYPE vtype, uint32_t vl, int vlen);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -1107,7 +1107,7 @@ def template VectorVMUNARY0MicroConstructor {{
 def template VectorVMUNARY0OpMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -1237,7 +1237,7 @@ def template VectorVMUNARY0MicroDeclare {{
         uint64_t mask_offset,
         uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
         uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -1314,7 +1314,7 @@ def template VectorWholeRegisterMoveMicroConstructor {{
 def template VectorWholeRegisterMoveOpMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -1354,7 +1354,7 @@ def template VectorWholeRegisterMoveMicroDeclare {{
       public:
         /// Constructor.
         %(class_name)sMicro(MachInst machInst, uint64_t vdRegID, uint64_t vs2RegID);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -1454,7 +1454,7 @@ def template VectorVdVs2Rs1MicroConstructor {{
 def template VectorVdVs2Rs1OpMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -1589,7 +1589,7 @@ def template VectorVdVs2Rs1MicroDeclare {{
         uint64_t vs2RegID, uint64_t vmRegID, uint64_t mask_offset,
         uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
         uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -1713,9 +1713,9 @@ def template VectorUnitStrideMemLoadMicroDeclare {{
             uint64_t vdRegID, uint64_t rs1RegID, uint64_t vmRegID, uint64_t mask_offset,
             uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
             uint64_t eew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
-        Fault initiateAcc(ExecContext *, Trace::InstRecord *) const override;
-        Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
+        Fault initiateAcc(ExecContext *, trace::InstRecord *) const override;
+        Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -1769,7 +1769,7 @@ def template VectorUnitStrideMemLoadMicroConstructor {{
 def template VectorUnitStrideMemLoadMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -1851,14 +1851,14 @@ def template VectorUnitStrideMemLoadMicroExecute {{
 def template VectorUnitStrideMemLoadMicroInitiateAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::initiateAcc(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
         Addr EA = 0;
         uint64_t Rs1 = 0;
         Rs1 = xc->getRegOperand(this, 0);
-        
+
         // Getting the source / destination registers
         bool masked_off = false; // masked_off == true -> do not compute the element; otherwise compute the element if it is not a tail element
 
@@ -1927,7 +1927,7 @@ def template VectorUnitStrideMemLoadMicroInitiateAcc {{
 def template VectorUnitStrideMemLoadMicroCompleteAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::completeAcc(Packet *pkt,
-        ExecContext *xc, Trace::InstRecord *traceData) const
+        ExecContext *xc, trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2058,9 +2058,9 @@ def template VectorIndexedMemLoadMicroDeclare {{
             uint64_t vdRegID, uint64_t rs1RegID, uint64_t vs2RegID, uint64_t vmRegID, uint64_t mask_offset,
             uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
             uint64_t eew, uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
-        Fault initiateAcc(ExecContext *, Trace::InstRecord *) const override;
-        Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
+        Fault initiateAcc(ExecContext *, trace::InstRecord *) const override;
+        Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -2107,7 +2107,7 @@ def template VectorIndexedMemLoadMicroConstructor {{
 def template VectorIndexedMemLoadMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2204,7 +2204,7 @@ def template VectorIndexedMemLoadMicroExecute {{
 def template VectorIndexedMemLoadMicroInitiateAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::initiateAcc(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2297,7 +2297,7 @@ def template VectorIndexedMemLoadMicroInitiateAcc {{
 def template VectorIndexedMemLoadMicroCompleteAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::completeAcc(Packet *pkt,
-        ExecContext *xc, Trace::InstRecord *traceData) const
+        ExecContext *xc, trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2451,9 +2451,9 @@ def template VectorUnitStrideMemStoreMicroDeclare {{
             uint64_t mask_offset,
             uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
             uint64_t eew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
-        Fault initiateAcc(ExecContext *, Trace::InstRecord *) const override;
-        Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
+        Fault initiateAcc(ExecContext *, trace::InstRecord *) const override;
+        Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -2493,7 +2493,7 @@ def template VectorUnitStrideMemStoreMicroConstructor {{
 def template VectorUnitStrideMemStoreMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2567,7 +2567,7 @@ def template VectorUnitStrideMemStoreMicroExecute {{
 def template VectorUnitStrideMemStoreMicroInitiateAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::initiateAcc(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2649,7 +2649,7 @@ def template VectorUnitStrideMemStoreMicroInitiateAcc {{
 def template VectorUnitStrideMemStoreMicroCompleteAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::completeAcc(Packet *pkt,
-        ExecContext *xc, Trace::InstRecord *traceData) const
+        ExecContext *xc, trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
         return fault;
@@ -2755,9 +2755,9 @@ def template VectorIndexedMemStoreMicroDeclare {{
             uint64_t vs3RegID, uint64_t rs1RegID, uint64_t vs2RegID, uint64_t vmRegID, uint64_t mask_offset,
             uint64_t num_elements_per_reg, uint64_t num_non_tail_elements,
             uint64_t eew, uint64_t sew, uint64_t mask_policy, uint64_t tail_policy);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
-        Fault initiateAcc(ExecContext *, Trace::InstRecord *) const override;
-        Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
+        Fault initiateAcc(ExecContext *, trace::InstRecord *) const override;
+        Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -2804,7 +2804,7 @@ def template VectorIndexedMemStoreMicroConstructor {{
 def template VectorIndexedMemStoreMicroExecute {{
     Fault
     %(class_name)s::%(class_name)sMicro::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -2903,7 +2903,7 @@ def template VectorIndexedMemStoreMicroExecute {{
 def template VectorIndexedMemStoreMicroInitiateAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::initiateAcc(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
 
@@ -3002,7 +3002,7 @@ def template VectorIndexedMemStoreMicroInitiateAcc {{
 def template VectorIndexedMemStoreMicroCompleteAcc {{
     Fault
     %(class_name)s::%(class_name)sMicro::completeAcc(Packet *pkt,
-        ExecContext *xc, Trace::InstRecord *traceData) const
+        ExecContext *xc, trace::InstRecord *traceData) const
     {
         Fault fault = NoFault;
         return fault;
@@ -3049,7 +3049,7 @@ def template VectorDeclare {{
       public:
         /// Constructor.
         %(class_name)s(MachInst machInst, RiscvISA::VTYPE vtype, uint32_t vl, int vlen);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};
@@ -3067,7 +3067,7 @@ def template VectorMacroDeclare {{
       public:
         /// Constructor.
         %(class_name)s(MachInst machInst, RiscvISA::VTYPE vtype, uint32_t vl, int vlen);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
 
       protected:
@@ -3078,7 +3078,7 @@ def template VectorMacroDeclare {{
 def template VectorMacroExecute {{
     Fault
     %(class_name)s::execute(ExecContext *xc,
-        Trace::InstRecord *traceData) const
+        trace::InstRecord *traceData) const
     {
         std::string error = csprintf("Executing Macro Inst\n");
         return std::make_shared<IllegalInstFault>(error, machInst);
@@ -3094,7 +3094,7 @@ def template VectorCfgDeclare {{
       public:
         /// Constructor.
         %(class_name)s(MachInst machInst, RiscvISA::VTYPE vtype, uint32_t vl, int vlen);
-        Fault execute(ExecContext *, Trace::InstRecord *) const override;
+        Fault execute(ExecContext *, trace::InstRecord *) const override;
         using %(base_class)s::generateDisassembly;
     };
 }};

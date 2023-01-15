@@ -364,9 +364,9 @@ class VectorUnitStrideMemLoadMicroOp : public VectorMemMicroInst
     std::string generateDisassembly(Addr pc,
         const loader::SymbolTable *symtab) const;
 
-    virtual Fault execute(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault initiateAcc(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *)
+    virtual Fault execute(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault initiateAcc(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *)
         const = 0;
 };
 
@@ -413,9 +413,9 @@ class VectorIndexedMemLoadMicroOp : public VectorIndexedMemMicroInst
     std::string generateDisassembly(Addr pc,
         const loader::SymbolTable *symtab) const;
 
-    virtual Fault execute(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault initiateAcc(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) \
+    virtual Fault execute(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault initiateAcc(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) \
         const = 0;
 };
 
@@ -460,9 +460,9 @@ class VectorUnitStrideMemStoreMicroOp : public VectorMemMicroInst
     std::string generateDisassembly(Addr pc,
         const loader::SymbolTable *symtab) const;
 
-    virtual Fault execute(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault initiateAcc(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) \
+    virtual Fault execute(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault initiateAcc(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) \
       const = 0;
 };
 
@@ -509,9 +509,9 @@ class VectorIndexedMemStoreMicroOp : public VectorIndexedMemMicroInst
     std::string generateDisassembly(Addr pc,
         const loader::SymbolTable *symtab) const;
 
-    virtual Fault execute(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault initiateAcc(ExecContext *, Trace::InstRecord *) const = 0;
-    virtual Fault completeAcc(Packet *, ExecContext *, Trace::InstRecord *) \
+    virtual Fault execute(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault initiateAcc(ExecContext *, trace::InstRecord *) const = 0;
+    virtual Fault completeAcc(Packet *, ExecContext *, trace::InstRecord *) \
         const = 0;
 };
 
@@ -528,7 +528,7 @@ class MicroNop : public ImmOp<int64_t>
         const loader::SymbolTable *symtab) const;
 
     Fault
-    execute(ExecContext *xc, Trace::InstRecord *traceData) const override
+    execute(ExecContext *xc, trace::InstRecord *traceData) const override
     {
         return NoFault;
     }
