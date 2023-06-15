@@ -2148,6 +2148,10 @@ decode QUADRANT default Unknown::unknown() {
                 0x25: VectorVdVs2Rs1MacroOp::vmul_vx({{
                     Vd_vc[regElemID] = Vs2_vc[regElemID] * Rs1_ud
                 }});
+                0x29: VectorVdVs2Rs1MacroOp::vmadd_vx({{
+                    Vd_vc[regElemID] = Vd_vc[regElemID] * Rs1_ud + \
+                     Vs2_vc[regElemID];
+                }});
             }
             0x7: decode BIT31 { // Configuration-Setting
                 0x0: VectorCfgOp::vsetvli({{
