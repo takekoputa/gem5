@@ -55,6 +55,16 @@ void exitSimLoop(const std::string &message, int exit_code = 0,
 void exitSimLoopNow(const std::string &message, int exit_code = 0,
                     Tick repeat = 0, bool serialize = false);
 
+void exitSimulationLoop(uint64_t type_id,
+    std::map<std::string, std::string> payload=
+        std::map<std::string, std::string>(),
+    Tick when=curTick());
+
+void
+exitSimulationLoopNow(uint64_t type_id,
+    std::map<std::string, std::string> payload=
+        std::map<std::string, std::string>());
+
 } // namespace gem5
 
 #endif // __SIM_EXIT_HH__

@@ -54,17 +54,34 @@ namespace gem5
 
 GlobalSimLoopExitEvent::GlobalSimLoopExitEvent(Tick when,
                                                const std::string &_cause,
-                                               int c, Tick r)
+                                               int c, Tick r,
+                                               uint64_t type_id,
+        std::map<std::string, std::string> payload)
     : GlobalEvent(when, Sim_Exit_Pri, IsExitEvent),
-      cause(_cause), code(c), repeat(r)
+      cause(_cause), code(c), repeat(r), type_id(type_id), payload(payload)
 {
 }
 
 GlobalSimLoopExitEvent::GlobalSimLoopExitEvent(const std::string &_cause,
-                                               int c, Tick r)
+                                               int c, Tick r,
+                                               uint64_t type_id,
+        std::map<std::string, std::string> payload)
     : GlobalEvent(curTick(), Minimum_Pri, IsExitEvent),
-      cause(_cause), code(c), repeat(r)
+      cause(_cause), code(c), repeat(r), type_id(type_id), payload(payload)
 {
+}
+
+GlobalSimLoopExitEvent::GlobalSimLoopExitEvent(Tick when, uint64_t type_id,
+        std::map<std::string, std::string> payload)
+    : GlobalSimLoopExitEvent(when, "", 0, 0, type_id, payload)
+{
+}
+
+GlobalSimLoopExitEvent::GlobalSimLoopExitEvent(uint64_t type_id,
+        std::map<std::string, std::string> payload)
+    : GlobalSimLoopExitEvent("", 0, 0, type_id, payload)
+{
+    assert(type_id != 0); // 0 is reserved for the "old style" exitSimLoop
 }
 
 const char *
@@ -84,6 +101,10 @@ GlobalSimLoopExitEvent::process()
     }
 }
 
+/**
+ * The "old style" exitSimLoop functions.
+ */
+
 void
 exitSimLoop(const std::string &message, int exit_code, Tick when, Tick repeat,
             bool serialize)
@@ -95,11 +116,28 @@ exitSimLoop(const std::string &message, int exit_code, Tick when, Tick repeat,
     new GlobalSimLoopExitEvent(when + simQuantum, message, exit_code, repeat);
 }
 
+
 void
 exitSimLoopNow(const std::string &message, int exit_code, Tick repeat,
                bool serialize)
 {
     new GlobalSimLoopExitEvent(message, exit_code, repeat);
+}
+
+/**
+ * The "new style" exitSimLoop functions.
+ */
+void exitSimulationLoop(uint64_t type_id,
+    std::map<std::string, std::string> payload, Tick when)
+{
+    new GlobalSimLoopExitEvent(when, type_id, payload);
+}
+
+void
+exitSimulationLoopNow(uint64_t type_id,
+    std::map<std::string, std::string> payload)
+{
+    new GlobalSimLoopExitEvent(type_id, payload);
 }
 
 LocalSimLoopExitEvent::LocalSimLoopExitEvent(const std::string &_cause, int c,
