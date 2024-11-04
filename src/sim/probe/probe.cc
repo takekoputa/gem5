@@ -84,7 +84,7 @@ bool
 ProbeManager::addListener(std::string point_name, ProbeListener &listener)
 {
     DPRINTFR(ProbeVerbose, "Probes: Call to addListener to \"%s\" on %s.\n",
-        point_name, object->name());
+        point_name, name());
     bool added = false;
     for (auto p = points.begin(); p != points.end(); ++p) {
         if ((*p)->getName() == point_name) {
@@ -94,7 +94,7 @@ ProbeManager::addListener(std::string point_name, ProbeListener &listener)
     }
     if (!added) {
         DPRINTFR(ProbeVerbose, "Probes: Call to addListener to \"%s\" on "
-            "%s failed, no such point.\n", point_name, object->name());
+            "%s failed, no such point.\n", point_name, name());
     }
     return added;
 }
@@ -103,7 +103,7 @@ bool
 ProbeManager::removeListener(std::string point_name, ProbeListener &listener)
 {
     DPRINTFR(ProbeVerbose, "Probes: Call to removeListener from \"%s\" on "
-        "%s.\n", point_name, object->name());
+        "%s.\n", point_name, name());
     bool removed = false;
     for (auto p = points.begin(); p != points.end(); ++p) {
         if ((*p)->getName() == point_name) {
@@ -113,7 +113,7 @@ ProbeManager::removeListener(std::string point_name, ProbeListener &listener)
     }
     if (!removed) {
         DPRINTFR(ProbeVerbose, "Probes: Call to removeListener from \"%s\" "
-            "on %s failed, no such point.\n", point_name, object->name());
+            "on %s failed, no such point.\n", point_name, name());
     }
     return removed;
 }
@@ -122,12 +122,12 @@ void
 ProbeManager::addPoint(ProbePoint &point)
 {
     DPRINTFR(ProbeVerbose, "Probes: Call to addPoint \"%s\" to %s.\n",
-        point.getName(), object->name());
+        point.getName(), name());
 
     for (auto p = points.begin(); p != points.end(); ++p) {
         if ((*p)->getName() == point.getName()) {
             DPRINTFR(ProbeVerbose, "Probes: Call to addPoint \"%s\" to %s "
-                "failed, already added.\n", point.getName(), object->name());
+                "failed, already added.\n", point.getName(), name());
             return;
         }
     }

@@ -68,6 +68,7 @@
 #include <vector>
 
 #include "base/compiler.hh"
+#include "base/named.hh"
 #include "base/trace.hh"
 #include "sim/sim_object.hh"
 
@@ -160,18 +161,14 @@ class ProbePoint
  * ProbeManager is a conduit class that lives on each SimObject,
  *  and is used to match up probe listeners with probe points.
  */
-class ProbeManager
+class ProbeManager : public Named
 {
   private:
-    /** Required for sensible debug messages.*/
-    GEM5_CLASS_VAR_USED const SimObject *object;
     /** Vector for name look-up. */
     std::vector<ProbePoint *> points;
 
   public:
-    ProbeManager(SimObject *obj)
-        : object(obj)
-    {}
+    ProbeManager(const std::string &obj_name) : Named(obj_name) {}
     virtual ~ProbeManager() {}
 
     /**
