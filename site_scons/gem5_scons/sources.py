@@ -129,7 +129,8 @@ def resolve_tags(env, tags):
 class SourceFilter:
     factories = {}
 
-    def __init__(self, predicate):
+    def __init__(self, filter_name, predicate):
+        self.filter_name = filter_name
         self.predicate = predicate
 
     def __or__(self, other):
@@ -144,17 +145,24 @@ class SourceFilter:
             and other.predicate(env, tags)
         )
 
+    def __str__(self):
+        return f"{self.filter_name}"
+
 
 def with_any_tags(*tags):
     """Return a list of sources with any of the supplied tags."""
     return SourceFilter(
-        lambda env, stags: len(resolve_tags(env, tags) & stags) > 0
+        f"with_any_tags{str(tags)}",
+        lambda env, stags: len(resolve_tags(env, tags) & stags) > 0,
     )
 
 
 def with_all_tags(*tags):
     """Return a list of sources with all of the supplied tags."""
-    return SourceFilter(lambda env, stags: resolve_tags(env, tags) <= stags)
+    return SourceFilter(
+        f"with_all_tags{str(tags)}",
+        lambda env, stags: resolve_tags(env, tags) <= stags,
+    )
 
 
 def with_tag(tag):
@@ -165,7 +173,8 @@ def with_tag(tag):
 def without_tags(*tags):
     """Return a list of sources without any of the supplied tags."""
     return SourceFilter(
-        lambda env, stags: len(resolve_tags(env, tags) & stags) == 0
+        f"without_tags{str(tags)}",
+        lambda env, stags: len(resolve_tags(env, tags) & stags) == 0,
     )
 
 
@@ -188,7 +197,7 @@ SourceFilter.factories.update(
 class SourceList(list):
     def apply_filter(self, env, f):
         def match(source):
-            return f.predicate(env, resolve_tags(env, source.tags))
+            return f.predicate(env, source.tags)
 
         return SourceList(filter(match, self))
 
@@ -202,6 +211,10 @@ class SourceList(list):
             return self.apply_filter(env, func(*args, **kwargs))
 
         return wrapper
+
+    def __str__(self):
+        srcs = ",".join(str(src) for src in self)
+        return f"{srcs}"
 
 
 class SourceMeta(type):
@@ -268,6 +281,9 @@ class SourceFile(SourceItem):
             env = env.Clone()
             env.Append(**self.append)
         return env.SharedObject(self.tnode.abspath)
+
+    def __str__(self):
+        return f"{self.filename}"
 
 
 __all__ = [
