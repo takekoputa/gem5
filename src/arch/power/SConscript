@@ -33,6 +33,8 @@ Import('*')
 if env['CONF']['USE_POWER_ISA']:
     env.TagImplies('power isa', 'gem5 lib')
 
+    env.TagImplies('isa', 'power isa')
+
 Source('decoder.cc', tags='power isa')
 Source('faults.cc', tags='power isa')
 Source('insts/branch.cc', tags='power isa')

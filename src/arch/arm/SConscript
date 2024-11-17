@@ -45,6 +45,8 @@ Source("insts/fplib.cc")
 if env["CONF"]["USE_ARM_ISA"]:
     env.TagImplies("arm isa", "gem5 lib")
 
+    env.TagImplies("isa", "arm isa")
+
 # The GTest function does not have a 'tags' parameter. We therefore apply this
 # guard to ensure this test is only built when ARM is compiled.
 #
