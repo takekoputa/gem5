@@ -30,8 +30,8 @@
 
 Import('*')
 
-GdbXml('power-core.xml', 'gdb_xml_power_core', tags='power isa')
-GdbXml('power64-core.xml', 'gdb_xml_power64_core', tags='power isa')
-GdbXml('power-fpu.xml', 'gdb_xml_power_fpu', tags='power isa')
-GdbXml('powerpc-32.xml', 'gdb_xml_powerpc_32', tags='power isa')
-GdbXml('powerpc-64.xml', 'gdb_xml_powerpc_64', tags='power isa')
+GdbXml('power-core.xml', 'gdb_xml_power_core', add_tags='power isa')
+GdbXml('power64-core.xml', 'gdb_xml_power64_core', add_tags='power isa')
+GdbXml('power-fpu.xml', 'gdb_xml_power_fpu', add_tags='power isa')
+GdbXml('powerpc-32.xml', 'gdb_xml_powerpc_32', add_tags='power isa')
+GdbXml('powerpc-64.xml', 'gdb_xml_powerpc_64', add_tags='power isa')

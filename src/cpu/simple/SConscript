@@ -48,6 +48,6 @@ if env['CONF']['BUILD_ISA']:
     SimObject('BaseSimpleCPU.py', sim_objects=['BaseSimpleCPU'])
 
     # For backwards compatibility
-    SimObject('AtomicSimpleCPU.py', sim_objects=[], tags='isa')
-    SimObject('NonCachingSimpleCPU.py', sim_objects=[], tags='isa')
-    SimObject('TimingSimpleCPU.py', sim_objects=[], tags='isa')
+    SimObject('AtomicSimpleCPU.py', sim_objects=[], add_tags='isa')
+    SimObject('NonCachingSimpleCPU.py', sim_objects=[], add_tags='isa')
+    SimObject('TimingSimpleCPU.py', sim_objects=[], add_tags='isa')

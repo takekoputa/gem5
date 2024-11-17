@@ -38,8 +38,8 @@
 Import('*')
 
 # Only build if we have protobuf support
-ProtoBuf('inst_dep_record.proto', tags='protobuf')
-ProtoBuf('packet.proto', tags='protobuf')
-ProtoBuf('inst.proto', tags='protobuf')
-Source('protobuf.cc', tags='protobuf')
-Source('protoio.cc', tags='protobuf')
+ProtoBuf('inst_dep_record.proto', add_tags='protobuf')
+ProtoBuf('packet.proto', add_tags='protobuf')
+ProtoBuf('inst.proto', add_tags='protobuf')
+Source('protobuf.cc', add_tags='protobuf')
+Source('protoio.cc', add_tags='protobuf')

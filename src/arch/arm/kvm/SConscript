@@ -43,14 +43,18 @@ if env['CONF']['KVM_ISA'] == 'arm':
     env.TagImplies(f'{host_isa} kvm', 'arm kvm')
 
 SimObject('KvmGic.py',
-    sim_objects=['MuxingKvmGicV2', 'MuxingKvmGicV3'], tags='arm kvm')
-Source('gic.cc', tags='arm kvm')
+    sim_objects=['MuxingKvmGicV2', 'MuxingKvmGicV3'], add_tags='arm kvm')
+Source('gic.cc', add_tags='arm kvm')
 
-SimObject('BaseArmKvmCPU.py', sim_objects=['BaseArmKvmCPU'], tags='arm kvm')
-Source('base_cpu.cc', tags='arm kvm')
+SimObject(
+    'BaseArmKvmCPU.py', sim_objects=['BaseArmKvmCPU'], add_tags='arm kvm'
+)
+Source('base_cpu.cc', add_tags='arm kvm')
 
-SimObject('ArmKvmCPU.py', sim_objects=['ArmKvmCPU'], tags='armv71 kvm')
-Source('arm_cpu.cc', tags='armv71 kvm')
+SimObject('ArmKvmCPU.py', sim_objects=['ArmKvmCPU'], add_tags='armv71 kvm')
+Source('arm_cpu.cc', add_tags='armv71 kvm')
 
-SimObject('ArmV8KvmCPU.py', sim_objects=['ArmV8KvmCPU'], tags='aarch64 kvm')
-Source('armv8_cpu.cc', tags='aarch64 kvm')
+SimObject(
+    'ArmV8KvmCPU.py', sim_objects=['ArmV8KvmCPU'], add_tags='aarch64 kvm'
+)
+Source('armv8_cpu.cc', add_tags='aarch64 kvm')

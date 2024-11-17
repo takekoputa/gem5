@@ -37,5 +37,5 @@
 
 Import('*')
 
-SimObject('X86KvmCPU.py', sim_objects=['X86KvmCPU'], tags='x86 kvm')
-Source('x86_cpu.cc', tags='x86 kvm')
+SimObject('X86KvmCPU.py', sim_objects=['X86KvmCPU'], add_tags='x86 kvm')
+Source('x86_cpu.cc', add_tags='x86 kvm')

@@ -28,6 +28,6 @@
 
 Import('*')
 
-Source('float.cc', tags='x86 isa')
-Source('int.cc', tags='x86 isa')
-Source('msr.cc', tags='x86 isa')
+Source('float.cc', add_tags='x86 isa')
+Source('int.cc', add_tags='x86 isa')
+Source('msr.cc', add_tags='x86 isa')

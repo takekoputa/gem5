@@ -40,8 +40,8 @@
 
 Import('*')
 
-Source('fs_workload.cc', tags='x86 isa')
-Source('se_workload.cc', tags='x86 isa')
-Source('syscalls.cc', tags='x86 isa')
-Source('syscall_tbl32.cc', tags='x86 isa')
-Source('syscall_tbl64.cc', tags='x86 isa')
+Source('fs_workload.cc', add_tags='x86 isa')
+Source('se_workload.cc', add_tags='x86 isa')
+Source('syscalls.cc', add_tags='x86 isa')
+Source('syscall_tbl32.cc', add_tags='x86 isa')
+Source('syscall_tbl64.cc', add_tags='x86 isa')

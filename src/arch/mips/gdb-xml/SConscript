@@ -29,4 +29,4 @@
 
 Import('*')
 
-GdbXml('mips.xml', 'gdb_xml_mips', tags='mips isa')
+GdbXml('mips.xml', 'gdb_xml_mips', add_tags='mips isa')

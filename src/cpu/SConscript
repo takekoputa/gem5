@@ -87,8 +87,8 @@ SimObject('FuncUnit.py', sim_objects=['OpDesc', 'FUDesc'], enums=['OpClass'])
 SimObject('StaticInstFlags.py', enums=['StaticInstFlags'])
 
 # Only build the protobuf instructions tracer if we have protobuf support.
-SimObject('InstPBTrace.py', sim_objects=['InstPBTrace'], tags='protobuf')
-Source('inst_pb_trace.cc', tags='protobuf')
+SimObject('InstPBTrace.py', sim_objects=['InstPBTrace'], add_tags='protobuf')
+Source('inst_pb_trace.cc', add_tags='protobuf')
 
 SimObject('CheckerCPU.py', sim_objects=['CheckerCPU'])
 

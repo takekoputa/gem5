@@ -33,38 +33,42 @@ if env['CONF']['USE_SPARC_ISA']:
 
     env.TagImplies('isa', 'sparc isa')
 
-Source('asi.cc', tags='sparc isa')
-Source('decoder.cc', tags='sparc isa')
-Source('faults.cc', tags='sparc isa')
-Source('fs_workload.cc', tags='sparc isa')
-Source('isa.cc', tags='sparc isa')
-Source('linux/se_workload.cc', tags='sparc isa')
-Source('linux/syscalls.cc', tags='sparc isa')
-Source('nativetrace.cc', tags='sparc isa')
-Source('pagetable.cc', tags='sparc isa')
-Source('process.cc', tags='sparc isa')
-Source('regs/int.cc', tags='sparc isa')
-Source('remote_gdb.cc', tags='sparc isa')
-Source('se_workload.cc', tags='sparc isa')
-Source('tlb.cc', tags='sparc isa')
-Source('ua2005.cc', tags='sparc isa')
+Source('asi.cc', add_tags='sparc isa')
+Source('decoder.cc', add_tags='sparc isa')
+Source('faults.cc', add_tags='sparc isa')
+Source('fs_workload.cc', add_tags='sparc isa')
+Source('isa.cc', add_tags='sparc isa')
+Source('linux/se_workload.cc', add_tags='sparc isa')
+Source('linux/syscalls.cc', add_tags='sparc isa')
+Source('nativetrace.cc', add_tags='sparc isa')
+Source('pagetable.cc', add_tags='sparc isa')
+Source('process.cc', add_tags='sparc isa')
+Source('regs/int.cc', add_tags='sparc isa')
+Source('remote_gdb.cc', add_tags='sparc isa')
+Source('se_workload.cc', add_tags='sparc isa')
+Source('tlb.cc', add_tags='sparc isa')
+Source('ua2005.cc', add_tags='sparc isa')
 
-SimObject('SparcDecoder.py', sim_objects=['SparcDecoder'], tags='sparc isa')
+SimObject(
+    'SparcDecoder.py', sim_objects=['SparcDecoder'], add_tags='sparc isa'
+)
 SimObject('SparcFsWorkload.py', sim_objects=['SparcFsWorkload'],
-    tags='sparc isa')
+    add_tags='sparc isa')
 SimObject('SparcInterrupts.py', sim_objects=['SparcInterrupts'],
-    tags='sparc isa')
-SimObject('SparcISA.py', sim_objects=['SparcISA'], tags='sparc isa')
-SimObject('SparcMMU.py', sim_objects=['SparcMMU'], tags='sparc isa')
+    add_tags='sparc isa')
+SimObject('SparcISA.py', sim_objects=['SparcISA'], add_tags='sparc isa')
+SimObject('SparcMMU.py', sim_objects=['SparcMMU'], add_tags='sparc isa')
 SimObject('SparcNativeTrace.py', sim_objects=['SparcNativeTrace'],
-    tags='sparc isa')
+    add_tags='sparc isa')
 SimObject('SparcSeWorkload.py', sim_objects=[
-    'SparcSEWorkload', 'SparcEmuLinux'], tags='sparc isa')
-SimObject('SparcTLB.py', sim_objects=['SparcTLB'], tags='sparc isa')
+    'SparcSEWorkload', 'SparcEmuLinux'], add_tags='sparc isa')
+SimObject('SparcTLB.py', sim_objects=['SparcTLB'], add_tags='sparc isa')
 
-SimObject('SparcCPU.py', sim_objects=[], tags='sparc isa')
+SimObject('SparcCPU.py', sim_objects=[], add_tags='sparc isa')
 
-DebugFlag('Sparc', "Generic SPARC ISA stuff", tags='sparc isa')
-DebugFlag('RegisterWindows', "Register window manipulation", tags='sparc isa')
+DebugFlag('Sparc', "Generic SPARC ISA stuff", add_tags='sparc isa')
+DebugFlag(
+    'RegisterWindows', "Register window manipulation", add_tags='sparc isa'
+)
 
-ISADesc('isa/main.isa', tags='sparc isa')
+ISADesc('isa/main.isa', add_tags='sparc isa')
