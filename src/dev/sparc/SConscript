@@ -28,6 +28,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_SPARC_ISA']:
+    Return()
+
 SimObject('T1000.py', sim_objects=['MmDisk', 'DumbTOD', 'Iob', 'T1000'],
     add_tags='sparc isa')
 

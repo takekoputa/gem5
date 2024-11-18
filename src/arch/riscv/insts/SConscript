@@ -27,6 +27,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_RISCV_ISA']:
+    Return()
+
 Source('amo.cc', add_tags='riscv isa')
 Source('bs.cc', add_tags='riscv isa')
 Source('compressed.cc', add_tags='riscv isa')

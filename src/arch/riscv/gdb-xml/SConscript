@@ -43,6 +43,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_RISCV_ISA']:
+    Return()
+
 GdbXml('riscv-32bit.xml', 'gdb_xml_riscv_32bit_target', add_tags='riscv isa')
 GdbXml('riscv-32bit-cpu.xml', 'gdb_xml_riscv_32bit_cpu', add_tags='riscv isa')
 GdbXml('riscv-32bit-fpu.xml', 'gdb_xml_riscv_32bit_fpu', add_tags='riscv isa')

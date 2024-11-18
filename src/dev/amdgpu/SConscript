@@ -32,6 +32,9 @@ Import('*')
 if not env['CONF']['BUILD_GPU']:
     Return()
 
+if not env['CONF']['USE_X86_ISA']:
+    Return()
+
 # Controllers
 SimObject('AMDGPU.py', sim_objects=['AMDGPUDevice', 'AMDGPUInterruptHandler',
                                     'AMDGPUMemoryManager', 'AMDGPUSystemHub',

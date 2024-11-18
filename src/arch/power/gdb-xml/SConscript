@@ -30,6 +30,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_POWER_ISA']:
+    Return()
+
 GdbXml('power-core.xml', 'gdb_xml_power_core', add_tags='power isa')
 GdbXml('power64-core.xml', 'gdb_xml_power64_core', add_tags='power isa')
 GdbXml('power-fpu.xml', 'gdb_xml_power_fpu', add_tags='power isa')

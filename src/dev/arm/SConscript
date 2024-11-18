@@ -37,6 +37,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_ARM_ISA']:
+    Return()
+
 SimObject('AbstractNVM.py', sim_objects=['AbstractNVM'], add_tags='arm isa')
 SimObject('Display.py', sim_objects=['Display'], add_tags='arm isa')
 SimObject('Doorbell.py', sim_objects=['Doorbell'], add_tags='arm isa')

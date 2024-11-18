@@ -40,30 +40,33 @@
 
 Import("*")
 
+# This line should probably be moved to after the isa check once the
+# amdgpu dependencies are fixed
 Source("insts/fplib.cc")
 
-if env["CONF"]["USE_ARM_ISA"]:
-    env.TagImplies("arm isa", "gem5 lib")
-
-    env.TagImplies("isa", "arm isa")
-
-# The GTest function does not have a 'tags' parameter. We therefore apply this
-# guard to ensure this test is only built when ARM is compiled.
+# The GTest function does not have a 'tags' parameter. We therefore apply
+# this guard to ensure this test is only built when ARM is compiled.
 #
 # Note: This will need reconfigured for multi-isa. E.g., if this is
 # incorporated: https://gem5-review.googlesource.com/c/public/gem5/+/52491
+if not env["CONF"]["USE_ARM_ISA"]:
+    Return()
 
-if env["CONF"]["USE_ARM_ISA"]:
-    GTest(
-        "aapcs64.test",
-        "aapcs64.test.cc",
-        "../../base/debug.cc",
-        "../../cpu/reg_class.cc",
-        "../../sim/bufval.cc",
-        "../../sim/cur_tick.cc",
-        "regs/int.cc",
-    )
-    GTest("matrix.test", "matrix.test.cc")
+env.TagImplies("arm isa", "gem5 lib")
+
+env.TagImplies("isa", "arm isa")
+
+GTest(
+    "aapcs64.test",
+    "aapcs64.test.cc",
+    "../../base/debug.cc",
+    "../../cpu/reg_class.cc",
+    "../../sim/bufval.cc",
+    "../../sim/cur_tick.cc",
+    "regs/int.cc",
+)
+GTest("matrix.test", "matrix.test.cc")
+
 Source("decoder.cc", add_tags="arm isa")
 Source("faults.cc", add_tags="arm isa")
 Source("htm.cc", add_tags="arm isa")

@@ -28,6 +28,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_X86_ISA']:
+    Return()
+
 SimObject('Pc.py', sim_objects=['Pc'], add_tags='x86 isa')
 Source('pc.cc', add_tags='x86 isa')
 

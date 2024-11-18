@@ -40,6 +40,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_X86_ISA']:
+    Return()
+
 Source('fs_workload.cc', add_tags='x86 isa')
 Source('se_workload.cc', add_tags='x86 isa')
 Source('syscalls.cc', add_tags='x86 isa')

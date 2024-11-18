@@ -29,10 +29,12 @@
 
 Import('*')
 
-if env['CONF']['USE_MIPS_ISA']:
-    env.TagImplies('mips isa', 'gem5 lib')
+if not env['CONF']['USE_MIPS_ISA']:
+    Return()
 
-    env.TagImplies('isa', 'mips isa')
+env.TagImplies('mips isa', 'gem5 lib')
+
+env.TagImplies('isa', 'mips isa')
 
 Source('decoder.cc', add_tags='mips isa')
 Source('dsp.cc', add_tags='mips isa')

@@ -28,6 +28,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_SPARC_ISA']:
+    Return()
+
 Source('blockmem.cc', add_tags='sparc isa')
 Source('branch.cc', add_tags='sparc isa')
 Source('integer.cc', add_tags='sparc isa')

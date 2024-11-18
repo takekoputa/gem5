@@ -37,10 +37,12 @@
 
 Import('*')
 
-if env['CONF']['KVM_ISA'] == 'arm':
-    import platform
-    host_isa = platform.machine()
-    env.TagImplies(f'{host_isa} kvm', 'arm kvm')
+if env['CONF']['KVM_ISA'] != 'arm':
+    Return()
+
+import platform
+host_isa = platform.machine()
+env.TagImplies(f'{host_isa} kvm', 'arm kvm')
 
 SimObject('KvmGic.py',
     sim_objects=['MuxingKvmGicV2', 'MuxingKvmGicV3'], add_tags='arm kvm')

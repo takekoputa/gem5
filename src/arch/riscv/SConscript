@@ -44,10 +44,12 @@
 
 Import('*')
 
-if env['CONF']['USE_RISCV_ISA']:
-    env.TagImplies('riscv isa', 'gem5 lib')
+if not env['CONF']['USE_RISCV_ISA']:
+    Return()
 
-    env.TagImplies('isa', 'riscv isa')
+env.TagImplies('riscv isa', 'gem5 lib')
+
+env.TagImplies('isa', 'riscv isa')
 
 Source('decoder.cc', add_tags='riscv isa')
 Source('faults.cc', add_tags='riscv isa')

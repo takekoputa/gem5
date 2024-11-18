@@ -30,6 +30,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_RISCV_ISA']:
+    Return()
+
 SimObject('HiFive.py', sim_objects=['HiFiveBase', 'GenericRiscvPciHost'],
           add_tags='riscv isa')
 SimObject('LupV.py', sim_objects=['LupV'], add_tags='riscv isa')

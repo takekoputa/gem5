@@ -25,4 +25,7 @@
 
 Import('*')
 
+if not env['CONF']['USE_X86_ISA']:
+    Return()
+
 Source('workload.cc', add_tags='x86 isa')

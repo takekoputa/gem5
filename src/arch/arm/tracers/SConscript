@@ -35,6 +35,10 @@
 
 Import('*')
 
+if not env["CONF"]["USE_ARM_ISA"]:
+    Return()
+
+
 SimObject('TarmacTrace.py', sim_objects=['TarmacParser', 'TarmacTracer'],
         enums=['TarmacDump'], add_tags='arm isa')
 Source('tarmac_base.cc', add_tags='arm isa')

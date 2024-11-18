@@ -40,6 +40,9 @@
 
 Import('*')
 
+if not env["CONF"]["USE_ARM_ISA"]:
+    Return()
+
 GdbXml('arm-with-neon.xml', 'gdb_xml_arm_target', add_tags='arm isa')
 GdbXml('arm-core.xml', 'gdb_xml_arm_core', add_tags='arm isa')
 GdbXml('arm-vfpv3.xml', 'gdb_xml_arm_vfpv3', add_tags='arm isa')

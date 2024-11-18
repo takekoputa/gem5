@@ -37,6 +37,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_ARM_ISA']:
+    Return()
+
 SimObject('MHU.py',
     sim_objects=['MhuDoorbell', 'Scp2ApDoorbell', 'Ap2ScpDoorbell', 'MHU'],
     add_tags='arm isa'

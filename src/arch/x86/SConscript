@@ -40,10 +40,12 @@
 
 Import('*')
 
-if env['CONF']['USE_X86_ISA']:
-    env.TagImplies('x86 isa', 'gem5 lib')
+if not env['CONF']['USE_X86_ISA']:
+    Return()
 
-    env.TagImplies('isa', 'x86 isa')
+env.TagImplies('x86 isa', 'gem5 lib')
+
+env.TagImplies('isa', 'x86 isa')
 
 Source('cpuid.cc', add_tags='x86 isa')
 Source('decoder.cc', add_tags='x86 isa')

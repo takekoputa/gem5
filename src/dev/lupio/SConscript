@@ -26,6 +26,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_RISCV_ISA']:
+    Return()
+
 SimObject('LupioBLK.py', sim_objects=['LupioBLK'], add_tags='riscv isa')
 SimObject('LupioIPI.py', sim_objects=['LupioIPI'], add_tags='riscv isa')
 SimObject('LupioPIC.py', sim_objects=['LupioPIC'], add_tags='riscv isa')

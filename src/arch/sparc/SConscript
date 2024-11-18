@@ -28,10 +28,12 @@
 
 Import('*')
 
-if env['CONF']['USE_SPARC_ISA']:
-    env.TagImplies('sparc isa', 'gem5 lib')
+if not env['CONF']['USE_SPARC_ISA']:
+    Return()
 
-    env.TagImplies('isa', 'sparc isa')
+env.TagImplies('sparc isa', 'gem5 lib')
+
+env.TagImplies('isa', 'sparc isa')
 
 Source('asi.cc', add_tags='sparc isa')
 Source('decoder.cc', add_tags='sparc isa')

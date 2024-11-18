@@ -28,6 +28,9 @@
 
 Import('*')
 
+if not env['CONF']['USE_MIPS_ISA']:
+    Return()
+
 SimObject('Malta.py', sim_objects=['MaltaCChip', 'MaltaIO', 'Malta'],
     add_tags='mips isa')
 
