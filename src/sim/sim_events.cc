@@ -124,6 +124,13 @@ exitSimLoopNow(const std::string &message, int exit_code, Tick repeat,
     new GlobalSimLoopExitEvent(message, exit_code, repeat);
 }
 
+void exitSimLoop (const::std::string &message, int exit_code, Tick repeat,
+                   std::map<std::string, std::string> payload,
+                    uint64_t hypercall_id, bool serialize)
+{
+    new GlobalSimHypercallEvent(message, exit_code, repeat,
+                hypercall_id, payload);
+}
 /**
  * The "new style" exitSimLoop functions.
  */

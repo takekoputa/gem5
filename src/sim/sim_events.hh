@@ -111,6 +111,31 @@ class GlobalSimLoopExitEvent : public GlobalEvent
     virtual const char *description() const;
 };
 
+class GlobalSimHypercallEvent : public GlobalEvent
+{
+  protected:
+    std::string cause;
+    int code;
+    Tick repeat;
+    uint64_t hypercall_id;
+    std::map<std::string, std::string> payload;
+  public:
+
+  GlobalSimHypercallEvent(const std::string &_cause, int c,
+      Tick repeat = 0, uint64_t hypercall_id = 0,
+      std::map<std::string, std::string> payload =
+          std::map<std::string, std::string>());
+
+  const std::string getCause() const { return cause; }
+  int getCode() const { return code; }
+  uint64_t getHypercallId() const { return hypercall_id; }
+  const std::map<std::string, std::string> getPayload() const {
+      return payload;
+  }
+
+
+}
+
 class LocalSimLoopExitEvent : public Event
 {
   protected:
