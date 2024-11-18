@@ -377,6 +377,7 @@ class Simulator:
             )(),
             ExitEvent.KERNEL_PANIC: exit_generator(),
             ExitEvent.KERNEL_OOPS: exit_generator(),
+            ExitEvent.HYPERCALL: exit_generator(),
         }
 
         if on_exit_event:
@@ -798,6 +799,8 @@ class Simulator:
                 )
             else:
                 exit_event_hypercall_id = 0
+            # setting the exit_event_id to 0 to test
+            exit_event_hypercall_id = 0
             assert (
                 exit_event_hypercall_id
                 in self.get_exit_handler_id_map().keys()

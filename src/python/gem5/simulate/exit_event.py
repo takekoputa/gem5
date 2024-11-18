@@ -45,6 +45,7 @@ class ExitEvent(Enum):
     CHECKPOINT = "checkpoint"  # An exit to load a checkpoint.
     SCHEDULED_TICK = "scheduled tick exit"
     MAX_TICK = "max tick"  # An exit due to a maximum tick value being met.
+    HYPERCALL = "hypercall"  # An exit due to a hypercall.
     USER_INTERRUPT = (  # An exit due to a user interrupt (e.g., cntr + c)
         "user interupt"
     )
@@ -118,6 +119,8 @@ class ExitEvent(Enum):
             return ExitEvent.EXIT
         elif exit_string.endswith("received all expected responses."):
             return ExitEvent.SPATTER_EXIT
+        elif exit_string == "m5_hypercall instruction encountered":
+            return ExitEvent.HYPERCALL
         raise NotImplementedError(
             f"Exit event '{exit_string}' not implemented"
         )
