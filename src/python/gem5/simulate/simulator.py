@@ -659,6 +659,12 @@ class Simulator:
         """
         return self._last_exit_event.getCode()
 
+    def get_hypercall_id(self) -> int:
+        """
+        Returns the hypercall ID.
+        """
+        return self._last_exit_event.getHypercallId()
+
     def get_current_tick(self) -> int:
         """
         Returns the current tick.
@@ -783,16 +789,25 @@ class Simulator:
         while True:
             self._last_exit_event = m5.simulate(self.get_max_ticks())
             # sys.exit(1)
-            exit_event_type_id = self._last_exit_event.getTypeId()
+            # check if the _last_exit_event is an instance of GlobalSimHypercallEvent
+            if isinstance(
+                self._last_exit_event, m5.event.GlobalSimLoopHypercallEvent
+            ):
+                exit_event_hypercall_id = (
+                    self._last_exit_event.get_hypercallId()
+                )
+            else:
+                exit_event_hypercall_id = 0
             assert (
-                exit_event_type_id in self.get_exit_handler_id_map().keys()
+                exit_event_hypercall_id
+                in self.get_exit_handler_id_map().keys()
             ), f"Exit event type ID {self._last_exit_event.getTypeID()} in exit handler ID map"
-            exit_handler = self.get_exit_handler_id_map()[exit_event_type_id](
-                self._last_exit_event.getPayload()
-            )
+            exit_handler = self.get_exit_handler_id_map()[
+                exit_event_hypercall_id
+            ](self._last_exit_event.getPayload())
             exit_on_completion = exit_handler.handle(self)
             self._exit_event_id_log[self.get_current_tick()] = (
-                self._last_exit_event.getTypeId()
+                self._last_exit_event.get_hypercallId()
             )
 
             # If the generator returned True we will return from the Simulator
