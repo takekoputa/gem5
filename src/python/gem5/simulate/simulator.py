@@ -383,7 +383,6 @@ class Simulator:
             )(),
             ExitEvent.KERNEL_PANIC: exit_generator(),
             ExitEvent.KERNEL_OOPS: exit_generator(),
-            ExitEvent.HYPERCALL: exit_generator(),
         }
 
         if on_exit_event:
