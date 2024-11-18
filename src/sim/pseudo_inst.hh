@@ -250,7 +250,7 @@ pseudoInstWork(ThreadContext *tc, uint8_t func, uint64_t &result)
         invokeSimcall<ABI>(tc, triggerWorkloadEvent);
         return true;
 
-      case: M5OP_HYPERCALL:
+      case M5OP_HYPERCALL:
         invokeSimcall<ABI>(tc, m5Hypercall);
         return true;
       default:

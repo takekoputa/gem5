@@ -46,6 +46,8 @@ from m5.objects import Root
 from m5.stats import addStatVisitor
 from m5.util import warn
 
+import _m5
+
 from ..components.boards.abstract_board import AbstractBoard
 from ..components.processors.switchable_processor import SwitchableProcessor
 from .exit_event import ExitEvent
@@ -60,8 +62,10 @@ from .exit_event_generators import (
     warn_default_decorator,
 )
 from .exit_handler import (
+    AfterBootExitHandler,
+    AfterBootScriptExitHandler,
     ClassicGeneratorExitHandler,
-    ToTickExitHandler,
+    KernelBootedExitHandler,
 )
 
 
@@ -99,7 +103,9 @@ class Simulator:
     def get_default_exit_handler_id_map(cls) -> Dict[int, Type[ExitEvent]]:
         default_map = {
             0: ClassicGeneratorExitHandler,
-            1: ToTickExitHandler,
+            1: KernelBootedExitHandler,
+            2: AfterBootExitHandler,
+            3: AfterBootScriptExitHandler,
         }
         assert all(
             i >= 0 for i in default_map.keys()
@@ -790,17 +796,7 @@ class Simulator:
         while True:
             self._last_exit_event = m5.simulate(self.get_max_ticks())
             # sys.exit(1)
-            # check if the _last_exit_event is an instance of GlobalSimHypercallEvent
-            if isinstance(
-                self._last_exit_event, m5.event.GlobalSimLoopHypercallEvent
-            ):
-                exit_event_hypercall_id = (
-                    self._last_exit_event.get_hypercallId()
-                )
-            else:
-                exit_event_hypercall_id = 0
-            # setting the exit_event_id to 0 to test
-            exit_event_hypercall_id = 0
+            exit_event_hypercall_id = self._last_exit_event.getHypercallId()
             assert (
                 exit_event_hypercall_id
                 in self.get_exit_handler_id_map().keys()
@@ -810,7 +806,7 @@ class Simulator:
             ](self._last_exit_event.getPayload())
             exit_on_completion = exit_handler.handle(self)
             self._exit_event_id_log[self.get_current_tick()] = (
-                self._last_exit_event.get_hypercallId()
+                self._last_exit_event.getHypercallId()
             )
 
             # If the generator returned True we will return from the Simulator

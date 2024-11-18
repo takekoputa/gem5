@@ -55,6 +55,11 @@ void exitSimLoop(const std::string &message, int exit_code = 0,
 void exitSimLoopNow(const std::string &message, int exit_code = 0,
                     Tick repeat = 0, bool serialize = false);
 
+void exitSimLoopWithHypercall(const std::string &message, int exit_code,
+                              Tick when, Tick repeat,
+                              std::map<std::string, std::string> payload,
+                              uint64_t hypercall_id, bool serialize);
+
 void exitSimulationLoop(uint64_t type_id,
     std::map<std::string, std::string> payload=
         std::map<std::string, std::string>(),

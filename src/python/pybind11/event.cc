@@ -140,7 +140,7 @@ pybind_init_event(py::module_ &m_native)
         .def("getCause", &GlobalSimLoopExitEvent::getCause)
         .def("getCode", &GlobalSimLoopExitEvent::getCode)
         .def("getPayload", &GlobalSimLoopExitEvent::getPayload)
-        .def("getTypeId", &GlobalSimLoopExitEvent::getTypeId)
+        .def("getHypercallId", &GlobalSimLoopExitEvent::getHypercallId)
         ;
 
     py::class_<GlobalSimHypercallEvent,

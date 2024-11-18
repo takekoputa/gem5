@@ -59,7 +59,7 @@ class GlobalSimLoopExitEvent : public GlobalEvent
     std::string cause;
     int code;
     Tick repeat;
-    uint64_t type_id;
+    uint64_t hypercall_id = 0;
     std::map<std::string, std::string> payload;
 
   public:
@@ -80,6 +80,11 @@ class GlobalSimLoopExitEvent : public GlobalEvent
         std::map<std::string, std::string> payload =
             std::map<std::string, std::string>());
 
+    // GlobalSimLoopExitEvent( Tick when,
+    //   const std::string &_cause, int c,
+    //   Tick repeat = 0, uint64_t hypercall_id = 0,
+    //   std::map<std::string, std::string> payload =
+    //       std::map<std::string, std::string>());
     /**
      * The "new style" constructor for GlobalSimLoopExitEvent.
      * Here the "type_id" parameter is used to specify the type of the exit
@@ -98,7 +103,7 @@ class GlobalSimLoopExitEvent : public GlobalEvent
     const std::string getCause() const { return cause; }
     int getCode() const { return code; }
 
-    uint64_t getTypeId() const { return type_id; }
+    uint64_t getHypercallId() const { return hypercall_id; }
     const std::map<std::string, std::string> getPayload() const {
         return payload;
     }
@@ -121,7 +126,8 @@ class GlobalSimHypercallEvent : public GlobalEvent
     std::map<std::string, std::string> payload;
   public:
 
-  GlobalSimHypercallEvent(const std::string &_cause, int c,
+  GlobalSimHypercallEvent( Tick when,
+      const std::string &_cause, int c,
       Tick repeat = 0, uint64_t hypercall_id = 0,
       std::map<std::string, std::string> payload =
           std::map<std::string, std::string>());
@@ -132,8 +138,12 @@ class GlobalSimHypercallEvent : public GlobalEvent
   const std::map<std::string, std::string> getPayload() const {
       return payload;
   }
-
-
+  virtual void process();// process event
+  virtual void clean(){};//cleaning event
+  ~GlobalSimHypercallEvent (){
+    DPRINTF(Event,"GlobalSimHypercallEvent destructed\n");
+  };
+  virtual const char *description() const;
 };
 
 class LocalSimLoopExitEvent : public Event

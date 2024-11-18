@@ -114,6 +114,37 @@ class IgnoreAndContinueExitHandler(ExitHandler):
         return True
 
 
+class KernelBootedExitHandler(ExitHandler):
+    @overrides(ExitHandler)
+    def _process(self, simulator: "Simulator") -> None:
+        print("First exit: kernel booted")
+
+    @overrides(ExitHandler)
+    def _exit_simulation(self) -> bool:
+        return False
+
+
+class AfterBootExitHandler(ExitHandler):
+    @overrides(ExitHandler)
+    def _process(self, simulator: "Simulator") -> None:
+        print("Second exit: Started `after_boot.sh` script")
+        print("Switching to Timing CPU")
+
+    @overrides(ExitHandler)
+    def _exit_simulation(self) -> bool:
+        return False
+
+
+class AfterBootScriptExitHandler(ExitHandler):
+    @overrides(ExitHandler)
+    def _process(self, simulator: "Simulator") -> None:
+        print("Third exit: Finished `after_boot.sh` script")
+
+    @overrides(ExitHandler)
+    def _exit_simulation(self) -> bool:
+        return True
+
+
 class ToTickExitHandler(ExitHandler):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:

@@ -65,7 +65,7 @@ board = X86Board(
 board.set_kernel_disk_workload(
     kernel=obtain_resource("x86-linux-kernel-5.4.0-105-generic"),
     disk_image=DiskImageResource(
-        "/home/harshilp/worktrees/update-exit-event/ubuntu-generic-diskimages/x86-disk-image-24-04/x86-ubuntu"
+        "/home/harshilp/work/gem5/ubuntu-generic-diskimages/x86-disk-image-24-04/x86-ubuntu"
     ),
     kernel_args=[
         "earlyprintk=ttyS0",
@@ -76,38 +76,8 @@ board.set_kernel_disk_workload(
 )
 
 
-def exit_event_handler():
-    print("First exit: kernel booted")
-    yield False  # gem5 is now executing systemd startup
-    print("Second exit: Started `after_boot.sh` script")
-    # The after_boot.sh script is executed after the kernel and systemd have
-    # booted.
-    # Here we switch the CPU type to Timing.
-    print("Switching to Timing CPU")
-    # processor.switch()
-    yield False  # gem5 is now executing the `after_boot.sh` script
-    print("Third exit: Finished `after_boot.sh` script")
-    # The after_boot.sh script will run a script if it is passed via
-    # m5 readfile. This is the last exit event before the simulation exits.
-    while True:
-        yield False
-
-
-def hypercall_handler():
-    while True:
-        print("Hypercall handler called")
-        print("hypercall id: ", simulator.get_hypercall_id())
-        yield False
-
-
 simulator = Simulator(
     board=board,
-    on_exit_event={
-        # Here we want override the default behavior for the first m5 exit
-        # exit event.
-        ExitEvent.EXIT: exit_event_handler(),
-        ExitEvent.HYPERCALL: hypercall_handler(),
-    },
 )
 
 simulator.run()
