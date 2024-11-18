@@ -143,6 +143,15 @@ pybind_init_event(py::module_ &m_native)
         .def("getTypeId", &GlobalSimLoopExitEvent::getTypeId)
         ;
 
+    py::class_<GlobalSimHypercallEvent,
+               std::unique_ptr<GlobalSimHypercallEvent, py::nodelete>>(
+               m, "GlobalSimHypercallEvent")
+        .def("getCause", &GlobalSimHypercallEvent::getCause)
+        .def("getCode", &GlobalSimHypercallEvent::getCode)
+        .def("getPayload", &GlobalSimHypercallEvent::getPayload)
+        .def("getHypercallId", &GlobalSimHypercallEvent::getHypercallId)
+        ;
+
     // Event base class. These should never be returned directly to
     // Python since they don't have a well-defined life cycle. Python
     // events should be derived from PyEvent instead.

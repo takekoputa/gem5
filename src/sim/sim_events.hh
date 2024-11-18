@@ -132,6 +132,9 @@ class GlobalSimHypercallEvent : public GlobalEvent
   const std::map<std::string, std::string> getPayload() const {
       return payload;
   }
+  const std::map<std::string, std::string> getPayload() const {
+    return payload;
+  }
 
 
 }
