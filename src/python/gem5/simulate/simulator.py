@@ -1,4 +1,4 @@
-# Copyright (c) 2021 The Regents of the University of California
+# Copyright (c) 2021-2024 The Regents of the University of California
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 
 import os
 import sys
-from io import StringIO
 from pathlib import Path
 from typing import (
     Callable,
@@ -42,14 +41,11 @@ from typing import (
 import m5
 import m5.ticks
 from m5.ext.pystats.simstat import SimStat
-from m5.objects import Root
 from m5.stats import addStatVisitor
 from m5.util import warn
 
-import _m5
+from gem5.components.boards.abstract_board import AbstractBoard
 
-from ..components.boards.abstract_board import AbstractBoard
-from ..components.processors.switchable_processor import SwitchableProcessor
 from .exit_event import ExitEvent
 from .exit_event_generators import (
     dump_stats_generator,
@@ -66,6 +62,7 @@ from .exit_handler import (
     AfterBootScriptExitHandler,
     ClassicGeneratorExitHandler,
     KernelBootedExitHandler,
+    ScheduledExitEventHandler,
 )
 
 
@@ -102,10 +99,24 @@ class Simulator:
 
     def get_default_exit_handler_id_map(cls) -> Dict[int, Type[ExitEvent]]:
         default_map = {
+            # The default exit handlers for the older "generated-based" exit
+            # events.
             0: ClassicGeneratorExitHandler,
+            # The default exit handler for when the the kernel in a FS
+            # simulation has completed booting.
             1: KernelBootedExitHandler,
+            # The default exit handler for when the `after_boot.sh` script has
+            # completed execution in FS simulations which utilize this.
             2: AfterBootExitHandler,
+            # The default exit handler triggered when the post-boot script has
+            # completed execution in FS simulation. Note: it is common for this
+            # to be the the defacto end of the simulation as the post-boot
+            # script is used to execute the user's workload.
             3: AfterBootScriptExitHandler,
+            # The default exit handler for scheduled exit event, such as those
+            # scheduled by the user via `scheduleTickExitAbsolute` or
+            # `scheduleTickExitFromCurrent`.
+            4: ScheduledExitEventHandler,
         }
         assert all(
             i >= 0 for i in default_map.keys()

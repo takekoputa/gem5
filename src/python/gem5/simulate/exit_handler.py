@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import (
     Any,
     Dict,
+    Optional,
 )
 
 import m5
@@ -97,16 +98,48 @@ class ClassicGeneratorExitHandler(ExitHandler):
         return self._exit_on_completion
 
 
-class IgnoreAndContinueExitHandler(ExitHandler):
+class ScheduledExitEventHandler(ExitHandler):
+    """A handler designed to be the default for  an Exit scheduled to occur
+    at a specified tick. For example, these Exit exits can be triggered through be
+    src/python/m5/simulate.py's `scheduleTickExitFromCurrent` and
+    `scheduleTickExitAbsolute` functions.
+
+    It will exit the simulation loop by default.
+
+    The `justification` and `scheduled_at_tick` methods are provided to give
+    richer information about this schedule exit.
+    """
 
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
-        from m5 import info
+        pass
 
-        info(
-            f"To Tick Exit triggered at tick: {m5.curTick()}"
-            f"To Tick Exit was scheduled at tick: {self._payload().get('scheduled_at_tick', 'NOT_SET')}"
-            f"To Tick Exit string: {self._payload.get('exit_string', 'NOT_SET')}"
+    def justification(self) -> Optional[str]:
+        """Returns the justification for the scheduled exit event.
+
+        This information may be passed to when scheduling the event event to
+        remind the user why the event was scheduled, or used in cases where
+        lots of scheduled events are used and there is a need to differentiate
+        them.
+
+        Returns "None" if this information was not set.
+        """
+        return (
+            None
+            if "justification" not in self._payload
+            else self._payload["justification"]
+        )
+
+    def scheduled_at_tick(self) -> Optional[int]:
+        """Returns the tick in which the event was scheduled on (not scheduled
+        to occur, but the tick the event was created).
+
+        Returns "None" if this information is not available.
+        """
+        return (
+            None
+            if "scheduled_at_tick" not in self._payload
+            else int(self._payload["scheduled_at_tick"])
         )
 
     @overrides(ExitHandler)
