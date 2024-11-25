@@ -1454,12 +1454,12 @@ faultFgtEL0(const MiscRegLUTEntry &entry,
  * @tparam read: is this a read access to the register?
  * @tparam r_bitfield: register (HFGTR) bitfield
  */
-template<bool read, auto r_bitfield>
+template<bool read, auto r_bitfield, RegVal r_match=0b1>
 Fault
 faultFgtEL1(const MiscRegLUTEntry &entry,
     ThreadContext *tc, const MiscRegOp64 &inst)
 {
-    if (fgtEnabled(tc) && fgtRegister<read>(tc).*r_bitfield) {
+    if (fgtEnabled(tc) && (fgtRegister<read>(tc).*r_bitfield == r_match)) {
         return inst.generateTrap(EL2);
     } else {
         return NoFault;
@@ -1576,7 +1576,7 @@ faultHcrFgtEL0(const MiscRegLUTEntry &entry,
  * @tparam g_bitfield: group (HCR) bitfield
  * @tparam r_bitfield: register (HFGTR) bitfield
  */
-template<bool read, auto g_bitfield, auto r_bitfield>
+template<bool read, auto g_bitfield, auto r_bitfield, RegVal r_match=0b1>
 Fault
 faultHcrFgtEL1(const MiscRegLUTEntry &entry,
     ThreadContext *tc, const MiscRegOp64 &inst)
@@ -1585,7 +1585,7 @@ faultHcrFgtEL1(const MiscRegLUTEntry &entry,
 
     if (EL2Enabled(tc) && hcr.*g_bitfield) {
         return inst.generateTrap(EL2);
-    } else if (auto fault = faultFgtEL1<read, r_bitfield>(entry, tc, inst);
+    } else if (auto fault = faultFgtEL1<read, r_bitfield, r_match>(entry, tc, inst);
                fault != NoFault) {
         return fault;
     } else {
