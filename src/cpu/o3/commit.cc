@@ -295,6 +295,11 @@ Commit::clearStates(ThreadID tid)
     pc[tid].reset(cpu->tcBase(tid)->getIsaPtr()->newPCState());
     lastCommitedSeqNum[tid] = 0;
     squashAfterInst[tid] = NULL;
+
+    // Clear out any of this thread's instructions being sent to prior stages.
+    for (int i = -cpu->timeBuffer.getPast();
+         i <= cpu->timeBuffer.getFuture(); ++i)
+        cpu->timeBuffer[i].commitInfo[i] = {};
 }
 
 void Commit::drain() { drainPending = true; }

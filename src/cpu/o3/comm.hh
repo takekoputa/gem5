@@ -225,6 +225,25 @@ struct TimeStruct
     bool iewUnblock[MaxThreads];
 };
 
+/**
+ * Remove instructions belonging to given thread from the
+ * given comm struct's instruction array. Automatically
+ * updates the array size.
+ */
+template <class CommStruct>
+void
+removeCommThreadInsts(ThreadID tid, CommStruct& comm_struct)
+{
+    auto has_tid = [tid] (const auto &inst) -> bool {
+        return inst && inst->threadNumber == tid;
+    };
+    DynInstPtr *last = std::remove_if(comm_struct.insts,
+                                      comm_struct.insts + comm_struct.size,
+                                      has_tid);
+    std::fill(last, comm_struct.insts + comm_struct.size, nullptr);
+    comm_struct.size = last - comm_struct.insts;
+}
+
 } // namespace o3
 } // namespace gem5
 

@@ -260,6 +260,36 @@ IEW::clearStates(ThreadID tid)
     toRename->iewInfo[tid].usedLSQ = true;
     toRename->iewInfo[tid].freeLQEntries = ldstQueue.numFreeLoadEntries(tid);
     toRename->iewInfo[tid].freeSQEntries = ldstQueue.numFreeStoreEntries(tid);
+
+    // Clear out any of this thread's instructions being sent to commit.
+    for (int i = -cpu->iewQueue.getPast();
+         i <= cpu->iewQueue.getFuture(); ++i) {
+        IEWStruct& iew_struct = cpu->iewQueue[i];
+        removeCommThreadInsts(tid, iew_struct);
+        iew_struct.mispredictInst[tid] = nullptr;
+        iew_struct.mispredPC[tid] = 0;
+        iew_struct.squashedSeqNum[tid] = 0;
+        iew_struct.pc[tid] = nullptr;
+        iew_struct.squash[tid] = false;
+        iew_struct.branchMispredict[tid] = false;
+        iew_struct.branchTaken[tid] = false;
+        iew_struct.includeSquashInst[tid] = false;
+    }
+
+    // Clear out any of this thread's instructions being sent from
+    // issue to execute.
+    for (int i = -issueToExecQueue.getPast();
+         i <= issueToExecQueue.getFuture(); ++i)
+        removeCommThreadInsts(tid, issueToExecQueue[i]);
+
+    // Clear out any of this thread's instructions being sent to prior stages.
+    for (int i = -cpu->timeBuffer.getPast();
+         i <= cpu->timeBuffer.getFuture(); ++i) {
+        TimeStruct& time_struct = cpu->timeBuffer[i];
+        time_struct.iewInfo[tid] = {};
+        time_struct.iewBlock[tid] = false;
+        time_struct.iewUnblock[tid] = false;
+    }
 }
 
 void
