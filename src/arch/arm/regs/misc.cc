@@ -2889,6 +2889,42 @@ faultVheEL2(const MiscRegLUTEntry &entry,
     }
 }
 
+template <bool read, auto g_bitfield, auto r_bitifield>
+Fault
+faultPieEL1(const MiscRegLUTEntry &entry,
+    ThreadContext *tc, const MiscRegOp64 &inst)
+{
+    if (HaveExt(tc, ArmExtension::FEAT_S1PIE)) {
+        SCR scr_el3 = tc->readMiscReg(MISCREG_SCR_EL3);
+        if (auto fault = faultHcrFgtEL1<read, g_bitfield, r_bitifield, 0>(entry, tc, inst);
+            fault != NoFault) {
+            return fault;
+        } else if (ArmSystem::haveEL(tc, EL3) && !scr_el3.piEn) {
+            return inst.generateTrap(EL3);
+        } else {
+            return NoFault;
+        }
+    } else {
+        return inst.undefined();
+    }
+}
+
+Fault
+faultPieEL2(const MiscRegLUTEntry &entry,
+    ThreadContext *tc, const MiscRegOp64 &inst)
+{
+    if (HaveExt(tc, ArmExtension::FEAT_S1PIE)) {
+        SCR scr_el3 = tc->readMiscReg(MISCREG_SCR_EL3);
+        if (ArmSystem::haveEL(tc, EL3) && !scr_el3.piEn) {
+            return inst.generateTrap(EL3);
+        } else {
+            return NoFault;
+        }
+    } else {
+        return inst.undefined();
+    }
+}
+
 }
 
 MiscRegIndex
@@ -6958,19 +6994,29 @@ ISA::initializeMiscRegMetadata()
 
     // FEAT_S1PIE
     InitReg(MISCREG_PIRE0_EL1)
-        .allPrivileges().exceptUserMode();
+        .faultRead(EL1, faultPieEL1<true, &HCR::trvm, &HFGTR::nPire0EL1>)
+        .faultWrite(EL1, faultPieEL1<false, &HCR::tvm, &HFGTR::nPire0EL1>)
+        .fault(EL2, faultPieEL2)
+        .mon();
     InitReg(MISCREG_PIRE0_EL2)
-        .hyp().mon();
+        .fault(EL2, faultPieEL2)
+        .mon();
     InitReg(MISCREG_PIR_EL1)
-        .allPrivileges().exceptUserMode();
+        .faultRead(EL1, faultPieEL1<true, &HCR::trvm, &HFGTR::nPirEL1>)
+        .faultWrite(EL1, faultPieEL1<false, &HCR::tvm, &HFGTR::nPirEL1>)
+        .fault(EL2, faultPieEL2)
+        .mon();
     InitReg(MISCREG_PIRE0_EL12)
-        .hyp().mon();
+        .fault(EL2, faultVheEL2<faultPieEL2>)
+        .fault(EL3, defaultFaultE2H_EL3)
         .mapsTo(MISCREG_PIRE0_EL1);
     InitReg(MISCREG_PIR_EL12)
-        .hyp().mon();
+        .fault(EL2, faultVheEL2<faultPieEL2>)
+        .fault(EL3, defaultFaultE2H_EL3)
         .mapsTo(MISCREG_PIR_EL1);
     InitReg(MISCREG_PIR_EL2)
-        .hyp().mon();
+        .fault(EL2, faultPieEL2)
+        .mon();
     InitReg(MISCREG_PIR_EL3)
         .mon();
 
