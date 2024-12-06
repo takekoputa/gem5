@@ -43,7 +43,9 @@ if env['CONF']['BUILD_ISA']:
     DebugFlag('SimpleTrace')
 
     SimObject(
-        'ElasticTrace.py', sim_objects=['ElasticTrace'], add_tags='protobuf'
+        'ElasticTrace.py',
+        sim_objects=['ElasticTrace'],
+        tags=['gem5 lib', 'protobuf']
     )
-    Source('elastic_trace.cc', add_tags='protobuf')
-    DebugFlag('ElasticTrace', add_tags='protobuf')
+    Source('elastic_trace.cc', tags=['gem5 lib', 'protobuf'])
+    DebugFlag('ElasticTrace', tags=['gem5 lib', 'protobuf'])

@@ -44,19 +44,30 @@ import platform
 host_isa = platform.machine()
 env.TagImplies(f'{host_isa} kvm', 'arm kvm')
 
-SimObject('KvmGic.py',
-    sim_objects=['MuxingKvmGicV2', 'MuxingKvmGicV3'], add_tags='arm kvm')
-Source('gic.cc', add_tags='arm kvm')
+SimObject(
+    'KvmGic.py',
+    sim_objects=['MuxingKvmGicV2', 'MuxingKvmGicV3'],
+    tags=['gem5 lib', 'arm kvm']
+)
+Source('gic.cc', tags=['gem5 lib', 'arm kvm'])
 
 SimObject(
-    'BaseArmKvmCPU.py', sim_objects=['BaseArmKvmCPU'], add_tags='arm kvm'
+    'BaseArmKvmCPU.py',
+    sim_objects=['BaseArmKvmCPU'],
+    tags=['gem5 lib', 'arm kvm']
 )
-Source('base_cpu.cc', add_tags='arm kvm')
-
-SimObject('ArmKvmCPU.py', sim_objects=['ArmKvmCPU'], add_tags='armv71 kvm')
-Source('arm_cpu.cc', add_tags='armv71 kvm')
+Source('base_cpu.cc', tags=['gem5 lib', 'arm kvm'])
 
 SimObject(
-    'ArmV8KvmCPU.py', sim_objects=['ArmV8KvmCPU'], add_tags='aarch64 kvm'
+    'ArmKvmCPU.py',
+    sim_objects=['ArmKvmCPU'],
+    tags=['gem5 lib', 'armv71 kvm']
 )
-Source('armv8_cpu.cc', add_tags='aarch64 kvm')
+Source('arm_cpu.cc', tags=['gem5 lib', 'armv71 kvm'])
+
+SimObject(
+    'ArmV8KvmCPU.py',
+    sim_objects=['ArmV8KvmCPU'],
+    tags=['gem5 lib', 'aarch64 kvm']
+)
+Source('armv8_cpu.cc', tags=['gem5 lib', 'aarch64 kvm'])

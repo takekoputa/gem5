@@ -67,110 +67,123 @@ GTest(
 )
 GTest("matrix.test", "matrix.test.cc")
 
-Source("decoder.cc", add_tags="arm isa")
-Source("faults.cc", add_tags="arm isa")
-Source("htm.cc", add_tags="arm isa")
-Source("insts/branch.cc", add_tags="arm isa")
-Source("insts/branch64.cc", add_tags="arm isa")
-Source("insts/data64.cc", add_tags="arm isa")
-Source("insts/macromem.cc", add_tags="arm isa")
-Source("insts/mem.cc", add_tags="arm isa")
-Source("insts/mem64.cc", add_tags="arm isa")
-Source("insts/misc.cc", add_tags="arm isa")
-Source("insts/misc64.cc", add_tags="arm isa")
-Source("insts/pred_inst.cc", add_tags="arm isa")
-Source("insts/pseudo.cc", add_tags="arm isa")
-Source("insts/sme.cc", add_tags="arm isa")
-Source("insts/static_inst.cc", add_tags="arm isa")
-Source("insts/sve.cc", add_tags="arm isa")
-Source("insts/sve_mem.cc", add_tags="arm isa")
-Source("insts/vfp.cc", add_tags="arm isa")
-Source("insts/crypto.cc", add_tags="arm isa")
-Source("insts/tme64.cc", add_tags="arm isa")
+Source("decoder.cc", tags=['gem5 lib', 'arm isa'])
+Source("faults.cc", tags=['gem5 lib', 'arm isa'])
+Source("htm.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/branch.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/branch64.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/data64.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/macromem.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/mem.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/mem64.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/misc.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/misc64.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/pred_inst.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/pseudo.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/sme.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/static_inst.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/sve.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/sve_mem.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/vfp.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/crypto.cc", tags=['gem5 lib', 'arm isa'])
+Source("insts/tme64.cc", tags=['gem5 lib', 'arm isa'])
 if env["CONF"]["RUBY_PROTOCOL_MESI_Three_Level_HTM"]:
-    Source("insts/tme64ruby.cc", add_tags="arm isa")
+    Source("insts/tme64ruby.cc", tags=['gem5 lib', 'arm isa'])
 else:
-    Source("insts/tme64classic.cc", add_tags="arm isa")
-Source("interrupts.cc", add_tags="arm isa")
-Source("isa.cc", add_tags="arm isa")
-Source("isa_device.cc", add_tags="arm isa")
-Source("linux/process.cc", add_tags="arm isa")
-Source("linux/se_workload.cc", add_tags="arm isa")
-Source("linux/fs_workload.cc", add_tags="arm isa")
-Source("freebsd/fs_workload.cc", add_tags="arm isa")
-Source("freebsd/se_workload.cc", add_tags="arm isa")
-Source("fs_workload.cc", add_tags="arm isa")
-Source("regs/int.cc", add_tags="arm isa")
-Source("regs/misc.cc", add_tags="arm isa")
-Source("mmu.cc", add_tags="arm isa")
-Source("mpam.cc", add_tags="arm isa")
-Source("nativetrace.cc", add_tags="arm isa")
-Source("pagetable.cc", add_tags="arm isa")
-Source("pauth_helpers.cc", add_tags="arm isa")
-Source("pmu.cc", add_tags="arm isa")
-Source("process.cc", add_tags="arm isa")
-Source("qarma.cc", add_tags="arm isa")
-Source("remote_gdb.cc", add_tags="arm isa")
-Source("reg_abi.cc", add_tags="arm isa")
-Source("semihosting.cc", add_tags="arm isa")
-Source("system.cc", add_tags="arm isa")
-Source("table_walker.cc", add_tags="arm isa")
-Source("self_debug.cc", add_tags="arm isa")
-Source("stage2_lookup.cc", add_tags="arm isa")
-Source("tlb.cc", add_tags="arm isa")
-Source("tlbi_op.cc", add_tags="arm isa")
-Source("utility.cc", add_tags="arm isa")
+    Source("insts/tme64classic.cc", tags=['gem5 lib', 'arm isa'])
+Source("interrupts.cc", tags=['gem5 lib', 'arm isa'])
+Source("isa.cc", tags=['gem5 lib', 'arm isa'])
+Source("isa_device.cc", tags=['gem5 lib', 'arm isa'])
+Source("linux/process.cc", tags=['gem5 lib', 'arm isa'])
+Source("linux/se_workload.cc", tags=['gem5 lib', 'arm isa'])
+Source("linux/fs_workload.cc", tags=['gem5 lib', 'arm isa'])
+Source("freebsd/fs_workload.cc", tags=['gem5 lib', 'arm isa'])
+Source("freebsd/se_workload.cc", tags=['gem5 lib', 'arm isa'])
+Source("fs_workload.cc", tags=['gem5 lib', 'arm isa'])
+Source("regs/int.cc", tags=['gem5 lib', 'arm isa'])
+Source("regs/misc.cc", tags=['gem5 lib', 'arm isa'])
+Source("mmu.cc", tags=['gem5 lib', 'arm isa'])
+Source("mpam.cc", tags=['gem5 lib', 'arm isa'])
+Source("nativetrace.cc", tags=['gem5 lib', 'arm isa'])
+Source("pagetable.cc", tags=['gem5 lib', 'arm isa'])
+Source("pauth_helpers.cc", tags=['gem5 lib', 'arm isa'])
+Source("pmu.cc", tags=['gem5 lib', 'arm isa'])
+Source("process.cc", tags=['gem5 lib', 'arm isa'])
+Source("qarma.cc", tags=['gem5 lib', 'arm isa'])
+Source("remote_gdb.cc", tags=['gem5 lib', 'arm isa'])
+Source("reg_abi.cc", tags=['gem5 lib', 'arm isa'])
+Source("semihosting.cc", tags=['gem5 lib', 'arm isa'])
+Source("system.cc", tags=['gem5 lib', 'arm isa'])
+Source("table_walker.cc", tags=['gem5 lib', 'arm isa'])
+Source("self_debug.cc", tags=['gem5 lib', 'arm isa'])
+Source("stage2_lookup.cc", tags=['gem5 lib', 'arm isa'])
+Source("tlb.cc", tags=['gem5 lib', 'arm isa'])
+Source("tlbi_op.cc", tags=['gem5 lib', 'arm isa'])
+Source("utility.cc", tags=['gem5 lib', 'arm isa'])
 
-SimObject("ArmDecoder.py", sim_objects=["ArmDecoder"], add_tags="arm isa")
+SimObject(
+    "ArmDecoder.py",
+    sim_objects=["ArmDecoder"],
+    tags=['gem5 lib', 'arm isa'])
 SimObject(
     "ArmFsWorkload.py",
     sim_objects=["ArmFsWorkload", "ArmFsLinux", "ArmFsFreebsd"],
     enums=["ArmMachineType"],
-    add_tags="arm isa",
+    tags=['gem5 lib', 'arm isa'],
 )
 SimObject(
-    "ArmInterrupts.py", sim_objects=["ArmInterrupts"], add_tags="arm isa"
+    "ArmInterrupts.py",
+    sim_objects=["ArmInterrupts"],
+    tags=['gem5 lib', 'arm isa']
 )
 SimObject(
     "ArmISA.py",
     sim_objects=["ArmISA"],
     enums=["DecoderFlavor"],
-    add_tags="arm isa",
+    tags=['gem5 lib', 'arm isa'],
 )
 SimObject(
-    "ArmMMU.py", sim_objects=["ArmTableWalker", "ArmMMU"], add_tags="arm isa"
+    "ArmMMU.py",
+    sim_objects=["ArmTableWalker", "ArmMMU"],
+    tags=['gem5 lib', 'arm isa']
 )
 SimObject(
-    "ArmNativeTrace.py", sim_objects=["ArmNativeTrace"], add_tags="arm isa"
+    "ArmNativeTrace.py",
+    sim_objects=["ArmNativeTrace"],
+    tags=['gem5 lib', 'arm isa']
 )
 SimObject(
-    "ArmSemihosting.py", sim_objects=["ArmSemihosting"], add_tags="arm isa"
+    "ArmSemihosting.py",
+    sim_objects=["ArmSemihosting"],
+    tags=['gem5 lib', 'arm isa']
 )
 SimObject(
     "ArmSeWorkload.py",
     sim_objects=["ArmSEWorkload", "ArmEmuLinux", "ArmEmuFreebsd"],
-    add_tags="arm isa",
+    tags=['gem5 lib', 'arm isa'],
 )
 SimObject(
     "ArmSystem.py",
     sim_objects=["ArmSystem", "ArmRelease"],
     enums=["ArmExtension"],
-    add_tags="arm isa",
+    tags=['gem5 lib', 'arm isa'],
 )
 SimObject(
     "ArmTLB.py",
     sim_objects=["ArmTLB", "TLBIndexingPolicy", "TLBSetAssociative"],
     enums=["ArmLookupLevel"],
-    add_tags="arm isa",
+    tags=['gem5 lib', 'arm isa'],
 )
-SimObject("ArmPMU.py", sim_objects=["ArmPMU"], add_tags="arm isa")
+SimObject("ArmPMU.py", sim_objects=["ArmPMU"], tags=['gem5 lib', 'arm isa'])
 
-SimObject("ArmCPU.py", sim_objects=[], add_tags="arm isa")
+SimObject("ArmCPU.py", sim_objects=[], tags=['gem5 lib', 'arm isa'])
 
-DebugFlag("Arm", add_tags="arm isa")
-DebugFlag("ArmTme", "Transactional Memory Extension", add_tags="arm isa")
-DebugFlag("MPAM", "MPAM debug flag", add_tags="arm isa")
-DebugFlag("PMUVerbose", "Performance Monitor", add_tags="arm isa")
+DebugFlag("Arm", tags=['gem5 lib', 'arm isa'])
+DebugFlag("ArmTme", "Transactional Memory Extension",
+    tags=['gem5 lib', 'arm isa'])
+DebugFlag("MPAM", "MPAM debug flag", tags=['gem5 lib', 'arm isa'])
+DebugFlag("PMUVerbose", "Performance Monitor", tags=['gem5 lib', 'arm isa'])
 
 # Add files generated by the ISA description.
-ISADesc("isa/main.isa", decoder_splits=3, exec_splits=6, add_tags="arm isa")
+ISADesc("isa/main.isa", decoder_splits=3, exec_splits=6,
+    tags=['gem5 lib', 'arm isa'])

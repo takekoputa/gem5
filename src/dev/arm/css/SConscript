@@ -40,18 +40,19 @@ Import('*')
 if not env['CONF']['USE_ARM_ISA']:
     Return()
 
-SimObject('MHU.py',
+SimObject(
+    'MHU.py',
     sim_objects=['MhuDoorbell', 'Scp2ApDoorbell', 'Ap2ScpDoorbell', 'MHU'],
-    add_tags='arm isa'
+    tags=['gem5 lib', 'arm isa']
 )
 SimObject('Scmi.py', sim_objects=[
     'ScmiChannel', 'ScmiAgentChannel', 'ScmiPlatformChannel',
-    'ScmiCommunication', 'ScmiPlatform'], add_tags='arm isa')
-SimObject('Scp.py', sim_objects=['Scp'], add_tags='arm isa')
+    'ScmiCommunication', 'ScmiPlatform'], tags=['gem5 lib', 'arm isa'])
+SimObject('Scp.py', sim_objects=['Scp'], tags=['gem5 lib', 'arm isa'])
 
-Source('mhu.cc', add_tags='arm isa')
-Source('scmi_platform.cc', add_tags='arm isa')
-Source('scmi_protocols.cc', add_tags='arm isa')
+Source('mhu.cc', tags=['gem5 lib', 'arm isa'])
+Source('scmi_platform.cc', tags=['gem5 lib', 'arm isa'])
+Source('scmi_protocols.cc', tags=['gem5 lib', 'arm isa'])
 
-DebugFlag('MHU', add_tags='arm isa')
-DebugFlag('SCMI', add_tags='arm isa')
+DebugFlag('MHU', tags=['gem5 lib', 'arm isa'])
+DebugFlag('SCMI', tags=['gem5 lib', 'arm isa'])

@@ -36,32 +36,41 @@ env.TagImplies('mips isa', 'gem5 lib')
 
 env.TagImplies('isa', 'mips isa')
 
-Source('decoder.cc', add_tags='mips isa')
-Source('dsp.cc', add_tags='mips isa')
-Source('faults.cc', add_tags='mips isa')
-Source('idle_event.cc', add_tags='mips isa')
-Source('interrupts.cc', add_tags='mips isa')
-Source('isa.cc', add_tags='mips isa')
-Source('linux/se_workload.cc', add_tags='mips isa')
-Source('pagetable.cc', add_tags='mips isa')
-Source('process.cc', add_tags='mips isa')
-Source('remote_gdb.cc', add_tags='mips isa')
-Source('se_workload.cc', add_tags='mips isa')
-Source('tlb.cc', add_tags='mips isa')
-Source('utility.cc', add_tags='mips isa')
+Source('decoder.cc', tags=['gem5 lib', 'mips isa'])
+Source('dsp.cc', tags=['gem5 lib', 'mips isa'])
+Source('faults.cc', tags=['gem5 lib', 'mips isa'])
+Source('idle_event.cc', tags=['gem5 lib', 'mips isa'])
+Source('interrupts.cc', tags=['gem5 lib', 'mips isa'])
+Source('isa.cc', tags=['gem5 lib', 'mips isa'])
+Source('linux/se_workload.cc', tags=['gem5 lib', 'mips isa'])
+Source('pagetable.cc', tags=['gem5 lib', 'mips isa'])
+Source('process.cc', tags=['gem5 lib', 'mips isa'])
+Source('remote_gdb.cc', tags=['gem5 lib', 'mips isa'])
+Source('se_workload.cc', tags=['gem5 lib', 'mips isa'])
+Source('tlb.cc', tags=['gem5 lib', 'mips isa'])
+Source('utility.cc', tags=['gem5 lib', 'mips isa'])
 
-SimObject('MipsDecoder.py', sim_objects=['MipsDecoder'], add_tags='mips isa')
 SimObject(
-    'MipsInterrupts.py', sim_objects=['MipsInterrupts'], add_tags='mips isa'
+    'MipsDecoder.py',
+    sim_objects=['MipsDecoder'],
+    tags=['gem5 lib', 'mips isa']
 )
-SimObject('MipsISA.py', sim_objects=['MipsISA'], add_tags='mips isa')
-SimObject('MipsMMU.py', sim_objects=['MipsMMU'], add_tags='mips isa')
-SimObject('MipsSeWorkload.py', sim_objects=['MipsSEWorkload', 'MipsEmuLinux'],
-    add_tags='mips isa')
-SimObject('MipsTLB.py', sim_objects=['MipsTLB'], add_tags='mips isa')
+SimObject(
+    'MipsInterrupts.py',
+    sim_objects=['MipsInterrupts'],
+    tags=['gem5 lib', 'mips isa']
+)
+SimObject('MipsISA.py', sim_objects=['MipsISA'], tags=['gem5 lib', 'mips isa'])
+SimObject('MipsMMU.py', sim_objects=['MipsMMU'], tags=['gem5 lib', 'mips isa'])
+SimObject(
+    'MipsSeWorkload.py',
+    sim_objects=['MipsSEWorkload', 'MipsEmuLinux'],
+    tags=['gem5 lib', 'mips isa']
+)
+SimObject('MipsTLB.py', sim_objects=['MipsTLB'], tags=['gem5 lib', 'mips isa'])
 
-SimObject('MipsCPU.py', sim_objects=[], add_tags='mips isa')
+SimObject('MipsCPU.py', sim_objects=[], tags=['gem5 lib', 'mips isa'])
 
-DebugFlag('MipsPRA', add_tags='mips isa')
+DebugFlag('MipsPRA', tags=['gem5 lib', 'mips isa'])
 
-ISADesc('isa/main.isa', add_tags='mips isa')
+ISADesc('isa/main.isa', tags=['gem5 lib', 'mips isa'])

@@ -50,6 +50,6 @@ Source('base.cc')
 SimObject('BaseSimpleCPU.py', sim_objects=['BaseSimpleCPU'])
 
 # For backwards compatibility
-SimObject('AtomicSimpleCPU.py', sim_objects=[], add_tags='isa')
-SimObject('NonCachingSimpleCPU.py', sim_objects=[], add_tags='isa')
-SimObject('TimingSimpleCPU.py', sim_objects=[], add_tags='isa')
+SimObject('AtomicSimpleCPU.py', sim_objects=[], tags=['gem5 lib', 'isa'])
+SimObject('NonCachingSimpleCPU.py', sim_objects=[], tags=['gem5 lib', 'isa'])
+SimObject('TimingSimpleCPU.py', sim_objects=[], tags=['gem5 lib', 'isa'])

@@ -1,8 +1,12 @@
 Import('*')
 
 # Only build TraceCPU if we have support for protobuf as TraceCPU relies on it
-SimObject('TraceCPU.py', sim_objects=['TraceCPU'], add_tags='protobuf')
-Source('trace_cpu.cc', add_tags='protobuf')
+SimObject(
+    'TraceCPU.py',
+    sim_objects=['TraceCPU'],
+    tags=['gem5 lib', 'protobuf']
+)
+Source('trace_cpu.cc', tags=['gem5 lib', 'protobuf'])
 
 DebugFlag('TraceCPUData')
 DebugFlag('TraceCPUInst')

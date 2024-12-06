@@ -60,20 +60,22 @@ if env["CONF"]["BUILD_TLM"]:
     env.Append(LIBS=[tlm_lib])
 
     SimObject(
-        "TlmController.py", sim_objects=["TlmController"], add_tags="arm isa"
+        "TlmController.py",
+        sim_objects=["TlmController"],
+        tags=['gem5 lib', 'arm isa']
     )
     SimObject(
         'TlmGenerator.py',
         sim_objects=['TlmGenerator'],
-        add_tags='arm isa'
+        tags=['gem5 lib', 'arm isa']
     )
-    Source("utils.cc", add_tags="arm isa")
-    Source("controller.cc", add_tags="arm isa")
-    Source('tlm_chi.cc', add_tags='arm isa')
-    Source('tlm_chi_gen.cc', add_tags='arm isa')
-    Source('generator.cc', add_tags='arm isa')
+    Source("utils.cc", tags=['gem5 lib', 'arm isa'])
+    Source("controller.cc", tags=['gem5 lib', 'arm isa'])
+    Source('tlm_chi.cc', tags=['gem5 lib', 'arm isa'])
+    Source('tlm_chi_gen.cc', tags=['gem5 lib', 'arm isa'])
+    Source('generator.cc', tags=['gem5 lib', 'arm isa'])
     PySource('m5', 'tlm_chi.py')
-    DebugFlag("TLM", add_tags="arm isa")
+    DebugFlag("TLM", tags=['gem5 lib', 'arm isa'])
 
     print(
         "BUILD_TLM set: "

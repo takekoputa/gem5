@@ -31,6 +31,6 @@ Import('*')
 if not env['CONF']['USE_X86_ISA']:
     Return()
 
-Source('float.cc', add_tags='x86 isa')
-Source('int.cc', add_tags='x86 isa')
-Source('msr.cc', add_tags='x86 isa')
+Source('float.cc', tags=['gem5 lib', 'x86 isa'])
+Source('int.cc', tags=['gem5 lib', 'x86 isa'])
+Source('msr.cc', tags=['gem5 lib', 'x86 isa'])

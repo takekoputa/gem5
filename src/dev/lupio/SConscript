@@ -29,14 +29,46 @@ Import('*')
 if not env['CONF']['USE_RISCV_ISA']:
     Return()
 
-SimObject('LupioBLK.py', sim_objects=['LupioBLK'], add_tags='riscv isa')
-SimObject('LupioIPI.py', sim_objects=['LupioIPI'], add_tags='riscv isa')
-SimObject('LupioPIC.py', sim_objects=['LupioPIC'], add_tags='riscv isa')
-SimObject('LupioRNG.py', sim_objects=['LupioRNG'], add_tags='riscv isa')
-SimObject('LupioRTC.py', sim_objects=['LupioRTC'], add_tags='riscv isa')
-SimObject('LupioTMR.py', sim_objects=['LupioTMR'], add_tags='riscv isa')
-SimObject('LupioTTY.py', sim_objects=['LupioTTY'], add_tags='riscv isa')
-SimObject('LupioSYS.py', sim_objects=['LupioSYS'], add_tags='riscv isa')
+SimObject(
+    'LupioBLK.py',
+    sim_objects=['LupioBLK'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioIPI.py',
+    sim_objects=['LupioIPI'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioPIC.py',
+    sim_objects=['LupioPIC'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioRNG.py',
+    sim_objects=['LupioRNG'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioRTC.py',
+    sim_objects=['LupioRTC'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioTMR.py',
+    sim_objects=['LupioTMR'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioTTY.py',
+    sim_objects=['LupioTTY'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'LupioSYS.py',
+    sim_objects=['LupioSYS'],
+    tags=['gem5 lib', 'riscv isa']
+)
 
 DebugFlag('LupioBLK')
 DebugFlag('LupioIPI')
@@ -47,11 +79,11 @@ DebugFlag('LupioTMR')
 DebugFlag('LupioTTY')
 DebugFlag('LupioSYS')
 
-Source('lupio_blk.cc', add_tags='riscv isa')
-Source('lupio_ipi.cc', add_tags='riscv isa')
-Source('lupio_pic.cc', add_tags='riscv isa')
-Source('lupio_rng.cc', add_tags='riscv isa')
-Source('lupio_rtc.cc', add_tags='riscv isa')
-Source('lupio_tmr.cc', add_tags='riscv isa')
-Source('lupio_tty.cc', add_tags='riscv isa')
-Source('lupio_sys.cc', add_tags='riscv isa')
+Source('lupio_blk.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_ipi.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_pic.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_rng.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_rtc.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_tmr.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_tty.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupio_sys.cc', tags=['gem5 lib', 'riscv isa'])

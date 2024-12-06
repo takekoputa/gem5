@@ -34,25 +34,33 @@ if not env['CONF']['USE_RISCV_ISA']:
     Return()
 
 SimObject('HiFive.py', sim_objects=['HiFiveBase', 'GenericRiscvPciHost'],
-          add_tags='riscv isa')
-SimObject('LupV.py', sim_objects=['LupV'], add_tags='riscv isa')
-SimObject('Clint.py', sim_objects=['Clint'], add_tags='riscv isa')
-SimObject('PlicDevice.py', sim_objects=['PlicIntDevice'], add_tags='riscv isa')
-SimObject('Plic.py', sim_objects=['PlicBase', 'Plic'], add_tags='riscv isa')
-SimObject('RTC.py', sim_objects=['RiscvRTC'], add_tags='riscv isa')
+          tags=['gem5 lib', 'riscv isa'])
+SimObject('LupV.py', sim_objects=['LupV'], tags=['gem5 lib', 'riscv isa'])
+SimObject('Clint.py', sim_objects=['Clint'], tags=['gem5 lib', 'riscv isa'])
+SimObject(
+    'PlicDevice.py',
+    sim_objects=['PlicIntDevice'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject(
+    'Plic.py',
+    sim_objects=['PlicBase', 'Plic'],
+    tags=['gem5 lib', 'riscv isa']
+)
+SimObject('RTC.py', sim_objects=['RiscvRTC'], tags=['gem5 lib', 'riscv isa'])
 SimObject('RiscvVirtIOMMIO.py', sim_objects=['RiscvMmioVirtIO'],
-    add_tags='riscv isa')
+    tags=['gem5 lib', 'riscv isa'])
 
-DebugFlag('Clint', add_tags='riscv isa')
-DebugFlag('Plic', add_tags='riscv isa')
-DebugFlag('VirtIOMMIO', add_tags='riscv isa')
+DebugFlag('Clint', tags=['gem5 lib', 'riscv isa'])
+DebugFlag('Plic', tags=['gem5 lib', 'riscv isa'])
+DebugFlag('VirtIOMMIO', tags=['gem5 lib', 'riscv isa'])
 
-Source('pci_host.cc', add_tags='riscv isa')
+Source('pci_host.cc', tags=['gem5 lib', 'riscv isa'])
 
-Source('hifive.cc', add_tags='riscv isa')
-Source('lupv.cc', add_tags='riscv isa')
-Source('clint.cc', add_tags='riscv isa')
-Source('plic_device.cc', add_tags='riscv isa')
-Source('plic.cc', add_tags='riscv isa')
-Source('rtc.cc', add_tags='riscv isa')
-Source('vio_mmio.cc', add_tags='riscv isa')
+Source('hifive.cc', tags=['gem5 lib', 'riscv isa'])
+Source('lupv.cc', tags=['gem5 lib', 'riscv isa'])
+Source('clint.cc', tags=['gem5 lib', 'riscv isa'])
+Source('plic_device.cc', tags=['gem5 lib', 'riscv isa'])
+Source('plic.cc', tags=['gem5 lib', 'riscv isa'])
+Source('rtc.cc', tags=['gem5 lib', 'riscv isa'])
+Source('vio_mmio.cc', tags=['gem5 lib', 'riscv isa'])

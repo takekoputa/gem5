@@ -31,11 +31,14 @@ Import('*')
 if not env['CONF']['USE_MIPS_ISA']:
     Return()
 
-SimObject('Malta.py', sim_objects=['MaltaCChip', 'MaltaIO', 'Malta'],
-    add_tags='mips isa')
+SimObject(
+    'Malta.py',
+    sim_objects=['MaltaCChip', 'MaltaIO', 'Malta'],
+    tags=['gem5 lib', 'mips isa']
+)
 
-DebugFlag('Malta', add_tags='mips isa')
+DebugFlag('Malta', tags=['gem5 lib', 'mips isa'])
 
-Source('malta.cc', add_tags='mips isa')
-Source('malta_cchip.cc', add_tags='mips isa')
-Source('malta_io.cc', add_tags='mips isa')
+Source('malta.cc', tags=['gem5 lib', 'mips isa'])
+Source('malta_cchip.cc', tags=['gem5 lib', 'mips isa'])
+Source('malta_io.cc', tags=['gem5 lib', 'mips isa'])

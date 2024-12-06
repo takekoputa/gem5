@@ -48,6 +48,8 @@ Source('mem_footprint.cc')
 
 # Packet tracing requires protobuf support
 SimObject(
-    'MemTraceProbe.py', sim_objects=['MemTraceProbe'], add_tags='protobuf'
+    'MemTraceProbe.py',
+    sim_objects=['MemTraceProbe'],
+    tags=['gem5 lib', 'protobuf']
 )
-Source('mem_trace.cc', add_tags='protobuf')
+Source('mem_trace.cc', tags=['gem5 lib', 'protobuf'])
