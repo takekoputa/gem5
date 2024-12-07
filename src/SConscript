@@ -483,7 +483,7 @@ Export('GTest')
 #
 
 debug_flags = set()
-def DebugFlagCommon(name, flags, desc, fmt, tags, add_tags):
+def DebugFlagCommon(name, flags, desc, fmt, tags):
     if name == "All":
         raise AttributeError('The "All" flag name is reserved')
     if name in debug_flags:
@@ -506,21 +506,22 @@ def DebugFlagCommon(name, flags, desc, fmt, tags, add_tags):
             MakeAction('"${GEM5PY}" "${DEBUGFLAGCC_PY}" "${TARGET}" "${NAME}"',
                 Transform("TRACING", 0)),
             DEBUGFLAGCC_PY=build_tools.File('debugflagcc.py'), NAME=name)
-    if not add_tags:
-        add_tags = set()
-    if isinstance(add_tags, str):
-        add_tags = { add_tags }
-    if not isinstance(add_tags, set):
-        add_tags = set(add_tags)
-    add_tags.add('gem5 trace')
-    Source(cc_file, tags=tags, add_tags=add_tags)
 
-def DebugFlag(name, desc=None, fmt=False, tags=None, add_tags=None):
-    DebugFlagCommon(name, (), desc, fmt, tags=tags, add_tags=add_tags)
-def CompoundFlag(name, flags, desc=None, tags=None, add_tags=None):
-    DebugFlagCommon(name, flags, desc, False, tags=tags, add_tags=add_tags)
-def DebugFormatFlag(name, desc=None, tags=None, add_tags=None):
-    DebugFlag(name, desc, True, tags=tags, add_tags=add_tags)
+    if not tags:
+        tags = set()
+    if isinstance(tags, str):
+        tags = { tags }
+    if not isinstance(tags, set):
+        tags = set(tags)
+    tags.add('gem5 trace')
+    Source(cc_file, tags=tags)
+
+def DebugFlag(name, desc=None, fmt=False, tags=None):
+    DebugFlagCommon(name, (), desc, fmt, tags=tags)
+def CompoundFlag(name, flags, desc=None, tags=None):
+    DebugFlagCommon(name, flags, desc, False, tags=tags)
+def DebugFormatFlag(name, desc=None, tags=None):
+    DebugFlag(name, desc, True, tags=tags)
 
 Export('DebugFlag')
 Export('CompoundFlag')
