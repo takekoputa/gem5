@@ -50,9 +50,6 @@
  *                      a probe point event occurs. Multiple ProbeListeners
  *                      can be added to each ProbePoint.
  *
- * ProbeListenerObject: a wrapper around a SimObject that can connect to
- *                      another SimObject on which it will add ProbeListeners.
- *
  * ProbeManager:        used to match up ProbeListeners and ProbePoints.
  *                      At <b>simulation init</b> this is handled by
  *                      regProbePoints followed by regProbeListeners being
@@ -70,7 +67,6 @@
 #include "base/compiler.hh"
 #include "base/named.hh"
 #include "base/trace.hh"
-#include "sim/sim_object.hh"
 
 namespace gem5
 {
@@ -78,7 +74,6 @@ namespace gem5
 /** Forward declare the ProbeManager. */
 class ProbeManager;
 class ProbeListener;
-struct ProbeListenerObjectParams;
 
 /**
  * Name space containing shared probe point declarations.
@@ -95,27 +90,6 @@ namespace probing
  * for example pmu.hh.
  */
 }
-
-/**
- * This class is a minimal wrapper around SimObject. It is used to declare
- * a python derived object that can be added as a ProbeListener to any other
- * SimObject.
- *
- * It instantiates manager from a call to Parent.any.
- * The vector of listeners is used simply to hold onto listeners until the
- * ProbeListenerObject is destroyed.
- */
-class ProbeListenerObject : public SimObject
-{
-  protected:
-    ProbeManager *manager;
-    std::vector<ProbeListener *> listeners;
-
-  public:
-    ProbeListenerObject(const ProbeListenerObjectParams &params);
-    virtual ~ProbeListenerObject();
-    ProbeManager* getProbeManager() { return manager; }
-};
 
 /**
  * ProbeListener base class; here to simplify things like containers
