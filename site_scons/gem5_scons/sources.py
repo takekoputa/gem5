@@ -231,15 +231,22 @@ class SourceItem(metaclass=SourceMeta):
     gem5. This specifies a set of tags which help group components into groups
     based on arbitrary properties."""
 
-    def __init__(self, source, tags=None, add_tags=None, append=None):
+    def __init__(
+        self, source, tags=None, add_tags=None, append=None, tag_gem5_lib=True
+    ):
         self.source = source
 
+        # Force the tags param to be of type set
         if tags is None:
-            tags = "gem5 lib"
+            tags = {}
         if isinstance(tags, str):
             tags = {tags}
         if not isinstance(tags, set):
             tags = set(tags)
+
+        if tag_gem5_lib:
+            tags |= {"gem5 lib"}
+
         self.tags = tags.copy()
 
         if add_tags:
@@ -261,8 +268,17 @@ class SourceFile(SourceItem):
     This includes, the source node, target node, various manipulations
     of those."""
 
-    def __init__(self, source, tags=None, add_tags=None, append=None):
-        super().__init__(source, tags=tags, add_tags=add_tags, append=append)
+    # By default we assume that all sources files are part of the gem5 lib
+    def __init__(
+        self, source, tags=None, add_tags=None, append=None, tag_gem5_lib=True
+    ):
+        super().__init__(
+            source,
+            tags=tags,
+            add_tags=add_tags,
+            append=append,
+            tag_gem5_lib=tag_gem5_lib,
+        )
 
         tnode = SCons.Script.File(source)
 

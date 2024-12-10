@@ -42,8 +42,8 @@ SimObject(
     'FastModelCortexR52.py',
     sim_objects=['FastModelCortexR52', 'FastModelCortexR52Cluster'] +
         [f'FastModelScxEvsCortexR52x{num}' for num in (1, 2, 3, 4)],
-    tags=['gem5 lib', 'arm fastmodel']
+    tags=['arm fastmodel']
 )
-Source('cortex_r52.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('evs.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('thread_context.cc', tags=['gem5 lib', 'arm fastmodel'])
+Source('cortex_r52.cc', tags=['arm fastmodel'])
+Source('evs.cc', tags=['arm fastmodel'])
+Source('thread_context.cc', tags=['arm fastmodel'])

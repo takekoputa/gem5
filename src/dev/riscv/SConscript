@@ -34,33 +34,33 @@ if not env['CONF']['USE_RISCV_ISA']:
     Return()
 
 SimObject('HiFive.py', sim_objects=['HiFiveBase', 'GenericRiscvPciHost'],
-          tags=['gem5 lib', 'riscv isa'])
-SimObject('LupV.py', sim_objects=['LupV'], tags=['gem5 lib', 'riscv isa'])
-SimObject('Clint.py', sim_objects=['Clint'], tags=['gem5 lib', 'riscv isa'])
+          tags=['riscv isa'])
+SimObject('LupV.py', sim_objects=['LupV'], tags=['riscv isa'])
+SimObject('Clint.py', sim_objects=['Clint'], tags=['riscv isa'])
 SimObject(
     'PlicDevice.py',
     sim_objects=['PlicIntDevice'],
-    tags=['gem5 lib', 'riscv isa']
+    tags=['riscv isa']
 )
 SimObject(
     'Plic.py',
     sim_objects=['PlicBase', 'Plic'],
-    tags=['gem5 lib', 'riscv isa']
+    tags=['riscv isa']
 )
-SimObject('RTC.py', sim_objects=['RiscvRTC'], tags=['gem5 lib', 'riscv isa'])
+SimObject('RTC.py', sim_objects=['RiscvRTC'], tags=['riscv isa'])
 SimObject('RiscvVirtIOMMIO.py', sim_objects=['RiscvMmioVirtIO'],
-    tags=['gem5 lib', 'riscv isa'])
+    tags=['riscv isa'])
 
-DebugFlag('Clint', tags=['gem5 lib', 'riscv isa'])
-DebugFlag('Plic', tags=['gem5 lib', 'riscv isa'])
-DebugFlag('VirtIOMMIO', tags=['gem5 lib', 'riscv isa'])
+DebugFlag('Clint', tags=['riscv isa'])
+DebugFlag('Plic', tags=['riscv isa'])
+DebugFlag('VirtIOMMIO', tags=['riscv isa'])
 
-Source('pci_host.cc', tags=['gem5 lib', 'riscv isa'])
+Source('pci_host.cc', tags=['riscv isa'])
 
-Source('hifive.cc', tags=['gem5 lib', 'riscv isa'])
-Source('lupv.cc', tags=['gem5 lib', 'riscv isa'])
-Source('clint.cc', tags=['gem5 lib', 'riscv isa'])
-Source('plic_device.cc', tags=['gem5 lib', 'riscv isa'])
-Source('plic.cc', tags=['gem5 lib', 'riscv isa'])
-Source('rtc.cc', tags=['gem5 lib', 'riscv isa'])
-Source('vio_mmio.cc', tags=['gem5 lib', 'riscv isa'])
+Source('hifive.cc', tags=['riscv isa'])
+Source('lupv.cc', tags=['riscv isa'])
+Source('clint.cc', tags=['riscv isa'])
+Source('plic_device.cc', tags=['riscv isa'])
+Source('plic.cc', tags=['riscv isa'])
+Source('rtc.cc', tags=['riscv isa'])
+Source('vio_mmio.cc', tags=['riscv isa'])

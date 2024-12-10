@@ -43,6 +43,6 @@ if not env['CONF']['USE_X86_ISA']:
 SimObject(
     'X86KvmCPU.py',
     sim_objects=['X86KvmCPU'],
-    tags=['gem5 lib', 'x86 kvm']
+    tags=['x86 kvm']
 )
-Source('x86_cpu.cc', tags=['gem5 lib', 'x86 kvm'])
+Source('x86_cpu.cc', tags=['x86 kvm'])

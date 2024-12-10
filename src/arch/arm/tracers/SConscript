@@ -43,18 +43,18 @@ SimObject(
     'TarmacTrace.py',
     sim_objects=['TarmacParser', 'TarmacTracer'],
     enums=['TarmacDump'],
-    tags=['gem5 lib', 'arm isa']
+    tags=['arm isa']
 )
-Source('tarmac_base.cc', tags=['gem5 lib', 'arm isa'])
-Source('tarmac_parser.cc', tags=['gem5 lib', 'arm isa'])
-Source('tarmac_tracer.cc', tags=['gem5 lib', 'arm isa'])
-Source('tarmac_record.cc', tags=['gem5 lib', 'arm isa'])
-Source('tarmac_record_v8.cc', tags=['gem5 lib', 'arm isa'])
+Source('tarmac_base.cc', tags=['arm isa'])
+Source('tarmac_parser.cc', tags=['arm isa'])
+Source('tarmac_tracer.cc', tags=['arm isa'])
+Source('tarmac_record.cc', tags=['arm isa'])
+Source('tarmac_record_v8.cc', tags=['arm isa'])
 
 if env['CONF']['USE_CAPSTONE']:
     SimObject(
         'ArmCapstone.py',
         sim_objects=['ArmCapstoneDisassembler'],
-        tags=['gem5 lib', 'arm isa']
+        tags=['arm isa']
     )
-    Source('capstone.cc', tags=['gem5 lib', 'arm isa'])
+    Source('capstone.cc', tags=['arm isa'])

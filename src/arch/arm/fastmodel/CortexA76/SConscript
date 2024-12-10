@@ -41,8 +41,8 @@ SimObject(
     'FastModelCortexA76.py',
     sim_objects=['FastModelCortexA76', 'FastModelCortexA76Cluster'] +
         [f'FastModelScxEvsCortexA76x{num}' for num in (1, 2, 3, 4)],
-    tags=['gem5 lib', 'arm fastmodel']
+    tags=['arm fastmodel']
 )
-Source('cortex_a76.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('evs.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('thread_context.cc', tags=['gem5 lib', 'arm fastmodel'])
+Source('cortex_a76.cc', tags=['arm fastmodel'])
+Source('evs.cc', tags=['arm fastmodel'])
+Source('thread_context.cc', tags=['arm fastmodel'])

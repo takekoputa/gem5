@@ -34,12 +34,12 @@ if not env['CONF']['USE_SPARC_ISA']:
 SimObject(
     'T1000.py',
     sim_objects=['MmDisk', 'DumbTOD', 'Iob', 'T1000'],
-    tags=['gem5 lib', 'sparc isa']
+    tags=['sparc isa']
 )
 
-Source('dtod.cc', tags=['gem5 lib', 'sparc isa'])
-Source('iob.cc', tags=['gem5 lib', 'sparc isa'])
-Source('t1000.cc', tags=['gem5 lib', 'sparc isa'])
-Source('mm_disk.cc', tags=['gem5 lib', 'sparc isa'])
+Source('dtod.cc', tags=['sparc isa'])
+Source('iob.cc', tags=['sparc isa'])
+Source('t1000.cc', tags=['sparc isa'])
+Source('mm_disk.cc', tags=['sparc isa'])
 
-DebugFlag('Iob', tags=['gem5 lib', 'sparc isa'])
+DebugFlag('Iob', tags=['sparc isa'])

@@ -50,6 +50,6 @@ Source('mem_footprint.cc')
 SimObject(
     'MemTraceProbe.py',
     sim_objects=['MemTraceProbe'],
-    tags=['gem5 lib', 'protobuf']
+    tags=['protobuf']
 )
-Source('mem_trace.cc', tags=['gem5 lib', 'protobuf'])
+Source('mem_trace.cc', tags=['protobuf'])

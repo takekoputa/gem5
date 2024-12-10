@@ -38,8 +38,8 @@
 Import('*')
 
 # Only build if we have protobuf support
-ProtoBuf('inst_dep_record.proto', tags=['gem5 lib', 'protobuf'])
-ProtoBuf('packet.proto', tags=['gem5 lib', 'protobuf'])
-ProtoBuf('inst.proto', tags=['gem5 lib', 'protobuf'])
-Source('protobuf.cc', tags=['gem5 lib', 'protobuf'])
-Source('protoio.cc', tags=['gem5 lib', 'protobuf'])
+ProtoBuf('inst_dep_record.proto', tags=['protobuf'])
+ProtoBuf('packet.proto', tags=['protobuf'])
+ProtoBuf('inst.proto', tags=['protobuf'])
+Source('protobuf.cc', tags=['protobuf'])
+Source('protoio.cc', tags=['protobuf'])

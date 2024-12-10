@@ -333,7 +333,7 @@ class TopLevelBase(object, metaclass=TopLevelMeta):
         srcs = SourceList()
         for src in source_files:
             if not isinstance(src, SourceFile):
-                src = Source(src, tags=[])
+                src = Source(src, tags=[], tag_gem5_lib=False)
             srcs.append(src)
         self.srcs = srcs
 

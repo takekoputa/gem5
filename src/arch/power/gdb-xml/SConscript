@@ -33,12 +33,12 @@ Import('*')
 if not env['CONF']['USE_POWER_ISA']:
     Return()
 
-GdbXml('power-core.xml', 'gdb_xml_power_core', tags=['gem5 lib', 'power isa'])
+GdbXml('power-core.xml', 'gdb_xml_power_core', tags=['power isa'])
 GdbXml(
     'power64-core.xml',
     'gdb_xml_power64_core',
-    tags=['gem5 lib', 'power isa']
+    tags=['power isa']
 )
-GdbXml('power-fpu.xml', 'gdb_xml_power_fpu', tags=['gem5 lib', 'power isa'])
-GdbXml('powerpc-32.xml', 'gdb_xml_powerpc_32', tags=['gem5 lib', 'power isa'])
-GdbXml('powerpc-64.xml', 'gdb_xml_powerpc_64', tags=['gem5 lib', 'power isa'])
+GdbXml('power-fpu.xml', 'gdb_xml_power_fpu', tags=['power isa'])
+GdbXml('powerpc-32.xml', 'gdb_xml_powerpc_32', tags=['power isa'])
+GdbXml('powerpc-64.xml', 'gdb_xml_powerpc_64', tags=['power isa'])

@@ -45,9 +45,9 @@ if not env['CONF']['USE_X86_ISA']:
 SimObject(
     'E820.py',
     sim_objects=['X86E820Entry', 'X86E820Table'],
-    tags=['gem5 lib', 'x86 isa']
+    tags=['x86 isa']
 )
-Source('e820.cc', tags=['gem5 lib', 'x86 isa'])
+Source('e820.cc', tags=['x86 isa'])
 
 # The DMI tables.
 SimObject(
@@ -55,9 +55,9 @@ SimObject(
     sim_objects=['X86SMBiosSMBiosStructure', 'X86SMBiosBiosInformation',
                  'X86SMBiosSMBiosTable'],
     enums=['Characteristic', 'ExtCharacteristic'],
-    tags=['gem5 lib', 'x86 isa']
+    tags=['x86 isa']
 )
-Source('smbios.cc', tags=['gem5 lib', 'x86 isa'])
+Source('smbios.cc', tags=['x86 isa'])
 
 # Intel Multiprocessor Specification Configuration Table
 SimObject(
@@ -71,9 +71,9 @@ SimObject(
     enums=['X86IntelMPInterruptType', 'X86IntelMPPolarity',
            'X86IntelMPTriggerMode', 'X86IntelMPAddressType',
            'X86IntelMPRangeList'],
-    tags=['gem5 lib', 'x86 isa']
+    tags=['x86 isa']
 )
-Source('intelmp.cc', tags=['gem5 lib', 'x86 isa'])
+Source('intelmp.cc', tags=['x86 isa'])
 
 # ACPI system description tables
 SimObject(
@@ -82,6 +82,6 @@ SimObject(
                  'X86ACPIMadtRecord', 'X86ACPIMadt', 'X86ACPIMadtLAPIC',
                  'X86ACPIMadtIOAPIC', 'X86ACPIMadtIntSourceOverride',
                  'X86ACPIMadtNMI', 'X86ACPIMadtLAPICOverride', 'X86ACPIRSDP'],
-    tags=['gem5 lib', 'x86 isa']
+    tags=['x86 isa']
 )
-Source('acpi.cc', tags=['gem5 lib', 'x86 isa'])
+Source('acpi.cc', tags=['x86 isa'])

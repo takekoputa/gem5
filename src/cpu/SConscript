@@ -90,9 +90,9 @@ SimObject('StaticInstFlags.py', enums=['StaticInstFlags'])
 SimObject(
     'InstPBTrace.py',
     sim_objects=['InstPBTrace'],
-    tags=['gem5 lib', 'protobuf']
+    tags=['protobuf']
 )
-Source('inst_pb_trace.cc', tags=['gem5 lib', 'protobuf'])
+Source('inst_pb_trace.cc', tags=['protobuf'])
 
 SimObject('CheckerCPU.py', sim_objects=['CheckerCPU'])
 

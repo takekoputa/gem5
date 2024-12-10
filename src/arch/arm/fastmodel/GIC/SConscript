@@ -36,6 +36,6 @@ ArmFastModelComponent(File('GIC.sgproj'), File('GIC.lisa'),
 SimObject(
     'FastModelGIC.py',
     sim_objects=['SCFastModelGIC', 'FastModelGIC'],
-    tags=['gem5 lib', 'arm fastmodel']
+    tags=['arm fastmodel']
 )
-Source('gic.cc', tags=['gem5 lib', 'arm fastmodel'])
+Source('gic.cc', tags=['arm fastmodel'])

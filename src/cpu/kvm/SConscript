@@ -42,30 +42,30 @@ if env['CONF']['USE_KVM']:
     env.TagImplies(env.subst('${CONF["KVM_ISA"]} kvm'),
             env.subst('${CONF["KVM_ISA"]} isa'))
 
-SimObject('KvmVM.py', sim_objects=['KvmVM'], tags=['gem5 lib', 'kvm'])
+SimObject('KvmVM.py', sim_objects=['KvmVM'], tags=['kvm'])
 SimObject(
     'BaseKvmCPU.py',
     sim_objects=['BaseKvmCPU'],
-    tags=['gem5 lib', 'kvm']
+    tags=['kvm']
 )
 
-Source('base.cc', tags=['gem5 lib', 'kvm'])
-Source('device.cc', tags=['gem5 lib', 'kvm'])
-Source('vm.cc', tags=['gem5 lib', 'kvm'])
-Source('perfevent.cc', tags=['gem5 lib', 'kvm'])
-Source('timer.cc', tags=['gem5 lib', 'kvm'])
+Source('base.cc', tags=['kvm'])
+Source('device.cc', tags=['kvm'])
+Source('vm.cc', tags=['kvm'])
+Source('perfevent.cc', tags=['kvm'])
+Source('timer.cc', tags=['kvm'])
 
-DebugFlag('Kvm', 'Basic KVM Functionality', tags=['gem5 lib', 'kvm'])
+DebugFlag('Kvm', 'Basic KVM Functionality', tags=['kvm'])
 DebugFlag(
     'KvmContext',
     'KVM/gem5 context synchronization',
-    tags=['gem5 lib', 'kvm']
+    tags=['kvm']
 )
-DebugFlag('KvmIO', 'KVM MMIO diagnostics', tags=['gem5 lib', 'kvm'])
-DebugFlag('KvmInt', 'KVM Interrupt handling', tags=['gem5 lib', 'kvm'])
-DebugFlag('KvmRun', 'KvmRun entry/exit diagnostics', tags=['gem5 lib', 'kvm'])
-DebugFlag('KvmTimer', 'KVM timing', tags=['gem5 lib', 'kvm'])
+DebugFlag('KvmIO', 'KVM MMIO diagnostics', tags=['kvm'])
+DebugFlag('KvmInt', 'KVM Interrupt handling', tags=['kvm'])
+DebugFlag('KvmRun', 'KvmRun entry/exit diagnostics', tags=['kvm'])
+DebugFlag('KvmTimer', 'KVM timing', tags=['kvm'])
 
 CompoundFlag('KvmAll', [ 'Kvm', 'KvmContext', 'KvmRun',
                          'KvmIO', 'KvmInt', 'KvmTimer' ],
-             'All KVM debug flags', tags=['gem5 lib', 'kvm'])
+             'All KVM debug flags', tags=['kvm'])

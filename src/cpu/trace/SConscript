@@ -4,9 +4,9 @@ Import('*')
 SimObject(
     'TraceCPU.py',
     sim_objects=['TraceCPU'],
-    tags=['gem5 lib', 'protobuf']
+    tags=['protobuf']
 )
-Source('trace_cpu.cc', tags=['gem5 lib', 'protobuf'])
+Source('trace_cpu.cc', tags=['protobuf'])
 
 DebugFlag('TraceCPUData')
 DebugFlag('TraceCPUInst')

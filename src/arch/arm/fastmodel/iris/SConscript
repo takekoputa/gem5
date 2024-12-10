@@ -32,11 +32,11 @@ SimObject(
     'Iris.py',
     sim_objects=['IrisTLB', 'IrisMMU', 'IrisInterrupts', 'IrisISA',
                  'IrisBaseCPU'],
-    tags=['gem5 lib', 'arm fastmodel']
+    tags=['arm fastmodel']
 )
-Source('cpu.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('interrupts.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('isa.cc', tags=['gem5 lib', 'arm fastmodel'])
-Source('tlb.cc', tags=['gem5 lib', 'arm fastmodel'])
+Source('cpu.cc', tags=['arm fastmodel'])
+Source('interrupts.cc', tags=['arm fastmodel'])
+Source('isa.cc', tags=['arm fastmodel'])
+Source('tlb.cc', tags=['arm fastmodel'])
 
-Source('thread_context.cc', tags=['gem5 lib', 'arm fastmodel'])
+Source('thread_context.cc', tags=['arm fastmodel'])
