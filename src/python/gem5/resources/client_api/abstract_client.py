@@ -51,6 +51,10 @@ class AbstractClient(ABC):
         """
         try:
             result = urllib.parse.urlparse(url)
+            # Check if the URL is a file path
+            # we check path != "" because default path is "" and not None
+            if result.scheme == "file" and result.path != "":
+                return True
             return all([result.scheme, result.netloc, result.path])
         except:
             return False
