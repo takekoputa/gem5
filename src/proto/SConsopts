@@ -76,3 +76,4 @@ if main['CONF']['HAVE_PROTOBUF']:
     # explanded to 0 but since we use -Wundef they end up generating
     # warnings.
     main.Append(CCFLAGS='-DPROTOBUF_INLINE_NOT_IN_HEADERS=0')
+    main.Append(CCFLAGS='-DPROTOBUF_ENABLE_DEBUG_LOGGING_MAY_LEAK_PII=0')
