@@ -701,8 +701,9 @@ ISA::setMiscReg(RegIndex idx, RegVal val)
             getMMUPtr(tc)->invalidateMiscReg();
         }
 
-        DPRINTF(Arm, "Updating CPSR from %#x to %#x f:%d i:%d a:%d mode:%#x\n",
-                miscRegs[idx], cpsr, cpsr.f, cpsr.i, cpsr.a, cpsr.mode);
+        DPRINTF(Arm, "Updating CPSR from %#x to %#x f:%d i:%d a:%d d:%d "
+                "mode:%#x\n", miscRegs[idx], cpsr, cpsr.f, cpsr.i, cpsr.a,
+                cpsr.d, cpsr.mode);
         PCState pc = tc->pcState().as<PCState>();
         pc.nextThumb(cpsr.t);
         pc.illegalExec(cpsr.il == 1);
