@@ -1788,12 +1788,13 @@ TableWalker::doLongDescriptor()
     if ((currState->longDesc.type() == LongDescriptor::Block) ||
         (currState->longDesc.type() == LongDescriptor::Page)) {
         DPRINTF(PageTableWalker, "Analyzing L%d descriptor: %#llx, pxn: %d, "
-                "xn: %d, ap: %d, af: %d, type: %d\n",
+                "xn: %d, ap: %d, piindex: %d, af: %d, type: %d\n",
                 currState->longDesc.lookupLevel,
                 currState->longDesc.data,
                 currState->longDesc.pxn(),
                 currState->longDesc.xn(),
                 currState->longDesc.ap(),
+                currState->longDesc.piindex(),
                 currState->longDesc.af(),
                 currState->longDesc.type());
     } else {
@@ -2362,6 +2363,8 @@ TableWalker::insertTableEntry(DescriptorBase &descriptor, bool long_descriptor)
            te.ap = ((!currState->longDescData->rwTable ||
                      descriptor.ap() >> 1) << 1) |
                (currState->longDescData->userTable && (descriptor.ap() & 0x1));
+            // Add index of Indirect Permission.
+            te.piindex = l_descriptor.piindex();
         }
         if (currState->aarch64)
             memAttrsAArch64(currState->tc, te, l_descriptor);
@@ -2377,9 +2380,10 @@ TableWalker::insertTableEntry(DescriptorBase &descriptor, bool long_descriptor)
     DPRINTF(TLB, descriptor.dbgHeader().c_str());
     DPRINTF(TLB, " - N:%d pfn:%#x size:%#x global:%d valid:%d\n",
             te.N, te.pfn, te.size, te.global, te.valid);
-    DPRINTF(TLB, " - vpn:%#x xn:%d pxn:%d ap:%d domain:%d asid:%d "
+    DPRINTF(TLB, " - vpn:%#x xn:%d pxn:%d ap:%d piindex:%d domain:%d asid:%d "
             "vmid:%d nc:%d ns:%d\n", te.vpn, te.xn, te.pxn,
-            te.ap, static_cast<uint8_t>(te.domain), te.asid, te.vmid,
+            te.ap, te.piindex,
+            static_cast<uint8_t>(te.domain), te.asid, te.vmid,
             te.nonCacheable, te.ns);
     DPRINTF(TLB, " - domain from L%d desc:%d data:%#x\n",
             descriptor.lookupLevel, static_cast<uint8_t>(descriptor.domain()),

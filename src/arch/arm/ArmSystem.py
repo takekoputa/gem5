@@ -110,6 +110,7 @@ class ArmExtension(ScopedEnum):
         # Armv8.9
         "FEAT_SCTLR2",
         "FEAT_TCR2",
+        "FEAT_S1PIE",
         # Armv9.2
         "FEAT_SME",  # Optional in Armv9.2
         # Others
@@ -281,7 +282,7 @@ class Armv87(Armv86):
 
 
 class Armv89(Armv87):
-    extensions = Armv87.extensions + ["FEAT_SCTLR2", "FEAT_TCR2"]
+    extensions = Armv87.extensions + ["FEAT_SCTLR2", "FEAT_TCR2", "FEAT_S1PIE"]
 
 
 class Armv92(Armv89):
