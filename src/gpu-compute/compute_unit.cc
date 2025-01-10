@@ -46,6 +46,7 @@
 #include "debug/GPURename.hh"
 #include "debug/GPUSync.hh"
 #include "debug/GPUTLB.hh"
+#include "debug/GPUTrace.hh"
 #include "enums/GfxVersion.hh"
 #include "gpu-compute/dispatcher.hh"
 #include "gpu-compute/gpu_command_processor.hh"
@@ -1676,6 +1677,11 @@ ComputeUnit::DTLBPort::recvTimingResp(PacketPtr pkt)
     Addr vaddr = pkt->req->getVaddr();
     gpuDynInst->memStatusVector[line].push_back(mp_index);
     gpuDynInst->tlbHitLevel[mp_index] = hit_level;
+
+    DPRINTF(GPUTrace, "CU%d WF[%d][%d]: Translated %#lx -> %#lx for "
+            "instruction %s (seqNum: %ld)\n", computeUnit->cu_id,
+            gpuDynInst->simdId, gpuDynInst->wfSlotId, pkt->req->getVaddr(),
+            line, gpuDynInst->disassemble().c_str(), gpuDynInst->seqNum());
 
     MemCmd requestCmd;
 

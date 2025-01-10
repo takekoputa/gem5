@@ -34,6 +34,7 @@
 #include "base/bitfield.hh"
 #include "debug/GPUExec.hh"
 #include "debug/GPUInitAbi.hh"
+#include "debug/GPUTrace.hh"
 #include "debug/WavefrontStack.hh"
 #include "gpu-compute/compute_unit.hh"
 #include "gpu-compute/gpu_dyn_inst.hh"
@@ -951,6 +952,9 @@ Wavefront::exec()
 
     const Addr old_pc = pc();
     DPRINTF(GPUExec, "CU%d: WF[%d][%d]: wave[%d] Executing inst: %s "
+            "(pc: %#x; seqNum: %d)\n", computeUnit->cu_id, simdId, wfSlotId,
+            wfDynId, ii->disassemble(), old_pc, ii->seqNum());
+    DPRINTF(GPUTrace, "CU%d: WF[%d][%d]: wave[%d] Executing inst: %s "
             "(pc: %#x; seqNum: %d)\n", computeUnit->cu_id, simdId, wfSlotId,
             wfDynId, ii->disassemble(), old_pc, ii->seqNum());
 
