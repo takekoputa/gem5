@@ -135,14 +135,16 @@ class SourceFilter:
 
     def __or__(self, other):
         return SourceFilter(
+            f"or({str(self)}, {str(other)})",
             lambda env, tags: self.predicate(env, tags)
-            or other.predicate(env, tags)
+            or other.predicate(env, tags),
         )
 
     def __and__(self, other):
         return SourceFilter(
+            f"and({str(self)}, {str(other)})",
             lambda env, tags: self.predicate(env, tags)
-            and other.predicate(env, tags)
+            and other.predicate(env, tags),
         )
 
     def __str__(self):
