@@ -37,10 +37,12 @@
 
 Import('*')
 
-if env['CONF']['USE_KVM']:
-    env.TagImplies('kvm', 'gem5 lib')
-    env.TagImplies(env.subst('${CONF["KVM_ISA"]} kvm'),
-            env.subst('${CONF["KVM_ISA"]} isa'))
+if not env['CONF']['USE_KVM']:
+    Return()
+
+env.TagImplies('kvm', 'gem5 lib')
+env.TagImplies(env.subst('${CONF["KVM_ISA"]} kvm'),
+        env.subst('${CONF["KVM_ISA"]} isa'))
 
 SimObject('KvmVM.py', sim_objects=['KvmVM'], tags=['kvm'])
 SimObject(

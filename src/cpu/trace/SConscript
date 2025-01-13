@@ -1,6 +1,9 @@
 Import('*')
 
 # Only build TraceCPU if we have support for protobuf as TraceCPU relies on it
+if not env['CONF']['HAVE_PROTOBUF']:
+    Return()
+
 SimObject(
     'TraceCPU.py',
     sim_objects=['TraceCPU'],
