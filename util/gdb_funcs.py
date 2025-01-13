@@ -124,7 +124,7 @@ class TargetNamedBreakpoint(gdb.Breakpoint):
         Add a regex match to the list of potential names.
 
         :param regex_match: The pattern to regex_match against upon hitting the breakpoint.
-        E.g. "system.cache_hierarchy.core_clusters(0-9+).dcache" if you want to stop
+        E.g. "system.cache_hierarchy.core_clusters[0-9]+.dcache" if you want to stop
         at all dcache objects for all core_clusters.
         """
         self._regex_matches.add(re.compile(regex_match))
