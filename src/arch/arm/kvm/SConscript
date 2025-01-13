@@ -37,7 +37,7 @@
 
 Import('*')
 
-if env['CONF']['KVM_ISA'] != 'arm':
+if env['CONF']['KVM_ISA'] != 'arm' or not env['CONF']['USE_ARM_ISA']:
     Return()
 
 import platform
