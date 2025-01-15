@@ -807,7 +807,7 @@ ioctlFunc(SyscallDesc *desc, ThreadContext *tc,
      * For lack of a better return code, return ENOTTY. Ideally, we should
      * return something better here, but at least we issue the warning.
      */
-    warn("Unsupported ioctl call (return ENOTTY): ioctl(%d, 0x%x, ...) @ \n",
+    warn("Unsupported ioctl call (return ENOTTY): ioctl(%d, 0x%x, ...) @ %s\n",
          tgt_fd, req, tc->pcState());
     return -ENOTTY;
 }
