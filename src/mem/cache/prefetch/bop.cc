@@ -217,16 +217,16 @@ BOP::tag(Addr addr) const
 }
 
 bool
-BOP::testRR(Addr addr) const
+BOP::testRR(Addr addr_tag) const
 {
     for (auto& it : rrLeft) {
-        if (it == addr) {
+        if (it == addr_tag) {
             return true;
         }
     }
 
     for (auto& it : rrRight) {
-        if (it == addr) {
+        if (it == addr_tag) {
             return true;
         }
     }

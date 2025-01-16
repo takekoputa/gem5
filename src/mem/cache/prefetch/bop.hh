@@ -154,8 +154,10 @@ class BOP : public Queued
         Addr tag(Addr addr) const;
 
         /** Test if @X-O is hitting in the RR table to update the
-            offset score */
-        bool testRR(Addr) const;
+         *  offset score
+         *  @param addr_tag: tag searched for within the RR
+        */
+        bool testRR(Addr addr_tag) const;
 
         /** Learning phase of the BOP. Update the intermediate values of the
          * round and update the best offset if found
