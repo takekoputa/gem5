@@ -253,6 +253,22 @@ Rename::clearStates(ThreadID tid)
     storesInProgress[tid] = 0;
 
     serializeOnNextInst[tid] = false;
+
+    // Clear out any of this thread's instructions being sent to IEW.
+    for (int i = -cpu->renameQueue.getPast();
+         i <= cpu->renameQueue.getFuture(); ++i) {
+        RenameStruct& rename_struct = cpu->renameQueue[i];
+        removeCommThreadInsts(tid, rename_struct);
+    }
+
+    // Clear out any of this thread's instructions being sent to decode.
+    for (int i = -cpu->timeBuffer.getPast();
+         i <= cpu->timeBuffer.getFuture(); ++i) {
+        TimeStruct& time_struct = cpu->timeBuffer[i];
+        time_struct.renameInfo[tid] = {};
+        time_struct.renameBlock[tid] = false;
+        time_struct.renameUnblock[tid] = false;
+    }
 }
 
 void

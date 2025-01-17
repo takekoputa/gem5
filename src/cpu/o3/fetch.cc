@@ -286,6 +286,13 @@ Fetch::clearStates(ThreadID tid)
 
     // TODO not sure what to do with priorityList for now
     // priorityList.push_back(tid);
+
+    // Clear out any of this thread's instructions being sent to decode.
+    for (int i = -cpu->fetchQueue.getPast();
+         i <= cpu->fetchQueue.getFuture(); ++i) {
+        FetchStruct& fetch_struct = cpu->fetchQueue[i];
+        removeCommThreadInsts(tid, fetch_struct);
+    }
 }
 
 void
