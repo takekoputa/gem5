@@ -301,6 +301,9 @@ ComputeUnit::ComputeUnit(const Params &p) : ClockedObject(p),
     for (int i = 0; i < numVectorALUs; i++) {
         matrix_core_ready[i] = 0;
     }
+
+    // Used for periodic pipeline prints
+    execCycles = 0;
 }
 
 ComputeUnit::~ComputeUnit()
@@ -460,6 +463,10 @@ ComputeUnit::startWavefront(Wavefront *w, int waveId, LdsChunk *ldsChunk,
 
     stats.waveLevelParallelism.sample(activeWaves);
     activeWaves++;
+
+    w->vmemIssued.clear();
+    w->lgkmIssued.clear();
+    w->expIssued.clear();
 
     panic_if(w->wrGmReqsInPipe, "GM write counter for wavefront non-zero\n");
     panic_if(w->rdGmReqsInPipe, "GM read counter for wavefront non-zero\n");
@@ -849,6 +856,13 @@ ComputeUnit::exec()
     fetchStage.exec();
 
     stats.totalCycles++;
+    execCycles++;
+
+    if (shader->getProgressInterval() != 0 &&
+        execCycles >= shader->getProgressInterval()) {
+        printProgress();
+        execCycles = 0;
+    }
 
     // Put this CU to sleep if there is no more work to be done.
     if (!isDone()) {
@@ -2287,6 +2301,26 @@ RequestorID
 ComputeUnit::vramRequestorId()
 {
     return FullSystem ? shader->vramRequestorId() : requestorId();
+}
+
+void
+ComputeUnit::printProgress()
+{
+    for (int j = 0; j < numVectorALUs; ++j) {
+        for (int i = 0; i < shader->n_wf; ++i) {
+            if (wfList[j][i]->getStatus() == Wavefront::status_e::S_STOPPED) {
+                continue;
+            }
+
+            std::cout << curTick() << ": ";
+            std::cout << "CU" << cu_id << " WF[" << j << "][" << i << "] ";
+            wfList[j][i]->printProgress();
+        }
+    }
+    globalMemoryPipe.printProgress();
+    scalarMemoryPipe.printProgress();
+    localMemoryPipe.printProgress();
+    std::cout << std::endl;
 }
 
 /**

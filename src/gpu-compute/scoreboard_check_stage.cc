@@ -161,6 +161,8 @@ ScoreboardCheckStage::ready(Wavefront *w, nonrdytype_e *rdyStatus,
 
     DPRINTF(GPUExec, "CU%d: WF[%d][%d]: Checking Ready for Inst : %s\n",
             computeUnit.cu_id, w->simdId, w->wfSlotId, ii->disassemble());
+    w->lastInstSeqNum = ii->seqNum();
+    w->lastInstDisasm = ii->disassemble();
 
     // Non-scalar (i.e., vector) instructions may use VGPRs
     if (!ii->isScalar()) {
@@ -282,6 +284,7 @@ ScoreboardCheckStage::exec()
             // check WF readiness: If the WF's oldest
             // instruction is ready to issue then add the WF to the ready list
             if (ready(curWave, &rdyStatus, &exeResType, wfSlot)) {
+                curWave->lastInstRdyStatus = rdyStatusStr(rdyStatus);
                 assert(curWave->simdId == simdId);
                 DPRINTF(GPUSched,
                         "Adding to readyList[%d]: SIMD[%d] WV[%d]: %d: %s\n",
@@ -290,6 +293,8 @@ ScoreboardCheckStage::exec()
                         curWave->nextInstr()->seqNum(),
                         curWave->nextInstr()->disassemble());
                 toSchedule.markWFReady(curWave, exeResType);
+            } else {
+                curWave->lastInstRdyStatus = rdyStatusStr(rdyStatus);
             }
             collectStatistics(rdyStatus);
         }
