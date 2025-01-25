@@ -69,6 +69,8 @@ RUN apt -y update  && \
     g++-riscv64-linux-gnu \
     gcc-aarch64-linux-gnu \
     gcc-riscv64-linux-gnu \
+    gcc-x86-64-linux-gnu \
+    g++-x86-64-linux-gnu \
     locales \
     gdb \
     unzip
