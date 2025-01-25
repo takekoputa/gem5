@@ -39,7 +39,7 @@
 # In the next stage this is copied into /usr/local/bin/gem5. This ensures
 # there is a pre-built gem5 binary in each devcontainer. This can save time
 # if the container is used for education or demonstration purposes.
-FROM ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest as builder
+FROM ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest AS builder
 
 LABEL org.opencontainers.image.source=https://github.com/gem5/gem5
 LABEL org.opencontainers.image.licenses=BSD-3-Clause
