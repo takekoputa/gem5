@@ -302,6 +302,7 @@ $klass ${{self.c_ident}}$parent
 
             code("{")
             code("        setRubySystem(rs);")
+            code("        block_size_bits = floorLog2(blockSize);")
         elif self.isTBE:
             code("${{self.c_ident}}(int block_size)")
 
@@ -316,6 +317,7 @@ $klass ${{self.c_ident}}$parent
                     ctor_count += 1
 
             code("{")
+            code("        block_size_bits = floorLog2(block_size);")
         else:
             code("${{self.c_ident}}()")
 

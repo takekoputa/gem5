@@ -98,6 +98,22 @@ Decode::clearStates(ThreadID tid)
 {
     decodeStatus[tid] = Idle;
     stalls[tid].rename = false;
+
+    // Clear out any of this thread's instructions being sent to rename.
+    for (int i = -cpu->decodeQueue.getPast();
+         i <= cpu->decodeQueue.getFuture(); ++i) {
+        DecodeStruct& decode_struct = cpu->decodeQueue[i];
+        removeCommThreadInsts(tid, decode_struct);
+    }
+
+    // Clear out any of this thread's instructions being sent to fetch.
+    for (int i = -cpu->timeBuffer.getPast();
+         i <= cpu->timeBuffer.getFuture(); ++i) {
+        TimeStruct& time_struct = cpu->timeBuffer[i];
+        time_struct.decodeInfo[tid] = {};
+        time_struct.decodeBlock[tid] = false;
+        time_struct.decodeUnblock[tid] = false;
+    }
 }
 
 void

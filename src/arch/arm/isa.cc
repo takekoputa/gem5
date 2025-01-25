@@ -254,6 +254,8 @@ ISA::redirectRegVHE(int misc_reg)
         return currEL() == EL2 ? MISCREG_TTBR1_EL2 : misc_reg;
       case MISCREG_TCR_EL1:
         return currEL() == EL2 ? MISCREG_TCR_EL2 : misc_reg;
+      case MISCREG_TCR2_EL1:
+        return currEL() == EL2 ? MISCREG_TCR2_EL2 : misc_reg;
       case MISCREG_AFSR0_EL1:
         return currEL() == EL2 ? MISCREG_AFSR0_EL2 : misc_reg;
       case MISCREG_AFSR1_EL1:

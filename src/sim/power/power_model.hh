@@ -44,6 +44,7 @@
 #include "params/PowerModel.hh"
 #include "params/PowerModelState.hh"
 #include "sim/probe/probe.hh"
+#include "sim/sim_object.hh"
 
 namespace gem5
 {

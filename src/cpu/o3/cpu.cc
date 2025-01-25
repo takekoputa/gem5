@@ -651,15 +651,6 @@ CPU::removeThread(ThreadID tid)
     rename.clearStates(tid);
     iew.clearStates(tid);
 
-    // Flush out any old data from the time buffers.
-    for (int i = 0; i < timeBuffer.getSize(); ++i) {
-        timeBuffer.advance();
-        fetchQueue.advance();
-        decodeQueue.advance();
-        renameQueue.advance();
-        iewQueue.advance();
-    }
-
     // at this step, all instructions in the pipeline should be already
     // either committed successfully or squashed. All thread-specific
     // queues in the pipeline must be empty.

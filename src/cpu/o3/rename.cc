@@ -145,7 +145,12 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
       ADD_STAT(tempSerializing, statistics::units::Count::get(),
                "count of temporary serializing insts renamed"),
       ADD_STAT(skidInsts, statistics::units::Count::get(),
-               "count of insts added to the skid buffer")
+               "count of insts added to the skid buffer"),
+      ADD_STAT(intReturned, statistics::units::Count::get(),
+               "count of registers freed and written back to integer free list"),
+      ADD_STAT(fpReturned, statistics::units::Count::get(),
+               "count of registers freed and written back to floating point free list")
+
 {
     squashCycles.prereq(squashCycles);
     idleCycles.prereq(idleCycles);
@@ -176,6 +181,9 @@ Rename::RenameStats::RenameStats(statistics::Group *parent)
     serializing.flags(statistics::total);
     tempSerializing.flags(statistics::total);
     skidInsts.flags(statistics::total);
+
+    intReturned.prereq(intReturned);
+    fpReturned.prereq(fpReturned);
 }
 
 void
@@ -245,6 +253,22 @@ Rename::clearStates(ThreadID tid)
     storesInProgress[tid] = 0;
 
     serializeOnNextInst[tid] = false;
+
+    // Clear out any of this thread's instructions being sent to IEW.
+    for (int i = -cpu->renameQueue.getPast();
+         i <= cpu->renameQueue.getFuture(); ++i) {
+        RenameStruct& rename_struct = cpu->renameQueue[i];
+        removeCommThreadInsts(tid, rename_struct);
+    }
+
+    // Clear out any of this thread's instructions being sent to decode.
+    for (int i = -cpu->timeBuffer.getPast();
+         i <= cpu->timeBuffer.getFuture(); ++i) {
+        TimeStruct& time_struct = cpu->timeBuffer[i];
+        time_struct.renameInfo[tid] = {};
+        time_struct.renameBlock[tid] = false;
+        time_struct.renameUnblock[tid] = false;
+    }
 }
 
 void
@@ -1001,6 +1025,13 @@ Rename::removeFromHistory(InstSeqNum inst_seq_num, ThreadID tid)
         if (hb_it->newPhysReg != hb_it->prevPhysReg) {
             freeList->addReg(hb_it->prevPhysReg);
         }
+        if (hb_it->prevPhysReg->classValue()== FloatRegClass) {
+           ++stats.fpReturned;
+        }
+        if (hb_it->prevPhysReg->classValue()== IntRegClass) {
+           ++stats.intReturned;
+        }
+
 
         ++stats.committedMaps;
 

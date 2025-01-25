@@ -4971,6 +4971,7 @@ decode QUADRANT default Unknown::unknown() {
                                 NPC = NPC;
                             } else {
                                 xc->setMiscReg(MISCREG_PRV, status.spp);
+                                status.mprv = 0;
                                 status.sie = status.spie;
                                 status.spie = 1;
                                 status.spp = PRV_U;
@@ -5041,6 +5042,9 @@ decode QUADRANT default Unknown::unknown() {
                             NPC = NPC;
                         } else {
                             STATUS status = xc->readMiscReg(MISCREG_STATUS);
+                            if (status.mpp != PRV_M) {
+                                status.mprv = 0;
+                            }
                             xc->setMiscReg(MISCREG_PRV, status.mpp);
                             // Always enable NMIE if smrnmi is not enabled
                             if (!isa->enableSmrnmi()) {

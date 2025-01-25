@@ -427,7 +427,7 @@ class ArmFastModelComponent(object):
 Export('ArmFastModelComponent')
 
 PySource('m5', 'arm_fast_model.py', tags=['arm fastmodel'])
-Source('fastmodel.cc', tags=['arm fastmodel'])
+Source('fastmodel.cc', tags=['arm fastmodel', 'python'])
 
 SimObject(
     'FastModel.py',
