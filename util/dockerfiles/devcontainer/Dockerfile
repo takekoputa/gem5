@@ -45,7 +45,7 @@ LABEL org.opencontainers.image.source=https://github.com/gem5/gem5
 LABEL org.opencontainers.image.licenses=BSD-3-Clause
 
 RUN wget https://github.com/gem5/gem5/archive/refs/tags/v24.1.0.1.tar.gz && \
-    tar xzf v24.1.0.1.tar.gz && mv gem5-24.1.0.0 gem5 && rm v24.1.0.1.tar.gz
+    tar xzf v24.1.0.1.tar.gz && mv gem5-24.1.0.1 gem5 && rm v24.1.0.1.tar.gz
 WORKDIR /gem5
 RUN scons build/ALL/gem5.opt -j`nproc`
 
