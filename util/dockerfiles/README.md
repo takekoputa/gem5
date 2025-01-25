@@ -5,21 +5,22 @@ The Docker images are used to run gem5 in a containerized environment.
 
 ## The Docker Registry
 
-We use the Github Container Registry to host the gem5 Docker images. The images are available at the  [ghcr.io/gem5] URI.
+We use the Github Container Registry to host the gem5 Docker images.
+The images are available at the [ghcr.io/gem5] URI.
 
 ### Pulling the Docker Images
 
 You can pull the gem5 Docker images using the following command:
 
 ```sh
-# Example: Pulling the gem5 Ubuntu 24.04 image.
+# Example: Pulling the gem5 Ubuntu 24.04 image with all dependencies
 docker pull ghcr.io/gem5/gem5/ubuntu-24.04_all-dependencies:latest
 ```
 
 ## Building the Docker Images
 
 The gem5 Dockerfiles are available in this directory.
-All the currently supported Docker images, stored in the registery, are built using these Dockerfiles.
+All the currently supported Docker images, stored in the registry, are built using these Dockerfiles.
 
 ### Docker buildx
 

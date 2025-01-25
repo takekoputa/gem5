@@ -36,7 +36,7 @@
 # `docker buildx bake devcontainer --push`
 
 # Stage 1: We build the stable version of gem5.
-# In the final stage this this is copied into /usr/local/bin/gem5. This ensures
+# In the next stage this is copied into /usr/local/bin/gem5. This ensures
 # there is a pre-built gem5 binary in each devcontainer. This can save time
 # if the container is used for education or demonstration purposes.
 FROM ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest as builder
