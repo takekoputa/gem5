@@ -488,6 +488,15 @@ decode QUADRANT default Unknown::unknown() {
         format CompressedStore {
             0x5: decode ENABLE_ZCD {
                 0x0: decode CFUNCT6LOW3 {
+                    0x0: decode JTINDEX5TO7 {
+                        0x0: CmJalt::cm_jt({{
+                            NPC = rvSext((base + imm) & (~0x1));
+                        }}, IsIndirectControl, IsUncondControl);
+                        default: CmJalt::cm_jalt({{
+                            ra = rvSext(NPC);
+                            NPC = rvSext((base + imm) & (~0x1));
+                        }}, IsIndirectControl, IsUncondControl, IsCall);
+                    }
                     0x3: decode CFUNCT2LOW {
                         0x1: CmMvsa01::cm_mvsa01();
                         0x3: CmMva01s::cm_mva01s();

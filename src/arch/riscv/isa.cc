@@ -247,6 +247,8 @@ namespace RiscvISA
     [MISCREG_HPMCOUNTER30H]  = "HPMCOUNTER30H",
     [MISCREG_HPMCOUNTER31H]  = "HPMCOUNTER31H",
 
+    [MISCREG_JVT] = "JVT",
+
     [MISCREG_FFLAGS_EXE]    = "FFLAGS_EXE",
 }};
 
@@ -931,6 +933,11 @@ ISA::setMiscReg(RegIndex idx, RegVal val)
                 setMiscRegNoEffect(MISCREG_NMIE,
                     (RegVal)nstatus.nmie | readMiscRegNoEffect(MISCREG_NMIE));
                 setMiscRegNoEffect(idx, val);
+            }
+            break;
+          case MISCREG_JVT:
+            {
+                setMiscRegNoEffect(idx, rvSext(val));
             }
             break;
           default:

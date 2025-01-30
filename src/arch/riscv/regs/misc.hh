@@ -253,6 +253,8 @@ enum MiscRegIndex
     MISCREG_HPMCOUNTER30H,
     MISCREG_HPMCOUNTER31H,
 
+    MISCREG_JVT,
+
     NUM_PHYS_MISCREGS,
 
     MISCREG_MSTATUS = MISCREG_STATUS,
@@ -522,6 +524,8 @@ enum CSRIndex
     CSR_MNEPC        = 0x741,
     CSR_MNCAUSE      = 0x742,
     CSR_MNSTATUS     = 0x744,
+
+    CSR_JVT          = 0x017,
 };
 
 struct CSRMetadata
@@ -1206,7 +1210,10 @@ const std::unordered_map<int, CSRMetadata> CSRData = {
          true}},
     {CSR_MNSTATUS,
         {"mnstatus", MISCREG_MNSTATUS, rvTypeFlags(RV64, RV32),
-         isaExtsFlags(), true}}
+         isaExtsFlags(), true}},
+
+    {CSR_JVT,
+        {"jvt", MISCREG_JVT, rvTypeFlags(RV64, RV32), isaExtsFlags()}},
 };
 
 /**
@@ -1314,6 +1321,11 @@ BitUnion64(SENVCFG)
     Bitfield<3,1> wpri_3;
     Bitfield<0> fiom;
 EndBitUnion(SENVCFG)
+
+BitUnion64(JVT)
+    Bitfield<63,6> base;
+    Bitfield<5,0> mode;
+EndBitUnion(JVT)
 
 const off_t MXL_OFFSETS[enums::Num_RiscvType] = {
     [RV32] = (sizeof(uint32_t) * 8 - 2),

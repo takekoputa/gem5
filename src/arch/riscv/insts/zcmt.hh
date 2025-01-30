@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2012 Google
- * Copyright (c) 2017 The University of Virginia
+ * Copyright (c) 2024 Google LLC
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,66 +26,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __ARCH_RISCV_DECODER_HH__
-#define __ARCH_RISCV_DECODER_HH__
+#ifndef __ARCH_RISCV_INSTS_ZCMT_HH__
+#define __ARCH_RISCV_INSTS_ZCMT_HH__
 
-#include "arch/generic/decode_cache.hh"
-#include "arch/generic/decoder.hh"
-#include "arch/riscv/insts/vector.hh"
-#include "arch/riscv/types.hh"
-#include "base/logging.hh"
-#include "base/types.hh"
+#include <string>
+
+#include "arch/riscv/insts/static_inst.hh"
 #include "cpu/static_inst.hh"
-#include "debug/Decode.hh"
-#include "params/RiscvDecoder.hh"
 
 namespace gem5
 {
 
-class BaseISA;
-
 namespace RiscvISA
 {
 
-class Decoder : public InstDecoder
+class ZcmtSecondFetchInst : public RiscvStaticInst
 {
   private:
-    decode_cache::InstMap<ExtMachInst> instMap;
-    bool aligned;
-    bool mid;
-
-  protected:
-    //The extended machine instruction being generated
-    ExtMachInst emi;
-    uint32_t machInst;
-
-    uint32_t vlen;
-    uint32_t elen;
-    bool _enableZcd;
+    RegId srcRegIdxArr[0];
+    RegId destRegIdxArr[0];
     Addr jvtEntry;
 
-    virtual StaticInstPtr decodeInst(ExtMachInst mach_inst);
-
-    /// Decode a machine instruction.
-    /// @param mach_inst The binary instruction to decode.
-    /// @retval A pointer to the corresponding StaticInst object.
-    StaticInstPtr decode(ExtMachInst mach_inst, Addr addr);
-
   public:
-    Decoder(const RiscvDecoderParams &p);
+    /// Constructor.
+    ZcmtSecondFetchInst(ExtMachInst machInst, Addr entry);
+    Fault execute(ExecContext *, trace::InstRecord *) const override;
 
-    void reset() override;
+    std::string
+    generateDisassembly(
+        Addr pc, const loader::SymbolTable *symtab) const override;
 
-    inline bool compressed(ExtMachInst inst) { return inst.quadRant < 0x3; }
+    std::unique_ptr<PCStateBase> branchTarget(
+        const PCStateBase &branch_pc) const override;
 
-    //Use this to give data to the decoder. This should be used
-    //when there is control flow.
-    void moreBytes(const PCStateBase &pc, Addr fetchPC) override;
-
-    StaticInstPtr decode(PCStateBase &nextPC) override;
+    using StaticInst::branchTarget;
 };
 
 } // namespace RiscvISA
 } // namespace gem5
 
-#endif // __ARCH_RISCV_DECODER_HH__
+#endif // __ARCH_RISCV_INSTS_ZCMT_HH__
