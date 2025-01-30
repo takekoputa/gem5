@@ -69,7 +69,7 @@ class ArmKvmCPU : public BaseKvmCPU
 
     void startup();
 
-    void dump();
+    void dump() const override;
 
   protected:
     struct KvmIntRegInfo
