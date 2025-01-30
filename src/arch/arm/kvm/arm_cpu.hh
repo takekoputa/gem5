@@ -101,7 +101,7 @@ class ArmKvmCPU : public BaseKvmCPU
     void
     stutterPC(PCStateBase &pc) const
     {
-        pc.as<ArmISA::PCState>().setNPC(pc->instAddr());
+        pc.as<ArmISA::PCState>().setNPC(pc.instAddr());
     }
 
     /**
