@@ -301,7 +301,7 @@ initSignals()
 
 void initSigRtmin()
 {
-    installSignalHandler(SIGRTMIN, externalProcessHandler);
+    installSignalHandler(SIGHUP, externalProcessHandler);
 }
 
 struct sigaction old_int_sa;

@@ -23,7 +23,16 @@ def send_signal(pid: int, id: int, payload: str) -> None:
     final_payload = create_json(id, payload)
     shm.buf[: len(final_payload.encode())] = final_payload.encode()
     try:
-        os.kill(pid, signal.SIGRTMIN)
+        # Note: SIGHUP is used as SIGUSR1 and SIGUSR2 are already in used by
+        # gem5 for other purposes. SIGRTMIN and SIGRTMAX (usually the suggested
+        # alternative when SIGUSR1 and SIGUSR2 unavailable) cannot be used in
+        # this case as they are not supported on MacOS.
+        #
+        # SIGHUP is compatible with both Linux and MacOS and was not otherwise
+        # used by gem5. In general, SIGHUP is a signal that is
+        # for use in interacting with system daemons to request reloading of
+        # their configurations.
+        os.kill(pid, signal.SIGHUP)
     except ProcessLookupError:
         print(
             "Process does not exist! Check that you are using the correct PID."
@@ -32,7 +41,7 @@ def send_signal(pid: int, id: int, payload: str) -> None:
         shm.unlink()
         sys.exit(1)
 
-    print(f"Sent signal SIGRTMIN to PID {pid} with payload: '{final_payload}'")
+    print(f"Sent a SIGHUP signal to PID {pid} with payload: '{final_payload}'")
 
     while bytes(shm.buf[:shared_mem_size]).decode().strip("\x00") != "done":
         print("Waiting for gem5 to finish using shared memory...")
