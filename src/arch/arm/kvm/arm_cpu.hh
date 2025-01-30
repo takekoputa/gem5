@@ -42,6 +42,7 @@
 #include <vector>
 
 #include "arch/arm/pcstate.hh"
+#include "arch/arm/regs/misc.hh"
 #include "cpu/kvm/base.hh"
 #include "params/ArmKvmCPU.hh"
 
