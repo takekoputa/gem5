@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 The Regents of the University of California
+ * Copyright (c) 2025 The Regents of the University of California
  * All rights reserved.
  *
  * The license below extends only to copyright in the software and shall
@@ -41,8 +41,8 @@
 
 int main(int argc, char *argv[]) {
     /**
-     * This program takes a comma-separated list of integers and calls the m5
-     * hypercall with each integer, in order. Once complete the program will
+     * This program takes a comma-separated list of integers and calls the
+     * m5_hypercall with each integer as the hypercall ID.
      * exit.
      */
     if (argc != 2) {
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
                       << std::endl;
             return 1;
         }
-        m5_hypercall(std::stoi(item));
+        m5_hypercall(hypercall_id);
     }
 
     return 0;

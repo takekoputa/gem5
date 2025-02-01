@@ -24,33 +24,51 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# This Makefile compiles the hypercall-exit-workload binary, used in the
-# "hypercall-exit-checker.py" script to test the hypercall exit functionality.
-#
-# Notes:
-# * This was compiled to the ARM ISA.
-# * The 'include' directory are included here for ease of use and compilation.
-# * The 'm5' library is linked to the binary to use the gem5-specific
-#   It should be placed in this directory so it can be linked.
 
-CC = g++
-CFLAGS = -Wall -Werror -O2 -static -I./include
+"""Runs a series of tests to ensure the hypercall calls are being handled
+correctly. Passed from a simulated system all the way to handling in the
+Simulator module.
+"""
 
-SRC = hypercall-exit-workload.cpp
-OBJ = $(SRC:.cpp=.o)
+from pathlib import Path
 
-TARGET = bin/hypercall-exit-workload
+from testlib import (
+    config,
+    constants,
+    gem5_verify_config,
+)
 
-all: $(TARGET)
+resource_directory = (
+    config.bin_path
+    if config.bin_path
+    else str(Path(Path(__file__).parent.parent, "resources"))
+)
 
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+tests = [
+    "1",  # Index 0
+    "2",  # Index 1
+    "1,2",  # Index 2
+    "1,2,4,5,6,7,8,9",  # Index 3
+    "10,16,56,24,98,57436",  # Index 4
+]
 
-$(TARGET): $(OBJ)
-	mkdir -p bin
-	$(CC) $(CFLAGS) -o $@ $^ -L . -lm5
 
-clean:
-	rm -rf $(OBJ) $(TARGET) bin
-
-.PHONY: all clean
+for index, test in enumerate(tests):
+    gem5_verify_config(
+        name=f"hypercall-exit-handling-test-{index}",
+        verifiers=[],
+        fixtures=[],
+        config=str(
+            Path(
+                Path(__file__).parent,
+                "configs",
+                "hypercall-exit-check.py",
+            )
+        ),
+        config_args=[
+            test,
+            f"--resource-directory='{resource_directory}'",
+        ],
+        valid_isas=(constants.all_compiled_tag,),
+        length=constants.quick_tag,
+    )

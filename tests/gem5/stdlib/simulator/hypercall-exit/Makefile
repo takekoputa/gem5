@@ -1,4 +1,4 @@
-# Copyright (c) 2024 The Regents of the University of California
+# Copyright (c) 2025 The Regents of the University of California
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,51 +24,38 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# This Makefile compiles the hypercall-exit binary, used in the
+# "hypercall-exit-check.py" script to test the hypercall exit functionality.
+#
+# Notes:
+# * This must be compiled on an X86 host.
 
-"""Runs a series of tests to ensure the hypercall calls are being handled
-correctly. Passed from a simulated system all the way to handling in the
-Simulator module.
-"""
+CC = g++
 
-from pathlib import Path
+# This is the path to the gem5 root. Needs updated when added to gem5-resources
+# source repo.
+GEM5_ROOT = ../../../../..
 
-from testlib import (
-    config,
-    constants,
-    gem5_verify_config,
-)
+CFLAGS = -Wall -Werror -O2 -static -I $(GEM5_ROOT)/include
 
-resource_directory = (
-    config.bin_path
-    if config.bin_path
-    else str(Path(Path(__file__).parent, "resources"))
-)
+SRC = hypercall-exit.cpp
+OBJ = $(SRC:.cpp=.o)
 
-tests = [
-    "1",  # Index 0
-    "2",  # Index 1
-    "1,2",  # Index 2
-    "1,2,4,5,6,7,8,9",  # Index 3
-    "10,16,56,24,98,57436",  # Index 4
-]
+TARGET = hypercall-exit
 
+all: $(TARGET)
 
-for index, test in enumerate(tests):
-    gem5_verify_config(
-        name=f"hypercall-exit-handling-test-{index}",
-        verifiers=[],
-        fixtures=[],
-        config=str(
-            Path(
-                Path(__file__).parent.parent,
-                "configs",
-                "hypercall-exit-checker.py",
-            )
-        ),
-        config_args=[
-            test,
-            f"--resource-directory='{resource_directory}'",
-        ],
-        valid_isas=(constants.all_compiled_tag,),
-        length=constants.quick_tag,
-    )
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TARGET): $(OBJ) $(GEM5_ROOT)/util/m5/build/x86/out
+
+	$(CC) $(CFLAGS) -o $@ $(OBJ) -lm5 -L $(GEM5_ROOT)/util/m5/build/x86/out
+
+$(GEM5_ROOT)/util/m5/build/x86/out:
+	cd $(GEM5_ROOT)/util/m5 && scons build/x86/out/m5 -j `nproc`
+
+clean:
+	- rm -r $(OBJ) $(TARGET)  $(GEM5_ROOT)/util/m5/build/x86/out
+
+.PHONY: all clean
