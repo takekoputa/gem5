@@ -82,7 +82,7 @@ scheduleTickExitAbsolute(
 
 
 # The exit handler which will be used to take checkpoints when the scheduled
-# exit event is triggered (type ID 4).
+# exit event is triggered (type ID 6).
 class MyExitHandler(ScheduledExitEventHandler):
     def _process(self, simulator: "Simulator") -> None:
         super()._process(simulator)
@@ -131,7 +131,7 @@ simulator = Simulator(board=board)
 
 # The scheduler for the to-tick exit events returns type ID of one.
 # Here we override it for the behavior we desire.
-simulator.update_exit_handler_id_map({4: MyExitHandler})
+simulator.update_exit_handler_id_map({6: MyExitHandler})
 
 # Run the simulation.
 simulator.run()
