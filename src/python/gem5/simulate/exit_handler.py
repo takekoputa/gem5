@@ -214,7 +214,6 @@ class ToTickExitHandler(ExitHandler):
 
 
 class CheckpointExitHandler(ExitHandler):
-
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         checkpoint_dir = simulator._checkpoint_path
@@ -223,6 +222,26 @@ class CheckpointExitHandler(ExitHandler):
         m5.checkpoint(
             (Path(checkpoint_dir) / f"cpt.{str(m5.curTick())}").as_posix()
         )
+
+    @overrides(ExitHandler)
+    def _exit_simulation(self) -> bool:
+        return False
+
+
+class WorkBeginExitHandler(ExitHandler):
+    @overrides(ExitHandler)
+    def _process(self, simulator: "Simulator") -> None:
+        m5.stats.reset()
+
+    @overrides(ExitHandler)
+    def _exit_simulation(self) -> bool:
+        return False
+
+
+class WorkEndExitHandler(ExitHandler):
+    @overrides(ExitHandler)
+    def _process(self, simulator: "Simulator") -> None:
+        m5.stats.dump()
 
     @overrides(ExitHandler)
     def _exit_simulation(self) -> bool:

@@ -63,6 +63,8 @@ from .exit_handler import (
     ClassicGeneratorExitHandler,
     KernelBootedExitHandler,
     ScheduledExitEventHandler,
+    WorkBeginExitHandler,
+    WorkEndExitHandler,
 )
 
 
@@ -113,10 +115,15 @@ class Simulator:
             # to be the the defacto end of the simulation as the post-boot
             # script is used to execute the user's workload.
             3: AfterBootScriptExitHandler,
+            # The default exit handler triggered when the WorkBegin and WorkEnd
+            # exit events are encountered. These are used to reset and dump
+            # stats respectively.
+            4: WorkBeginExitHandler,
+            5: WorkEndExitHandler,
             # The default exit handler for scheduled exit event, such as those
             # scheduled by the user via `scheduleTickExitAbsolute` or
             # `scheduleTickExitFromCurrent`.
-            4: ScheduledExitEventHandler,
+            6: ScheduledExitEventHandler,
         }
         assert all(
             i >= 0 for i in default_map.keys()
