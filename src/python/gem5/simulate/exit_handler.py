@@ -186,8 +186,7 @@ class KernelBootedExitHandler(ExitHandler):
 class AfterBootExitHandler(ExitHandler):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
-        print("Second exit: Started `after_boot.sh` script")
-        print("Switching to Timing CPU")
+        pass
 
     @overrides(ExitHandler)
     def _exit_simulation(self) -> bool:
@@ -197,7 +196,7 @@ class AfterBootExitHandler(ExitHandler):
 class AfterBootScriptExitHandler(ExitHandler):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
-        print("Third exit: Finished `after_boot.sh` script")
+        pass
 
     @overrides(ExitHandler)
     def _exit_simulation(self) -> bool:
@@ -207,10 +206,7 @@ class AfterBootScriptExitHandler(ExitHandler):
 class ToTickExitHandler(ExitHandler):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
-        checkpoint_dir = Path(simulator._checkpoint_path)
-        if not checkpoint_dir:
-            checkpoint_dir = Path(options.outdir)
-        m5.checkpoint((checkpoint_dir / f"cpt.{str(m5.curTick())}").as_posix())
+        pass
 
     @overrides(ExitHandler)
     def _exit_simulation(self) -> bool:
