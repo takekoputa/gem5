@@ -1,4 +1,4 @@
-# Copyright (c) 2021 The Regents of the University of California
+# Copyright (c) 2021-2024 The Regents of the University of California
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 
 import os
 import sys
-from io import StringIO
 from pathlib import Path
 from typing import (
     Callable,
@@ -35,18 +34,18 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
     Union,
 )
 
 import m5
 import m5.ticks
 from m5.ext.pystats.simstat import SimStat
-from m5.objects import Root
 from m5.stats import addStatVisitor
 from m5.util import warn
 
-from ..components.boards.abstract_board import AbstractBoard
-from ..components.processors.switchable_processor import SwitchableProcessor
+from gem5.components.boards.abstract_board import AbstractBoard
+
 from .exit_event import ExitEvent
 from .exit_event_generators import (
     dump_stats_generator,
@@ -57,6 +56,15 @@ from .exit_event_generators import (
     spatter_exit_generator,
     switch_generator,
     warn_default_decorator,
+)
+from .exit_handler import (
+    AfterBootExitHandler,
+    AfterBootScriptExitHandler,
+    ClassicGeneratorExitHandler,
+    KernelBootedExitHandler,
+    ScheduledExitEventHandler,
+    WorkBeginExitHandler,
+    WorkEndExitHandler,
 )
 
 
@@ -91,6 +99,37 @@ class Simulator:
         "compatible with the gem5 standard library.",
     }
 
+    def get_default_exit_handler_id_map(cls) -> Dict[int, Type[ExitEvent]]:
+        default_map = {
+            # The default exit handlers for the older "generated-based" exit
+            # events.
+            0: ClassicGeneratorExitHandler,
+            # The default exit handler for when the the kernel in a FS
+            # simulation has completed booting.
+            1: KernelBootedExitHandler,
+            # The default exit handler for when the `after_boot.sh` script has
+            # completed execution in FS simulations which utilize this.
+            2: AfterBootExitHandler,
+            # The default exit handler triggered when the post-boot script has
+            # completed execution in FS simulation. Note: it is common for this
+            # to be the the defacto end of the simulation as the post-boot
+            # script is used to execute the user's workload.
+            3: AfterBootScriptExitHandler,
+            # The default exit handler triggered when the WorkBegin and WorkEnd
+            # exit events are encountered. These are used to reset and dump
+            # stats respectively.
+            4: WorkBeginExitHandler,
+            5: WorkEndExitHandler,
+            # The default exit handler for scheduled exit event, such as those
+            # scheduled by the user via `scheduleTickExitAbsolute` or
+            # `scheduleTickExitFromCurrent`.
+            6: ScheduledExitEventHandler,
+        }
+        assert all(
+            i >= 0 for i in default_map.keys()
+        ), "Exit handler mapped to ID <0 in default map."
+        return default_map
+
     def __init__(
         self,
         board: AbstractBoard,
@@ -109,6 +148,7 @@ class Simulator:
         checkpoint_path: Optional[Path] = None,
         max_ticks: Optional[int] = m5.MaxTick,
         id: Optional[int] = None,
+        exit_event_handler_id_map: Dict[int, Type[ExitEvent]] = {},
     ) -> None:
         """
         :param board: The board to be simulated.
@@ -162,6 +202,12 @@ class Simulator:
         Simulator configuration. Note, the latter means the ID only available
         after the Simulator has been instantiated. The ID can be obtained via
         the `get_id` method.
+        :param exit_event_handler_id_map: An optional parameter specifying the
+        mapping each exit event IDs the Exit Event handler class responsible
+        for handling them. The Simulator provides sensible defaults for stdlib
+        exit events, but this parameter allows the user to override these
+        or add handlers for custom exit events. Use
+        `Simulator.get_default_exit_handler_id_map` to see the default mapping.
 
 
         ``on_exit_event`` usage notes
@@ -418,6 +464,48 @@ class Simulator:
 
         self._checkpoint_path = checkpoint_path
 
+        self._exit_handler_id_map = self.get_default_exit_handler_id_map()
+        self.update_exit_handler_id_map(exit_event_handler_id_map)
+
+    def get_exit_handler_id_map(self) -> Dict[int, Type[ExitEvent]]:
+        """
+        Returns the exit handler ID map. This is a dictionary mapping exit
+        event IDs to the ExitEvent handler class responsible for handling them.
+        """
+        assert (
+            hasattr(self, "_exit_handler_id_map") and self._exit_handler_id_map
+        ), "Exit handler ID map not set. This should have been done in the constructor"
+        return self._exit_handler_id_map.copy()
+
+    def update_exit_handler_id_map(
+        self, update_map: Dict[int, Type[ExitEvent]]
+    ) -> None:
+        """
+        Update the exit handler ID map. This is a dictionary mapping exit event
+        IDs to the ExitEvent handler class responsible
+        for handling them. The Simulator provides sensible defaults for stdlib
+        exit events, but this allows the user to override these or add handlers
+        for custom exit events.
+
+        :param update_map: A dictionary mapping exit event IDs to the ExitEvent
+                           handler class responsible
+        """
+        assert (
+            hasattr(self, "_exit_handler_id_map") and self._exit_handler_id_map
+        ), "Exit handler ID map not set. This should have been done in the constructor"
+
+        self._exit_handler_id_map.update(update_map)
+
+        assert all(
+            i >= 0 for i in self._exit_handler_id_map.keys()
+        ), "Exit handler mapped to ID <0"
+
+        # A simple mapping of ticks to exit event.
+        # This can help in cases where the order and number of exits thus far
+        # matters (say an exit event acts differently for the Nth time it is
+        # hit)
+        self._exit_event_id_log = {}
+
     def set_id(self, id: str) -> None:
         """Set the ID of the simulator.
 
@@ -595,6 +683,12 @@ class Simulator:
         """
         return self._last_exit_event.getCode()
 
+    def get_hypercall_id(self) -> int:
+        """
+        Returns the hypercall ID.
+        """
+        return self._last_exit_event.getHypercallId()
+
     def get_current_tick(self) -> int:
         """
         Returns the current tick.
@@ -718,50 +812,19 @@ class Simulator:
         # This while loop will continue until an a generator yields True.
         while True:
             self._last_exit_event = m5.simulate(self.get_max_ticks())
-
-            # Translate the exit event cause to the exit event enum.
-            exit_enum = ExitEvent.translate_exit_status(
-                self.get_last_exit_event_cause()
+            # sys.exit(1)
+            exit_event_hypercall_id = self._last_exit_event.getHypercallId()
+            assert (
+                exit_event_hypercall_id
+                in self.get_exit_handler_id_map().keys()
+            ), f"Exit event type ID {self._last_exit_event.getTypeID()} in exit handler ID map"
+            exit_handler = self.get_exit_handler_id_map()[
+                exit_event_hypercall_id
+            ](self._last_exit_event.getPayload())
+            exit_on_completion = exit_handler.handle(self)
+            self._exit_event_id_log[self.get_current_tick()] = (
+                self._last_exit_event.getHypercallId()
             )
-
-            # Check to see the run is corresponding to the expected execution
-            # order (assuming this check is demanded by the user).
-            if self._expected_execution_order:
-                expected_enum = self._expected_execution_order[
-                    self._exit_event_count
-                ]
-                if exit_enum.value != expected_enum.value:
-                    raise Exception(
-                        f"Expected a '{expected_enum.value}' exit event but a "
-                        f"'{exit_enum.value}' exit event was encountered."
-                    )
-
-            # Record the current tick and exit event enum.
-            self._tick_stopwatch.append((exit_enum, self.get_current_tick()))
-
-            try:
-                # If the user has specified their own generator for this exit
-                # event, use it.
-                exit_on_completion = next(self._on_exit_event[exit_enum])
-            except StopIteration:
-                # If the user's generator has ended, throw a warning and use
-                # the default generator for this exit event.
-                warn(
-                    "User-specified generator/function list for the exit "
-                    f"event'{exit_enum.value}' has ended. Using the default "
-                    "generator."
-                )
-                exit_on_completion = next(
-                    self._default_on_exit_dict[exit_enum]
-                )
-            except KeyError:
-                # If the user has not specified their own generator for this
-                # exit event, use the default.
-                exit_on_completion = next(
-                    self._default_on_exit_dict[exit_enum]
-                )
-
-            self._exit_event_count += 1
 
             # If the generator returned True we will return from the Simulator
             # run loop. In the case of a function: if it returned True.

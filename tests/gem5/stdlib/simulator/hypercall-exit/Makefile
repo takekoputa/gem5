@@ -1,4 +1,5 @@
-# Copyright 2020 Google, Inc.
+# Copyright (c) 2025 The Regents of the University of California
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -23,25 +24,38 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Import('*')
+# This Makefile compiles the hypercall-exit binary, used in the
+# "hypercall-exit-check.py" script to test the hypercall exit functionality.
+#
+# Notes:
+# * This must be compiled on an X86 host.
 
-command_ccs = [
-    'addsymbol.cc',
-    'checkpoint.cc',
-    'dumpresetstats.cc',
-    'dumpstats.cc',
-    'exit.cc',
-    'fail.cc',
-    'sum.cc',
-    'initparam.cc',
-    'loadsymbol.cc',
-    'readfile.cc',
-    'resetstats.cc',
-    'writefile.cc',
-    'workbegin.cc',
-    'workend.cc',
-    'hypercall.cc',
-]
+CC = g++
 
-command_objs = list(map(env.StaticObject, command_ccs))
-Return('command_objs')
+# This is the path to the gem5 root. Needs updated when added to gem5-resources
+# source repo.
+GEM5_ROOT = ../../../../..
+
+CFLAGS = -Wall -Werror -O2 -static -I $(GEM5_ROOT)/include
+
+SRC = hypercall-exit.cpp
+OBJ = $(SRC:.cpp=.o)
+
+TARGET = hypercall-exit
+
+all: $(TARGET)
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TARGET): $(OBJ) $(GEM5_ROOT)/util/m5/build/x86/out
+
+	$(CC) $(CFLAGS) -o $@ $(OBJ) -lm5 -L $(GEM5_ROOT)/util/m5/build/x86/out
+
+$(GEM5_ROOT)/util/m5/build/x86/out:
+	cd $(GEM5_ROOT)/util/m5 && scons build/x86/out/m5 -j `nproc`
+
+clean:
+	- rm -r $(OBJ) $(TARGET)  $(GEM5_ROOT)/util/m5/build/x86/out
+
+.PHONY: all clean

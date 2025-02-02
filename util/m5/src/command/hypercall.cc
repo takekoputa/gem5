@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 The Hewlett-Packard Development Company
+ * Copyright (c) 2025 The Regents of the University of California
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __SIM_INIT_SIGNALS_HH__
-#define __SIM_INIT_SIGNALS_HH__
+#include "args.hh"
+#include "command.hh"
+#include "dispatch_table.hh"
 
-#include <string>
-
-namespace gem5
+namespace
 {
 
-void dumpStatsHandler(int sigtype);
-void dumprstStatsHandler(int sigtype);
-void exitNowHandler(int sigtype);
-void abortHandler(int sigtype);
-void initSignals();
+bool
+do_hypercall(const DispatchTable &dt, Args &args)
+{
+    uint64_t hypercall_num;
+    if (!args.pop(hypercall_num, 0))
+        return false;
 
-// separate out sigint handler so that we can restore the python one
-void initSigInt();
-void initSigRtmin();
-std::string extractStringFromJSON(std::string& full_str, std::string start_str,
-    std::string end_str, size_t& search_start);
-void restoreSigInt();
+    (*dt.m5_hypercall)(hypercall_num);
 
-} // namespace gem5
+    return true;
+}
 
-#endif // __SIM_INIT_SIGNALS_HH__
+Command exit_cmd = {
+    "hypercall", 0, 1, do_hypercall, "[hypercall number]\n"
+        "        define behaviour upon exit" };
+
+} // anonymous namespace
