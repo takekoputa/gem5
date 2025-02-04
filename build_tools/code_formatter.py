@@ -329,7 +329,8 @@ class code_formatter(metaclass=code_formatter_meta):
                 )
 
         d = code_formatter.pattern.sub(convert, format)
-        self._append(d)
+        if not kwargs.get("add_once") or d not in self._data:
+            self._append(d)
 
 
 __all__ = ["code_formatter"]
