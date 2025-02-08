@@ -103,6 +103,11 @@ IndirectMemory::calculatePrefetch(const PrefetchInfo &pfi,
                 pt_entry->address = addr;
                 pt_entry->secure = is_secure;
 
+                // If the miss does not have any data, we don't need to
+                // inspect response data
+                if (!pfi.requestHasData()) {
+                    return;
+                }
 
                 // if this is a read, read the data from the cache and assume
                 // it is an index (this is only possible if the data is already
