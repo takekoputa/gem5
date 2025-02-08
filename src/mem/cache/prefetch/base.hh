@@ -215,6 +215,15 @@ class Base : public ClockedObject
         }
 
         /**
+         * Check if the triggering request has data
+         * @return true if the request has data
+         */
+        bool requestHasData() const
+        {
+            return data != nullptr;
+        }
+
+        /**
          * Gets the associated data of the request triggering the event
          * @param Byte ordering of the stored data
          * @return the data
