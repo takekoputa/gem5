@@ -175,7 +175,7 @@ class ProbeManager : public Named
      * @param listener the ProbeListener to add.
      * @return true if added, false otherwise.
      */
-    bool addListener(std::string point_name, ProbeListener &listener);
+    bool addListener(std::string_view point_name, ProbeListener &listener);
 
     /**
      * @brief Remove a ProbeListener from the ProbePoint named by pointName.
@@ -185,7 +185,7 @@ class ProbeManager : public Named
      * @param listener the ProbeListener to remove.
      * @return true if removed, false otherwise.
      */
-    bool removeListener(std::string point_name, ProbeListener &listener);
+    bool removeListener(std::string_view point_name, ProbeListener &listener);
 
     /**
      * @brief Add a ProbePoint to this SimObject ProbeManager.

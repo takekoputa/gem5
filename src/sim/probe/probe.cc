@@ -54,7 +54,7 @@ ProbePoint::ProbePoint(ProbeManager *manager, const std::string& _name)
 }
 
 bool
-ProbeManager::addListener(std::string point_name, ProbeListener &listener)
+ProbeManager::addListener(std::string_view point_name, ProbeListener &listener)
 {
     DPRINTFR(ProbeVerbose, "Probes: Call to addListener to \"%s\" on %s.\n",
         point_name, name());
@@ -73,7 +73,8 @@ ProbeManager::addListener(std::string point_name, ProbeListener &listener)
 }
 
 bool
-ProbeManager::removeListener(std::string point_name, ProbeListener &listener)
+ProbeManager::removeListener(std::string_view point_name,
+                             ProbeListener &listener)
 {
     DPRINTFR(ProbeVerbose, "Probes: Call to removeListener from \"%s\" on "
         "%s.\n", point_name, name());
