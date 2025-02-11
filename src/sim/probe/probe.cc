@@ -53,17 +53,6 @@ ProbePoint::ProbePoint(ProbeManager *manager, const std::string& _name)
     }
 }
 
-ProbeListener::ProbeListener(ProbeManager *_manager, const std::string &_name)
-    : manager(_manager), name(_name)
-{
-    manager->addListener(name, *this);
-}
-
-ProbeListener::~ProbeListener()
-{
-    manager->removeListener(name, *this);
-}
-
 bool
 ProbeManager::addListener(std::string point_name, ProbeListener &listener)
 {
