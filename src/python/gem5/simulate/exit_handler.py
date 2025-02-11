@@ -24,12 +24,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from abc import abstractmethod
+from abc import (
+    ABCMeta,
+    abstractmethod,
+)
 from pathlib import Path
 from typing import (
     Any,
     Dict,
     Optional,
+    Type,
 )
 
 import m5
@@ -40,7 +44,44 @@ from gem5.simulate.exit_event import ExitEvent
 from gem5.utils.override import overrides
 
 
-class ExitHandler:
+class ExitHandlerMeta(ABCMeta):
+    """Metaclass for ExitHandler that automatically registers subclasses"""
+
+    def __new__(mcs, name, bases, attrs, hypercall_num: int = None) -> Any:
+        cls = super().__new__(mcs, name, bases, attrs)
+        # Don't register the base ExitHandler class itself
+        if name != "ExitHandler":
+            # If hypercall_num is not provided, and the class is a subclass
+            # of another ExitHandler, use the hypercall_num of the base class
+            for base in bases:
+                if base in ExitHandler.get_handler_map().values():
+                    hypercall_num = base.get_handler_id()
+                    break
+            assert hypercall_num is not None, (
+                f"Hypercall number must be provided for {name}. Use "
+                "`class {name}(ExitHandler, hypercall_num={hypercall_num}):`"
+            )
+            ExitHandler._handler_map[hypercall_num] = cls
+            cls._handler_id = hypercall_num
+
+        return cls
+
+
+class ExitHandler(metaclass=ExitHandlerMeta):
+
+    _handler_map: Dict[str, Type["ExitHandler"]] = {}
+    _handler_id: int = None
+
+    @classmethod
+    def get_handler_id(cls) -> int:
+        """Returns the ID of the exit handler"""
+        return cls._handler_id
+
+    @classmethod
+    def get_handler_map(cls) -> Dict[str, Type["ExitHandler"]]:
+        """Returns the mapping of exit handler IDs to handler classes"""
+        return cls._handler_map
+
     def __init__(self, payload: Dict[str, str]) -> None:
         self._payload = payload
 
@@ -61,7 +102,65 @@ class ExitHandler:
         )
 
 
-class ClassicGeneratorExitHandler(ExitHandler):
+def _ExitHandlerFactory(
+    hypercall_num: int, func: Callable[["Simulator"], bool], description: str
+) -> Type[ExitHandler]:
+    """
+    Factory function to create a new ExitHandler class with a specific hypercall number,
+    processing function, and description.
+    Args:
+        hypercall_num (int): The hypercall number associated with the exit handler.
+        func (Callable[["Simulator"], bool]): A callable that takes a Simulator instance
+            and returns a boolean indicating whether the simulation should exit.
+        description (str): A description of the exit handler.
+    Returns:
+        Type[ExitHandler]: A new ExitHandler class with the specified hypercall number,
+        processing function, and description.
+    """
+
+    class NewExitHandler(ExitHandler, hypercall_num=hypercall_num):
+        def __init__(self, payload):
+            super().__init__(payload)
+            self.should_exit = False
+            self.description = description
+
+        @overrides(ExitHandler)
+        def _process(self, simulator: "Simulator") -> None:
+            self.should_exit = func(simulator, self._payload)
+
+        @overrides(ExitHandler)
+        def _exit_simulation(self) -> bool:
+            return self.should_exit
+
+    return NewExitHandler
+
+
+def register_exit_handler(
+    hypercall_num: int,
+    func: Callable[["Simulator", dict], bool],
+    description: str,
+) -> Type[ExitHandler]:
+    """This function registers a new exit handler with a specific hypercall
+    number. Whenever this hypercall is encountered, the provided function will
+    be called with the simulator instance and the payload of the hypercall. The
+    function should return a boolean indicating whether the simulation should
+    exit.
+
+    Args:
+        hypercall_num (int): The hypercall number associated with the exit handler.
+        func (Callable[["Simulator", dict], bool]): A callable that takes a Simulator
+            instance and a dictionary containing the payload of the hypercall, and
+            returns a boolean indicating whether the simulation should exit.
+        description (str): A description of the exit handler.
+
+    Returns:
+        Type[ExitHandler]: A new ExitHandler class with the specified hypercall number,
+        processing function, and description.
+    """
+    return _ExitHandlerFactory(hypercall_num, func, description)
+
+
+class ClassicGeneratorExitHandler(ExitHandler, hypercall_num=0):
 
     def __init__(self, payload: Dict[str, str]) -> None:
         super().__init__(payload)
@@ -124,7 +223,7 @@ class ClassicGeneratorExitHandler(ExitHandler):
         return self._exit_on_completion
 
 
-class ScheduledExitEventHandler(ExitHandler):
+class ScheduledExitEventHandler(ExitHandler, hypercall_num=6):
     """A handler designed to be the default for  an Exit scheduled to occur
     at a specified tick. For example, these Exit exits can be triggered through be
     src/python/m5/simulate.py's `scheduleTickExitFromCurrent` and
@@ -173,7 +272,7 @@ class ScheduledExitEventHandler(ExitHandler):
         return True
 
 
-class KernelBootedExitHandler(ExitHandler):
+class KernelBootedExitHandler(ExitHandler, hypercall_num=1):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         pass
@@ -183,7 +282,7 @@ class KernelBootedExitHandler(ExitHandler):
         return False
 
 
-class AfterBootExitHandler(ExitHandler):
+class AfterBootExitHandler(ExitHandler, hypercall_num=2):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         pass
@@ -193,7 +292,7 @@ class AfterBootExitHandler(ExitHandler):
         return False
 
 
-class AfterBootScriptExitHandler(ExitHandler):
+class AfterBootScriptExitHandler(ExitHandler, hypercall_num=3):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         pass
@@ -203,7 +302,7 @@ class AfterBootScriptExitHandler(ExitHandler):
         return True
 
 
-class ToTickExitHandler(ExitHandler):
+class ToTickExitHandler(ExitHandler, hypercall_num=5):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         pass
@@ -213,7 +312,7 @@ class ToTickExitHandler(ExitHandler):
         return True
 
 
-class CheckpointExitHandler(ExitHandler):
+class CheckpointExitHandler(ExitHandler, hypercall_num=7):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         checkpoint_dir = simulator._checkpoint_path
@@ -228,7 +327,7 @@ class CheckpointExitHandler(ExitHandler):
         return False
 
 
-class WorkBeginExitHandler(ExitHandler):
+class WorkBeginExitHandler(ExitHandler, hypercall_num=4):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         m5.stats.reset()
@@ -238,7 +337,7 @@ class WorkBeginExitHandler(ExitHandler):
         return False
 
 
-class WorkEndExitHandler(ExitHandler):
+class WorkEndExitHandler(ExitHandler, hypercall_num=5):
     @overrides(ExitHandler)
     def _process(self, simulator: "Simulator") -> None:
         m5.stats.dump()

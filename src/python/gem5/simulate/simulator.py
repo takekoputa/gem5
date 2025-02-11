@@ -58,13 +58,7 @@ from .exit_event_generators import (
     warn_default_decorator,
 )
 from .exit_handler import (
-    AfterBootExitHandler,
-    AfterBootScriptExitHandler,
-    ClassicGeneratorExitHandler,
-    KernelBootedExitHandler,
-    ScheduledExitEventHandler,
-    WorkBeginExitHandler,
-    WorkEndExitHandler,
+    ExitHandler,
 )
 
 
@@ -99,37 +93,6 @@ class Simulator:
         "compatible with the gem5 standard library.",
     }
 
-    def get_default_exit_handler_id_map(cls) -> Dict[int, Type[ExitEvent]]:
-        default_map = {
-            # The default exit handlers for the older "generated-based" exit
-            # events.
-            0: ClassicGeneratorExitHandler,
-            # The default exit handler for when the the kernel in a FS
-            # simulation has completed booting.
-            1: KernelBootedExitHandler,
-            # The default exit handler for when the `after_boot.sh` script has
-            # completed execution in FS simulations which utilize this.
-            2: AfterBootExitHandler,
-            # The default exit handler triggered when the post-boot script has
-            # completed execution in FS simulation. Note: it is common for this
-            # to be the the defacto end of the simulation as the post-boot
-            # script is used to execute the user's workload.
-            3: AfterBootScriptExitHandler,
-            # The default exit handler triggered when the WorkBegin and WorkEnd
-            # exit events are encountered. These are used to reset and dump
-            # stats respectively.
-            4: WorkBeginExitHandler,
-            5: WorkEndExitHandler,
-            # The default exit handler for scheduled exit event, such as those
-            # scheduled by the user via `scheduleTickExitAbsolute` or
-            # `scheduleTickExitFromCurrent`.
-            6: ScheduledExitEventHandler,
-        }
-        assert all(
-            i >= 0 for i in default_map.keys()
-        ), "Exit handler mapped to ID <0 in default map."
-        return default_map
-
     def __init__(
         self,
         board: AbstractBoard,
@@ -148,7 +111,6 @@ class Simulator:
         checkpoint_path: Optional[Path] = None,
         max_ticks: Optional[int] = m5.MaxTick,
         id: Optional[int] = None,
-        exit_event_handler_id_map: Dict[int, Type[ExitEvent]] = {},
     ) -> None:
         """
         :param board: The board to be simulated.
@@ -207,7 +169,7 @@ class Simulator:
         for handling them. The Simulator provides sensible defaults for stdlib
         exit events, but this parameter allows the user to override these
         or add handlers for custom exit events. Use
-        `Simulator.get_default_exit_handler_id_map` to see the default mapping.
+        `ExitHandler.get_handler_map` to see the mapping.
 
 
         ``on_exit_event`` usage notes
@@ -464,47 +426,18 @@ class Simulator:
 
         self._checkpoint_path = checkpoint_path
 
-        self._exit_handler_id_map = self.get_default_exit_handler_id_map()
-        self.update_exit_handler_id_map(exit_event_handler_id_map)
-
-    def get_exit_handler_id_map(self) -> Dict[int, Type[ExitEvent]]:
-        """
-        Returns the exit handler ID map. This is a dictionary mapping exit
-        event IDs to the ExitEvent handler class responsible for handling them.
-        """
-        assert (
-            hasattr(self, "_exit_handler_id_map") and self._exit_handler_id_map
-        ), "Exit handler ID map not set. This should have been done in the constructor"
-        return self._exit_handler_id_map.copy()
-
-    def update_exit_handler_id_map(
-        self, update_map: Dict[int, Type[ExitEvent]]
-    ) -> None:
-        """
-        Update the exit handler ID map. This is a dictionary mapping exit event
-        IDs to the ExitEvent handler class responsible
-        for handling them. The Simulator provides sensible defaults for stdlib
-        exit events, but this allows the user to override these or add handlers
-        for custom exit events.
-
-        :param update_map: A dictionary mapping exit event IDs to the ExitEvent
-                           handler class responsible
-        """
-        assert (
-            hasattr(self, "_exit_handler_id_map") and self._exit_handler_id_map
-        ), "Exit handler ID map not set. This should have been done in the constructor"
-
-        self._exit_handler_id_map.update(update_map)
-
-        assert all(
-            i >= 0 for i in self._exit_handler_id_map.keys()
-        ), "Exit handler mapped to ID <0"
-
         # A simple mapping of ticks to exit event.
         # This can help in cases where the order and number of exits thus far
         # matters (say an exit event acts differently for the Nth time it is
         # hit)
         self._exit_event_id_log = {}
+
+    def get_exit_handler_id_map(self) -> Dict[int, Type[ExitHandler]]:
+        """
+        Returns the exit handler ID map. This is a dictionary mapping exit
+        event IDs to the ExitEvent handler class responsible for handling them.
+        """
+        return ExitHandler.get_handler_map()
 
     def set_id(self, id: str) -> None:
         """Set the ID of the simulator.
