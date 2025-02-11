@@ -192,6 +192,7 @@ class ProbeManager : public Named
      * @param point the ProbePoint to add.
      */
     void addPoint(ProbePoint &point);
+    ProbePoint *getFirstProbePoint(std::string_view point_name) const;
 
     template <typename Listener, typename... Args>
     ProbeListenerPtr<Listener> connect(Args &&...args)

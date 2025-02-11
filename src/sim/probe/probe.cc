@@ -98,14 +98,23 @@ ProbeManager::addPoint(ProbePoint &point)
     DPRINTFR(ProbeVerbose, "Probes: Call to addPoint \"%s\" to %s.\n",
         point.getName(), name());
 
-    for (auto p = points.begin(); p != points.end(); ++p) {
-        if ((*p)->getName() == point.getName()) {
-            DPRINTFR(ProbeVerbose, "Probes: Call to addPoint \"%s\" to %s "
-                "failed, already added.\n", point.getName(), name());
-            return;
-        }
+    if (getFirstProbePoint(point.getName())) {
+        DPRINTFR(ProbeVerbose, "Probes: Call to addPoint \"%s\" to %s "
+                 "failed, already added.\n", point.getName(), name());
+        return;
     }
     points.push_back(&point);
+}
+
+ProbePoint *
+ProbeManager::getFirstProbePoint(std::string_view point_name) const
+{
+    for (auto p : points) {
+        if (p->getName() == point_name) {
+            return p;
+        }
+    }
+    return nullptr;
 }
 
 } // namespace gem5
