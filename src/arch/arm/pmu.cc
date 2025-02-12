@@ -178,7 +178,7 @@ PMU::regProbeListeners()
 
     // at this stage all probe configurations are done
     // counters can be configured
-    for (uint32_t index = 0; index < maximumCounterCount-1; index++) {
+    for (uint32_t index = 0; index < maximumCounterCount; index++) {
         counters.emplace_back(*this, index, use64bitCounters);
     }
 
