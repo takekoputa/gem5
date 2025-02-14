@@ -755,9 +755,10 @@ ISA::setMiscReg(RegIndex idx, RegVal val)
 
           case MISCREG_IP:
             {
-                val = val & MIP_MASK[getPrivilegeModeSet()];
+                RegVal mask = MIP_MASK[getPrivilegeModeSet()];
                 auto ic = dynamic_cast<RiscvISA::Interrupts *>(
                     tc->getCpuPtr()->getInterruptController(tc->threadId()));
+                val = (val & mask) | (ic->readIP() & ~mask);
                 ic->setIP(val);
             }
             break;
