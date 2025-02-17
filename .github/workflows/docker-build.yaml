@@ -62,4 +62,5 @@ jobs:
               uses: docker/bake-action@v6
               with:
                   source: '{{defaultContext}}:util/dockerfiles'
+                  targets: ${{ matrix.target }}
                   push: true
