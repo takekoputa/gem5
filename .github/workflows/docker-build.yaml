@@ -45,9 +45,6 @@ jobs:
 
         steps:
 
-            - name: Checkout
-              uses: actions/checkout@v4
-
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
 
@@ -61,10 +58,8 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Build and push
+            - name: Bake and Push
               uses: docker/bake-action@v6
               with:
-                  targets: ${{ matrix.target }}
-                  files: util/dockerfiles/docker-bake.hcl
                   source: '{{defaultContext}}:util/dockerfiles'
                   push: true
