@@ -37,7 +37,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                target: ${{ fromJson(needs.obtain-targets.outputs.targets) }}
+                target: ${{ fromJSON(needs.obtain-targets.outputs.targets) }}
 
         permissions:
             packages: write
@@ -46,6 +46,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v3
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
@@ -58,8 +61,8 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Build and push
-              uses: docker/bake-action@v5
+              uses: docker/bake-action@v6
               with:
                   targets: ${{ matrix.target }}
-                  workdir: util/dockerfiles
+                  context: util/dockerfiles
                   push: true
