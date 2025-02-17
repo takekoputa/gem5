@@ -64,5 +64,5 @@ jobs:
               uses: docker/bake-action@v6
               with:
                   targets: ${{ matrix.target }}
-                  context: util/dockerfiles
+                  workdir: util/dockerfiles
                   push: true
