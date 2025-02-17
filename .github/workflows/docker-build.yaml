@@ -66,4 +66,5 @@ jobs:
               with:
                   targets: ${{ matrix.target }}
                   files: util/dockerfiles/docker-bake.hcl
+                  workdir: util/dockerfiles
                   push: true
