@@ -44,6 +44,7 @@ jobs:
             contents: read
 
         steps:
+
             - name: Checkout
               uses: actions/checkout@v4
 
@@ -64,5 +65,5 @@ jobs:
               uses: docker/bake-action@v6
               with:
                   targets: ${{ matrix.target }}
-                  workdir: util/dockerfiles
+                  source: util/dockerfiles/
                   push: true
