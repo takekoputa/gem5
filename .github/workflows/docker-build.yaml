@@ -59,6 +59,9 @@ jobs:
                   username: ${{ github.repository_owner }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
+            - name: Checkout Repo
+              uses: actions/checkout@v4
+
             - name: Pull Image Cache
               working-directory: util/dockerfiles
               run: |
