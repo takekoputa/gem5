@@ -59,8 +59,12 @@ jobs:
                   username: ${{ github.repository_owner }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Checkout Repo
+            - name: Checkout Bake File
               uses: actions/checkout@v4
+              with:
+                  sparse-checkout: |
+                      util/dockerfiles/docker-bake.hcl
+                  sparse-checkout-cone-mode: false
 
             - name: Pull Image Cache
               working-directory: util/dockerfiles
@@ -75,4 +79,3 @@ jobs:
                   source: '{{defaultContext}}:util/dockerfiles'
                   targets: ${{ matrix.target }}
                   push: true
-                  pull: true
