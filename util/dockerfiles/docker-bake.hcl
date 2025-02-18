@@ -199,7 +199,6 @@ group "ubuntu-releases" {
 
 target "ubuntu-24-04_all-dependencies" {
   inherits = ["common"]
-  platforms = ["linux/amd64", "linux/arm64", "linux/riscv64"]
   annotations = ["index,manifest:org.opencontainers.image.description=An Ubuntu 24.04 image with all dependencies required for building and running gem5."]
   context = "ubuntu-24.04_all-dependencies"
   tags = ["${IMAGE_URI}/ubuntu-24.04_all-dependencies:${TAG}"]
