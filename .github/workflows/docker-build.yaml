@@ -58,7 +58,8 @@ jobs:
                   username: ${{ github.repository_owner }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Get Image Tag
+            - name: Pull Image Cache
+              working-directory: util/dockerfiles
               run: |
                   docker pull $(docker buildx bake ${{ matrix.target }} --print \
                   | jq -rc ".[\"target\"][\"${{ matrix.target }}\"][\"cache-from\"][0][\"ref\"]") || true
