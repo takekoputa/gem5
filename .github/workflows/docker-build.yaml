@@ -26,7 +26,8 @@ jobs:
               id: generate
               uses: docker/bake-action/subaction/list-targets@v4
               with:
-                  target: default
+                  # Normally 'default'. This is for testing.
+                  target: gcc-version-15
                   workdir: util/dockerfiles
 
     docker-buildx-bake:
