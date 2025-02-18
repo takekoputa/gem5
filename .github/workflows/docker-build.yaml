@@ -27,7 +27,7 @@ jobs:
               uses: docker/bake-action/subaction/list-targets@v4
               with:
                   # Normally 'default'. This is for testing.
-                  target: gcc-version-15
+                  target: gcc-version-14
                   workdir: util/dockerfiles
 
     docker-buildx-bake:
