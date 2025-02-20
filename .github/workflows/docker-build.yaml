@@ -59,7 +59,7 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Build and Push
-              uses: docker/build-push-action@v6
+              uses: docker/bake-action@v6
               with:
                   source: '{{defaultContext}}:util/dockerfiles'
                   targets: ${{ matrix.target }}
