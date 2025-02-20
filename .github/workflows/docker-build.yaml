@@ -26,8 +26,7 @@ jobs:
               id: generate
               uses: docker/bake-action/subaction/list-targets@v4
               with:
-                  # Normally 'default'. This is for testing.
-                  target: gcc-version-14
+                  target: default
                   workdir: util/dockerfiles
 
     docker-buildx-bake:
@@ -59,23 +58,10 @@ jobs:
                   username: ${{ github.repository_owner }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Checkout Bake File
-              uses: actions/checkout@v4
-              with:
-                  sparse-checkout: |
-                      util/dockerfiles/docker-bake.hcl
-                  sparse-checkout-cone-mode: false
-
-            - name: Pull Image Cache
-              working-directory: util/dockerfiles
-              run: |
-                  docker pull $(docker buildx bake ${{ matrix.target }} --print \
-                  | jq -rc ".[\"target\"][\"${{ matrix.target }}\"][\"cache-from\"][0][\"ref\"]") || true
-
-
-            - name: Bake and Push
-              uses: docker/bake-action@v6
+            - name: Build and Push
+              uses: docker/build-push-action@v6
               with:
                   source: '{{defaultContext}}:util/dockerfiles'
                   targets: ${{ matrix.target }}
+                  provenance: true
                   push: true
