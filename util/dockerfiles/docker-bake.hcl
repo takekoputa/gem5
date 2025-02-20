@@ -53,6 +53,12 @@ target "common" {
   dockerfile = "Dockerfile"
 }
 
+group "base-images" {
+    targets = [
+        "ubuntu-24-04_all-dependencies",
+    ]
+}
+
 # A group of targets to be built. Note: groups can contain other groups.
 # Any target or group can be build individually. I.e.:
 # `docker buildx bake --push ubuntu-20-04_all-dependencies` or
