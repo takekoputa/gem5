@@ -43,10 +43,6 @@ namespace Aarch64
 
     template <typename DecoderFeatures>
     StaticInstPtr decodeFpAdvSIMD(ExtMachInst machInst);
-    StaticInstPtr decodeFp(ExtMachInst machInst);
-    template <typename DecoderFeatures>
-    StaticInstPtr decodeAdvSIMD(ExtMachInst machInst);
-    StaticInstPtr decodeAdvSIMDScalar(ExtMachInst machInst);
 
     StaticInstPtr decodeSveInt(ExtMachInst machInst);
     StaticInstPtr decodeSveFp(ExtMachInst machInst);
@@ -2507,60 +2503,6 @@ namespace Aarch64
 output decoder {{
 namespace Aarch64
 {
-    template <typename DecoderFeatures>
-    StaticInstPtr
-    decodeAdvSIMD(ExtMachInst machInst)
-    {
-        if (bits(machInst, 24) == 1) {
-            if (bits(machInst, 10) == 0) {
-                return decodeNeonIndexedElem<DecoderFeatures>(machInst);
-            } else if (bits(machInst, 23) == 1) {
-                return new Unknown64(machInst);
-            } else {
-                if (bits(machInst, 22, 19)) {
-                    return decodeNeonShiftByImm(machInst);
-                } else {
-                    return decodeNeonModImm(machInst);
-                }
-            }
-        } else if (bits(machInst, 21) == 1) {
-            if (bits(machInst, 10) == 1) {
-                return decodeNeon3Same<DecoderFeatures>(machInst);
-            } else if (bits(machInst, 11) == 0) {
-                return decodeNeon3Diff(machInst);
-            } else if (bits(machInst, 20, 17) == 0x0) {
-                return decodeNeon2RegMisc(machInst);
-            } else if (bits(machInst, 20, 17) == 0x4) {
-                return decodeCryptoAES(machInst);
-            } else if (bits(machInst, 20, 17) == 0x8) {
-                return decodeNeonAcrossLanes(machInst);
-            } else {
-                return new Unknown64(machInst);
-            }
-        } else if (bits(machInst, 15) == 1) {
-            return decodeNeon3RegExtension<DecoderFeatures>(machInst);
-        } else if (bits(machInst, 10) == 1) {
-            if (bits(machInst, 23, 22))
-                return new Unknown64(machInst);
-            return decodeNeonCopy(machInst);
-        } else if (bits(machInst, 29) == 1) {
-            return decodeNeonExt(machInst);
-        } else if (bits(machInst, 11) == 1) {
-            return decodeNeonZipUzpTrn(machInst);
-        } else if (bits(machInst, 23, 22) == 0x0) {
-            return decodeNeonTblTbx(machInst);
-        } else {
-            return new Unknown64(machInst);
-        }
-        return new FailUnimplemented("Unhandled Case3", machInst);
-    }
-}
-}};
-
-
-output decoder {{
-namespace Aarch64
-{
     StaticInstPtr
     decodeFpConvFixed(ExtMachInst machInst)
     {
@@ -3177,109 +3119,341 @@ namespace Aarch64
         }
         return new Unknown64(machInst);
     }
-
-    StaticInstPtr
-    // bit 30=0, 28:25=1111
-    decodeFp(ExtMachInst machInst)
-    {
-        if (bits(machInst, 24) == 1) {
-            return decodeFpDataProc(machInst);
-        } else if (bits(machInst, 21) == 0) {
-            return decodeFpConvFixed(machInst);
-        } else {
-            // 30=0, 28:24=11110, 21=1
-            switch (bits(machInst, 11, 10)) {
-              case 0x0:
-                if (bits(machInst, 12) == 1) {
-                    return decodeFpImmediate(machInst);
-                } else if (bits(machInst, 13) == 1) {
-                    return decodeFpCompare(machInst);
-                } else if (bits(machInst, 14) == 1) {
-                    return decodeFpDataProc1Source(machInst);
-                } else if (bits(machInst, 15) == 1) {
-                    return new Unknown64(machInst);
-                } else {
-                    return decodeFpConvFp(machInst);
-                }
-              case 0x1:
-                return decodeFpCondCompare(machInst);
-              case 0x2:
-                return decodeFpDataProc2Source(machInst);
-              case 0x3:
-                return decodeFpCondSel(machInst);
-              default:
-                GEM5_UNREACHABLE;
-            }
-        }
-        GEM5_UNREACHABLE;
-    }
 }
+}};
+
+output decoder {{
+    inline constexpr auto isCryptoAES = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','0','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','0','1', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isCrypto3SHA = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','0','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','0','X','X','X','0','0'>(); // op3
+
+    inline constexpr auto isCrypto2SHA = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','0','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','0','1', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDScCopy = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','0', // op1
+        '0','0','X','X', // op2
+        'X','X','X','0','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDSc3SameExtra = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','1','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDSc2RegMisc = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','0','0', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDSc2Pwise = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','1','0', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDSc3Diff = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','0','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDSc3Same = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDScShiftByImm = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '1','0', // op1
+        'X','X','X','X', // op2
+        'X','X','X','X','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDScIndexedElem = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','1','X','1', // op0
+        '1','1','1',
+        '1','X', // op1
+        'X','X','X','X', // op2
+        'X','X','X','X','X','X','X','X','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDTblLookup = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','0','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','0','X','X','X','0','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDPermute = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','0','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','0','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDExtract = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','1','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','0','X','X','X','X','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDCopy = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','0', // op1
+        '0','0','X','X', // op2
+        'X','X','X','0','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMD3RegExt = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','1','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMD2RegMisc = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','0','0', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMDAcrossLanes = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','1','0', // op2
+        '0','0','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isAdvSIMD3Diff = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','0','0'>(); // op3
+
+    inline constexpr auto isAdvSIMD3Same = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDModImm = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '1','0', // op1
+        '0','0','0','0', // op2
+        'X','X','X','X','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDShiftByImm = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '1','0', // op1
+        'X','X','X','X', // op2
+        'X','X','X','X','X','X','X','X','1'>(); // op3
+
+    inline constexpr auto isAdvSIMDIndexedElem = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        '0','X','X','0', // op0
+        '1','1','1',
+        '1','X', // op1
+        'X','X','X','X', // op2
+        'X','X','X','X','X','X','X','X','0'>(); // op3
+
+    inline constexpr auto isConvFloatPFixedP = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','0','X','X', // op2
+        'X','X','X','X','X','X','X','X','X'>(); // op3
+
+    inline constexpr auto isConvFloatPInt = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','0','0','0','0','0','0'>(); // op3
+
+    inline constexpr auto isFpDataProc1Source = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','1','0','0','0','0'>(); // op3
+
+    inline constexpr auto isFpCompare = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','1','0','0','0'>(); // op3
+
+    inline constexpr auto isFpImmediate = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','1','0','0'>(); // op3
+
+    inline constexpr auto isFpCondCompare = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','0','1'>(); // op3
+
+    inline constexpr auto isFpDataProc2Source = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','1','0'>(); // op3
+
+    inline constexpr auto isFpCondSel = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '0','X', // op1
+        'X','1','X','X', // op2
+        'X','X','X','X','X','X','X','1','1'>(); // op3
+
+    inline constexpr auto isFpDataProc = bitPatternMatcher<
+        MachInst,
+        31, 10,
+        'X','0','X','1', // op0
+        '1','1','1',
+        '1','X', // op1
+        'X','X','X','X', // op2
+        'X','X','X','X','X','X','X','X','X'>(); // op3
 }};
 
 output decoder {{
 namespace Aarch64
 {
-    StaticInstPtr
-    decodeAdvSIMDScalar(ExtMachInst machInst)
-    {
-        if (bits(machInst, 24) == 1) {
-            if (bits(machInst, 10) == 0) {
-                return decodeNeonScIndexedElem(machInst);
-            } else if (bits(machInst, 23) == 0) {
-                return decodeNeonScShiftByImm(machInst);
-            }
-        } else if (bits(machInst, 21) == 1) {
-            if (bits(machInst, 10) == 1) {
-                return decodeNeonSc3Same(machInst);
-            } else if (bits(machInst, 11) == 0) {
-                return decodeNeonSc3Diff(machInst);
-            } else if (bits(machInst, 20, 17) == 0x0) {
-                return decodeNeonSc2RegMisc(machInst);
-            } else if (bits(machInst, 20, 17) == 0x4) {
-                return decodeCryptoTwoRegSHA(machInst);
-            } else if (bits(machInst, 20, 17) == 0x8) {
-                return decodeNeonScPwise(machInst);
-            } else {
-                return new Unknown64(machInst);
-            }
-        } else if (bits(machInst, 15) && bits(machInst, 10) == 1) {
-            return decodeNeonSc3SameExtra(machInst);
-        } else if (bits(machInst, 23, 22) == 0 &&
-                   bits(machInst, 15) == 0) {
-            if (bits(machInst, 10) == 1) {
-                return decodeNeonScCopy(machInst);
-            } else {
-                return decodeCryptoThreeRegSHA(machInst);
-            }
-        } else {
-            return new Unknown64(machInst);
-        }
-        return new FailUnimplemented("Unhandled Case6", machInst);
-    }
-}
-}};
 
-output decoder {{
-namespace Aarch64
-{
     template <typename DecoderFeatures>
     StaticInstPtr
     decodeFpAdvSIMD(ExtMachInst machInst)
     {
+        if (isCryptoAES(machInst)) return decodeCryptoAES(machInst);
+        if (isCrypto3SHA(machInst)) return decodeCryptoThreeRegSHA(machInst);
+        if (isCrypto2SHA(machInst)) return decodeCryptoTwoRegSHA(machInst);
+        if (isAdvSIMDScCopy(machInst)) return decodeNeonScCopy(machInst);
+        if (isAdvSIMDSc3SameExtra(machInst)) return decodeNeonSc3SameExtra(machInst);
+        if (isAdvSIMDSc2RegMisc(machInst)) return decodeNeonSc2RegMisc(machInst);
+        if (isAdvSIMDSc2Pwise(machInst)) return decodeNeonScPwise(machInst);
+        if (isAdvSIMDSc3Diff(machInst)) return decodeNeonSc3Diff(machInst);
+        if (isAdvSIMDSc3Same(machInst)) return decodeNeonSc3Same(machInst);
+        if (isAdvSIMDScShiftByImm(machInst)) return decodeNeonScShiftByImm(machInst);
+        if (isAdvSIMDScIndexedElem(machInst)) return decodeNeonScIndexedElem(machInst);
+        if (isAdvSIMDTblLookup(machInst)) return decodeNeonTblTbx(machInst);
+        if (isAdvSIMDPermute(machInst)) return decodeNeonZipUzpTrn(machInst);
+        if (isAdvSIMDExtract(machInst)) return decodeNeonExt(machInst);
+        if (isAdvSIMDCopy(machInst)) return decodeNeonCopy(machInst);
+        if (isAdvSIMD3RegExt(machInst)) return decodeNeon3RegExtension<DecoderFeatures>(machInst);
+        if (isAdvSIMD2RegMisc(machInst)) return decodeNeon2RegMisc(machInst);
+        if (isAdvSIMDAcrossLanes(machInst)) return decodeNeonAcrossLanes(machInst);
+        if (isAdvSIMD3Diff(machInst)) return decodeNeon3Diff(machInst);
+        if (isAdvSIMD3Same(machInst)) return decodeNeon3Same<DecoderFeatures>(machInst);
+        if (isAdvSIMDModImm(machInst)) return decodeNeonModImm(machInst);
+        if (isAdvSIMDShiftByImm(machInst)) return decodeNeonShiftByImm(machInst);
+        if (isAdvSIMDIndexedElem(machInst)) return decodeNeonIndexedElem<DecoderFeatures>(machInst);
+        if (isConvFloatPFixedP(machInst)) return decodeFpConvFixed(machInst);
+        if (isConvFloatPInt(machInst)) return decodeFpConvFp(machInst);
+        if (isFpDataProc1Source(machInst)) return decodeFpDataProc1Source(machInst);
+        if (isFpCompare(machInst)) return decodeFpCompare(machInst);
+        if (isFpImmediate(machInst)) return decodeFpImmediate(machInst);
+        if (isFpCondCompare(machInst)) return decodeFpCondCompare(machInst);
+        if (isFpDataProc2Source(machInst)) return decodeFpDataProc2Source(machInst);
+        if (isFpCondSel(machInst)) return decodeFpCondSel(machInst);
+        if (isFpDataProc(machInst)) return decodeFpDataProc(machInst);
 
-        if (bits(machInst, 28) == 0) {
-            if (bits(machInst, 31) == 0) {
-                return decodeAdvSIMD<DecoderFeatures>(machInst);
-            } else {
-                return new Unknown64(machInst);
-            }
-        } else if (bits(machInst, 30) == 0) {
-            return decodeFp(machInst);
-        } else if (bits(machInst, 31) == 0) {
-            return decodeAdvSIMDScalar(machInst);
-        } else {
-            return new Unknown64(machInst);
-        }
+        return new Unknown64(machInst);
     }
 }
 }};
